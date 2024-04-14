@@ -68,8 +68,8 @@ class B2C extends DarajaClient
     {
         parent::__construct();
 
-        $this->initiatorName = config('daraja.initiator.name');
-        $this->securityCredential = DarajaHelper::setSecurityCredential(config('daraja.initiator.password'));
+        $this->initiatorName = config('daraja.initiator_name');
+        $this->securityCredential = DarajaHelper::setSecurityCredential(config('daraja.initiator_password'));
         $this->partyA = config('daraja.shortcode');
         $this->queueTimeOutURL = config('daraja.timeout_url');
         $this->resultURL = config('daraja.result_url');

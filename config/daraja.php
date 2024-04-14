@@ -28,6 +28,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Initiator Name
+    |--------------------------------------------------------------------------
+    |
+    | This value is the initiator name provided for your shortcode.
+    | The package needs this to make requests to the MPESA APIs.
+    |
+    */
+
+    'initiator_name' => env('INITIATOR_NAME', ''),
+
+    /*
+    |--------------------------------------------------------------------------
     | Initiator Password
     |--------------------------------------------------------------------------
     |
