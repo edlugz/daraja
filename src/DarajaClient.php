@@ -158,11 +158,11 @@ class DarajaClient
                 throw new DarajaRequestException($message, $e->getCode());
             }
 
-            throw new DarajaRequestException('Daraja APIs: '.$response->status, $e->getCode());
+            throw new DarajaRequestException('Daraja APIs: '.$response->errorMessage, $e->getCode());
         } catch (ClientException $e) {
             $response = json_decode($e->getResponse()->getBody()->getContents());
 
-            throw new DarajaRequestException('Daraja APIs: '.$response->status, $e->getCode());
+            throw new DarajaRequestException('Daraja APIs: '.$response->errorMessage, $e->getCode());
         } catch (GuzzleException $e) {
             throw new DarajaRequestException('Daraja APIs: '.$e->getMessage(), $e->getCode());
         }

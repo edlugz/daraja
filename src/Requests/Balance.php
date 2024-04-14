@@ -71,7 +71,7 @@ class Balance extends DarajaClient
         $this->partyA = config('daraja.shortcode');
         $this->queueTimeOutURL = config('daraja.timeout_url');
         $this->resultURL = config('daraja.result_url');
-        $this->commandId = 'SalaryPayment';
+        $this->commandId = 'AccountBalance';
     }
 
     /**
@@ -79,7 +79,7 @@ class Balance extends DarajaClient
      *
      * @return array
      */
-    protected function check(): array
+    public function check(): array
     {
         $parameters = [
             'Initiator'          => $this->initiatorName,

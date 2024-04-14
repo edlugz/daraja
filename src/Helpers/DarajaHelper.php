@@ -12,15 +12,15 @@ class DarajaHelper
     /**
      * Encrypt initiator password.
      *
-     * @param Request $request
+     * @param string $password
      *
      * @return string
      */
-    public static function setSecurityCredential(Request $request): string
+    public static function setSecurityCredential( string $password): string
     {
         $publicKey = File::get(__DIR__.'/cert/production.cer');
 
-        openssl_public_encrypt($request->input('initiator_password'), $output, $publicKey, OPENSSL_PKCS1_PADDING);
+        openssl_public_encrypt($password, $output, $publicKey, OPENSSL_PKCS1_PADDING);
 
         return base64_encode($output);
     }
