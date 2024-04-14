@@ -3,10 +3,9 @@
 namespace EdLugz\Daraja\Requests;
 
 use EdLugz\Daraja\DarajaClient;
+use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
 use EdLugz\Daraja\Models\MpesaBalance;
-use EdLugz\Daraja\Exceptions\DarajaRequestException;
-use Illuminate\Support\Str;
 
 class Balance extends DarajaClient
 {
@@ -77,44 +76,44 @@ class Balance extends DarajaClient
 
     /**
      * Send transaction details to Safaricom B2C API.
+     *
      * @return array
      */
     protected function check(): array
     {
-
         $parameters = [
-            'Initiator' => $this->initiatorName,
+            'Initiator'          => $this->initiatorName,
             'SecurityCredential' => $this->securityCredential,
-            'CommandID' => $this->commandId,
-            'PartyA' => $this->partyA,
-            'IdentifierType' => '4',
-            'Remarks' => 'Account balance',
-            'QueueTimeOutURL' => $this->queueTimeOutURL,
-            'ResultURL' => $this->resultURL,
+            'CommandID'          => $this->commandId,
+            'PartyA'             => $this->partyA,
+            'IdentifierType'     => '4',
+            'Remarks'            => 'Account balance',
+            'QueueTimeOutURL'    => $this->queueTimeOutURL,
+            'ResultURL'          => $this->resultURL,
         ];
 
         /** @var MpesaBalance $balance */
         $balance = MpesaBalance::create([
-            'json_request' => json_encode($parameters)
+            'json_request' => json_encode($parameters),
         ]);
 
         try {
             $response = $this->call($this->endPoint, ['json' => $parameters]);
             $balance->update(
                 [
-                    'json_response' => json_encode($response)
+                    'json_response' => json_encode($response),
                 ]
             );
         } catch (DarajaRequestException $e) {
             return [
-                'status' => $e->getCode(),
+                'status'  => $e->getCode(),
                 'message' => $e->getMessage(),
             ];
         }
 
         return [
             'success' => true,
-            'message' => 'Balance request sent out successfully.'
+            'message' => 'Balance request sent out successfully.',
         ];
     }
 }
