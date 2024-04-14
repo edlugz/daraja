@@ -3,10 +3,10 @@
 namespace EdLugz\Daraja\Requests;
 
 use EdLugz\Daraja\DarajaClient;
+use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
 use EdLugz\Daraja\Models\MpesaBalance;
 use EdLugz\Daraja\Models\MpesaTransaction;
-use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use Illuminate\Support\Str;
 
 class B2C extends DarajaClient
@@ -84,6 +84,7 @@ class B2C extends DarajaClient
      * @param string $amount
      * @param string $remarks
      * @param string $occasion
+     *
      * @return array
      */
     protected function pay(
@@ -92,48 +93,47 @@ class B2C extends DarajaClient
         string $amount,
         string $remarks,
         string $occasion = ''
-    ): array
-    {
-		//check balance before sending out transaction
+    ): array {
+        //check balance before sending out transaction
 
-		$balance = MpesaBalance::orderBy('id', 'desc')->first(['utility_account']);
+        $balance = MpesaBalance::orderBy('id', 'desc')->first(['utility_account']);
 
-		if($balance->utility_account <= $amount){
-			return [
-				'success' => false,
-				'message' => 'Insufficient balance.'
-			];
-		}
+        if ($balance->utility_account <= $amount) {
+            return [
+                'success' => false,
+                'message' => 'Insufficient balance.',
+            ];
+        }
 
         $originatorConversationID = (string) Str::ulid();
 
         $parameters = [
-			'OriginatorConversationID' => $originatorConversationID,
-            'InitiatorName' => $this->initiatorName,
-            'SecurityCredential' => $this->securityCredential,
-            'CommandID' => $this->commandId,
-            'Amount' => $amount,
-            'PartyA' => $this->partyA,
-            'PartyB' => $recipient,
-			'Remarks' => str_limit($remarks, 100, ''),
-            'QueueTimeOutURL' => $this->queueTimeOutURL,
-            'ResultURL' => $this->resultURL,
-            'Occasion' => $occasion,
+            'OriginatorConversationID' => $originatorConversationID,
+            'InitiatorName'            => $this->initiatorName,
+            'SecurityCredential'       => $this->securityCredential,
+            'CommandID'                => $this->commandId,
+            'Amount'                   => $amount,
+            'PartyA'                   => $this->partyA,
+            'PartyB'                   => $recipient,
+            'Remarks'                  => str_limit($remarks, 100, ''),
+            'QueueTimeOutURL'          => $this->queueTimeOutURL,
+            'ResultURL'                => $this->resultURL,
+            'Occasion'                 => $occasion,
         ];
 
         /** @var MpesaTransaction $transaction */
         $transaction = MpesaTransaction::create([
             'transaction_id' => $transactionId,
-            'mobile' => $recipient,
-            'amount' => $amount,
-            'json_request' => json_encode($parameters)
+            'mobile'         => $recipient,
+            'amount'         => $amount,
+            'json_request'   => json_encode($parameters),
         ]);
 
         try {
             $response = $this->call($this->endPoint, ['json' => $parameters]);
             $transaction->update(
                 [
-                    'json_response' => json_encode($response)
+                    'json_response' => json_encode($response),
                 ]
             );
         } catch (DarajaRequestException $e) {
@@ -145,7 +145,7 @@ class B2C extends DarajaClient
 
         return [
             'success' => true,
-            'message' => 'Transaction sent out successfully.'
+            'message' => 'Transaction sent out successfully.',
         ];
     }
 }

@@ -6,8 +6,8 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\MessageFormatter;
 use GuzzleHttp\Middleware;
 use Monolog\Handler\RotatingFileHandler;
-use Monolog\Logger;
 use Monolog\Level;
+use Monolog\Logger;
 
 class Log
 {
@@ -17,13 +17,13 @@ class Log
      * @var array
      */
     protected static $levels = [
-        'DEBUG' => Level::Debug,
-        'INFO' => Level::Info,
-        'NOTICE' => Level::Notice,
-        'WARNING' => Level::Warning,
-        'ERROR' => Level::Error,
-        'CRITICAL' => Level::Critical,
-        'ALERT' => Level::Alert,
+        'DEBUG'     => Level::Debug,
+        'INFO'      => Level::Info,
+        'NOTICE'    => Level::Notice,
+        'WARNING'   => Level::Warning,
+        'ERROR'     => Level::Error,
+        'CRITICAL'  => Level::Critical,
+        'ALERT'     => Level::Alert,
         'EMERGENCY' => Level::Emergency,
     ];
 
@@ -31,8 +31,10 @@ class Log
      * Set up the logging requirements for the Guzzle package.
      *
      * @param $options
-     * @return int
+     *
      * @throws \Exception
+     *
+     * @return int
      */
     public static function enable($options)
     {
@@ -43,7 +45,6 @@ class Log
             [
                 new RotatingFileHandler(storage_path('logs/daraja.log'), 30, $level),
             ]
-
         );
 
         $stack = HandlerStack::create();
@@ -62,8 +63,9 @@ class Log
     /**
      * Determine the log level specified in the configurations.
      *
-     * @return mixed
      * @throws \Exception
+     *
+     * @return mixed
      */
     protected static function getLogLevel()
     {

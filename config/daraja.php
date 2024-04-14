@@ -123,7 +123,7 @@ return [
 
     'logs' => [
         'enabled' => true,
-        'level' => 'DEBUG',
+        'level'   => 'DEBUG',
     ],
 
 ];
