@@ -1,0 +1,41 @@
+{
+    "name": "edlugz/daraja",
+    "description": "Laravel package for Mpesa Daraja",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Eddy Lugaye",
+            "email": "eddy.lugaye@gmail.com"
+        }
+    ],
+    "homepage": "https://github.com/edlugz/daraja",
+    "keywords": ["Laravel", "Daraja"],
+    "require": {
+        "illuminate/support": "~9",
+        "ext-openssl": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~9.0",
+        "orchestra/testbench": "~7"
+    },
+    "autoload": {
+        "psr-4": {
+            "EdLugz\\Daraja\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "EdLugz\\Daraja\\Tests\\": "tests"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "EdLugz\\Daraja\\DarajaServiceProvider"
+            ],
+            "aliases": {
+                "Daraja": "EdLugz\\Daraja\\Facades\\Daraja"
+            }
+        }
+    }
+}
