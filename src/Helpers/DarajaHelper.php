@@ -16,7 +16,7 @@ class DarajaHelper
      *
      * @return string
      */
-    public static function setSecurityCredential( string $password): string
+    public static function setSecurityCredential(string $password): string
     {
         $publicKey = File::get(__DIR__.'/cert/production.cer');
 
