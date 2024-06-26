@@ -5,7 +5,7 @@ namespace EdLugz\Daraja\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class MpesaBalance extends Model
+class MpesaFunding extends Model
 {
     use SoftDeletes;
 

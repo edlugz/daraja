@@ -5,21 +5,20 @@ namespace EdLugz\Daraja\Requests;
 use EdLugz\Daraja\DarajaClient;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
-use EdLugz\Daraja\Models\MpesaBalance;
 use EdLugz\Daraja\Models\MpesaTransaction;
 use Illuminate\Support\Str;
 
-class B2C extends DarajaClient
+class Reversal extends DarajaClient
 {
     /**
      * Safaricom APIs B2C endpoint.
      *
      * @var string
      */
-    protected string $endPoint = 'mpesa/b2c/v3/paymentrequest';
+    protected string $endPoint = 'mpesa/reversal/v1/request';
 
     /**
-     * Safaricom APIs B2C command id.
+     * Safaricom APIs Reversal command id.
      *
      * @var string
      */
@@ -40,13 +39,6 @@ class B2C extends DarajaClient
     protected string $securityCredential;
 
     /**
-     * Safaricom APIs B2C initiator short code.
-     *
-     * @var string
-     */
-    protected string $partyA;
-
-    /**
      * Safaricom APIs B2C queue timeout URI.
      *
      * @var string
@@ -60,8 +52,10 @@ class B2C extends DarajaClient
      */
     protected string $resultURL;
 
+
     /**
-     * Necessary initializations for B2C transactions from the config file.
+     * Necessary initializations for B2C transactions from the config file while
+     * also initialize parent constructor.
      */
     public function __construct()
     {
@@ -69,54 +63,47 @@ class B2C extends DarajaClient
 
         $this->initiatorName = config('daraja.initiator_name');
         $this->securityCredential = DarajaHelper::setSecurityCredential(config('daraja.initiator_password'));
-        $this->partyA = config('daraja.shortcode');
         $this->queueTimeOutURL = config('daraja.timeout_url');
-        $this->resultURL = config('daraja.mobile_result_url');
-        $this->commandId = 'SalaryPayment';
+        $this->resultURL = config('daraja.reversal_result_url');
+        $this->commandId = 'TransactionReversal';
     }
 
     /**
-     * Send transaction details to Safaricom B2C API.
+     * Send transaction details to Safaricom Reversal API.
      *
+     * @param string $transactionId
      * @param string $recipient
      * @param string $amount
-     * @param array $customFieldsKeyValue
      *
-     * @return MpesaTransaction
+     * @return array
      */
-    protected function pay(
+    protected function request(
+        string $transactionId,
         string $recipient,
-        string $amount,
-		array $customFieldsKeyValue = []
-    ): MpesaTransaction {
-        //check balance before sending out transaction
-
-        $balance = MpesaBalance::orderBy('id', 'desc')->first(['utility_account']);
-
-        if ($balance->utility_account > $amount) 
-
-        $originatorConversationID = (string) Str::ulid();
+        string $amount
+    ): array {
 
         $parameters = [
-            'OriginatorConversationID' => $originatorConversationID,
-            'InitiatorName'            => $this->initiatorName,
+            'Initiator'                => $this->initiatorName,
             'SecurityCredential'       => $this->securityCredential,
             'CommandID'                => $this->commandId,
+            'TransactionID'            => $transactionId,
             'Amount'                   => $amount,
-            'PartyA'                   => $this->partyA,
-            'PartyB'                   => $recipient,
-            'Remarks'                  => 'send to mobile',
-            'QueueTimeOutURL'          => $this->queueTimeOutURL,
+            'ReceiverParty'            => $recipient,
+            'RecieverIdentifierType'   => 11,
             'ResultURL'                => $this->resultURL,
-            'Occasion'                 => 'send to mobile',
+            'QueueTimeOutURL'          => $this->queueTimeOutURL,
+            'Remarks'                  => 'Reversal',
+            'Occasion'                 => 'Reversal'
         ];
 
         /** @var MpesaTransaction $transaction */
-        $transaction = MpesaTransaction::create(array_merge([
+        $transaction = MpesaTransaction::create([
+            'transaction_id' => $transactionId,
             'mobile'         => $recipient,
             'amount'         => $amount,
             'json_request'   => json_encode($parameters),
-        ], $customFieldsKeyValue));
+        ]);
 
         try {
             $response = $this->call($this->endPoint, ['json' => $parameters]);
@@ -126,15 +113,15 @@ class B2C extends DarajaClient
                 ]
             );
         } catch (DarajaRequestException $e) {
-            $response = [
+            return [
                 'status'         => $e->getCode(),
-                'responseCode'   => $e->getCode(),
                 'message'        => $e->getMessage(),
             ];
-
-            $response = (object) $response;
         }
 
-        return $transaction;
+        return [
+            'success' => true,
+            'message' => 'Transaction sent out successfully.',
+        ];
     }
 }

@@ -6,20 +6,20 @@ use EdLugz\Daraja\DarajaClient;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
 use EdLugz\Daraja\Models\MpesaBalance;
-use EdLugz\Daraja\Models\MpesaTransaction;
+use EdLugz\Daraja\Models\MpesaFunding;
 use Illuminate\Support\Str;
 
-class B2C extends DarajaClient
+class C2B extends DarajaClient
 {
     /**
-     * Safaricom APIs B2C endpoint.
+     * Safaricom APIs C2B endpoint.
      *
      * @var string
      */
-    protected string $endPoint = 'mpesa/b2c/v3/paymentrequest';
+    protected string $endPoint = 'mpesa/stkpush/v1/processrequest';
 
     /**
-     * Safaricom APIs B2C command id.
+     * Safaricom APIs C2B command id.
      *
      * @var string
      */
@@ -33,42 +33,57 @@ class B2C extends DarajaClient
     protected string $initiatorName;
 
     /**
-     * Safaricom APIs B2C encrypted initiator short code password.
+     * Safaricom APIs stk password.
+     *
+     * @var string
+     */
+    protected string $password;
+
+    /**
+     * current timestamp.
+     *
+     * @var string
+     */
+    protected string $timestamp;
+
+    /**
+     * Safaricom APIs C2B encrypted initiator short code password.
      *
      * @var string
      */
     protected string $securityCredential;
 
     /**
-     * Safaricom APIs B2C initiator short code.
+     * Safaricom APIs C2B initiator short code.
      *
      * @var string
      */
     protected string $partyA;
 
     /**
-     * Safaricom APIs B2C queue timeout URI.
+     * Safaricom APIs C2B queue timeout URI.
      *
      * @var string
      */
     protected string $queueTimeOutURL;
 
     /**
-     * Where the Safaricom B2C API will post the result of the transaction.
+     * Where the Safaricom C2B API will post the result of the transaction.
      *
      * @var string
      */
     protected string $resultURL;
 
     /**
-     * Necessary initializations for B2C transactions from the config file.
+     * Necessary initializations for C2B transactions from the config file.
      */
     public function __construct()
     {
         parent::__construct();
 
+        $this->timestamp = date('YmdHis');
         $this->initiatorName = config('daraja.initiator_name');
-        $this->securityCredential = DarajaHelper::setSecurityCredential(config('daraja.initiator_password'));
+        $this->password = DarajaHelper::setPassword(config('daraja.shortcode'), config('daraja.passkey'), $this->timestamp);
         $this->partyA = config('daraja.shortcode');
         $this->queueTimeOutURL = config('daraja.timeout_url');
         $this->resultURL = config('daraja.mobile_result_url');
@@ -76,19 +91,21 @@ class B2C extends DarajaClient
     }
 
     /**
-     * Send transaction details to Safaricom B2C API.
+     * Send transaction details to Safaricom C2B API.
      *
      * @param string $recipient
      * @param string $amount
+     * @param string $accountReference
      * @param array $customFieldsKeyValue
      *
-     * @return MpesaTransaction
+     * @return MpesaFunding
      */
-    protected function pay(
+    protected function send(
         string $recipient,
         string $amount,
+        string $accountReference,
 		array $customFieldsKeyValue = []
-    ): MpesaTransaction {
+    ): MpesaFunding {
         //check balance before sending out transaction
 
         $balance = MpesaBalance::orderBy('id', 'desc')->first(['utility_account']);
@@ -98,21 +115,21 @@ class B2C extends DarajaClient
         $originatorConversationID = (string) Str::ulid();
 
         $parameters = [
-            'OriginatorConversationID' => $originatorConversationID,
-            'InitiatorName'            => $this->initiatorName,
-            'SecurityCredential'       => $this->securityCredential,
-            'CommandID'                => $this->commandId,
-            'Amount'                   => $amount,
-            'PartyA'                   => $this->partyA,
-            'PartyB'                   => $recipient,
-            'Remarks'                  => 'send to mobile',
-            'QueueTimeOutURL'          => $this->queueTimeOutURL,
-            'ResultURL'                => $this->resultURL,
-            'Occasion'                 => 'send to mobile',
+            'BusinessShortCode' => $this->partyA,
+            'Password'          => $this->password,
+            'Timestamp'         => $this->timestamp,
+            'TransactionType'   => $this->commandId,
+            'Amount'            => $amount,
+            'PartyA'            => $recipient,
+            'PartyB'            => $this->partyA,
+            'PhoneNumber'       => $recipient,
+            'CallBackURL'       => $this->resultURL,
+            'AccountReference'  => $accountReference,
+            'TransactionDesc'   => 'top up',
         ];
 
-        /** @var MpesaTransaction $transaction */
-        $transaction = MpesaTransaction::create(array_merge([
+        /** @var MpesaFunding $transaction */
+        $transaction = MpesaFunding::create(array_merge([
             'mobile'         => $recipient,
             'amount'         => $amount,
             'json_request'   => json_encode($parameters),

@@ -16,13 +16,27 @@ class DarajaHelper
      *
      * @return string
      */
-    public static function setSecurityCredential(string $password): string
+    public static function setSecurityCredential( string $password): string
     {
         $publicKey = File::get(__DIR__.'/cert/production.cer');
 
         openssl_public_encrypt($password, $output, $publicKey, OPENSSL_PKCS1_PADDING);
 
         return base64_encode($output);
+    }
+
+    /**
+     * 
+     * Encrypt stk password
+     * @param string $shortcode
+     * @param string $passkey
+     * @param string $timestamp
+     * 
+     * @return string
+     */
+    public static function setPassword(string $shortcode, string $passkey, string $timestamp) : string
+    {
+        return base64_encode($shortcode.$passkey.$timestamp);
     }
 
     /**

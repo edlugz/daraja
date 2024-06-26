@@ -95,7 +95,12 @@ return [
     |
     */
 
-    'result_url' => env('RESULT_URL', ''),
+    'balance_result_url' => env('DARAJA_BALANCE_RESULT_URL', ''),
+    'mobile_result_url' => env('DARAJA_MOBILE_RESULT_URL', ''),
+    'till_result_url' => env('DARAJA_MOBILE_RESULT_URL', ''),
+    'paybill_result_url' => env('DARAJA_PAYBILL_RESULT_URL', ''),
+    'reversal_result_url' => env('DARAJA_REVERSAL_RESULT_URL', ''),
+    'transaction_status_result_url' => env('DARAJA_TRANSACTION_STATUS_RESULT_URL', ''),
 
     /*
     |--------------------------------------------------------------------------
@@ -119,7 +124,7 @@ return [
     |
     */
 
-    'balance_url' => env('BALANCE_URL', ''),
+    'balance_url' => env('DARAJA_BALANCE_URL', ''),
 
     /*
     |--------------------------------------------------------------------------

@@ -22,6 +22,10 @@ class DarajaServiceProvider extends ServiceProvider
             self::CONFIG_PATH => config_path('daraja.php'),
         ], 'config');
 
+        $this->publishes([
+            __DIR__.'/../database/migrations/' => database_path('migrations'),
+        ], 'migrations');
+
         // Publishing is only necessary when using the CLI.
         if ($this->app->runningInConsole()) {
             $this->bootForConsole();

@@ -17,7 +17,7 @@ class Balance extends DarajaClient
     protected string $endPoint = 'mpesa/accountbalance/v1/query';
 
     /**
-     * Safaricom APIs B2C command id.
+     * Safaricom APIs Balance command id.
      *
      * @var string
      */
@@ -31,35 +31,35 @@ class Balance extends DarajaClient
     protected string $initiatorName;
 
     /**
-     * Safaricom APIs B2C encrypted initiator short code password.
+     * Safaricom APIs Balance encrypted initiator short code password.
      *
      * @var string
      */
     protected string $securityCredential;
 
     /**
-     * Safaricom APIs B2C initiator short code.
+     * Safaricom APIs Balance initiator short code.
      *
      * @var string
      */
     protected string $partyA;
 
     /**
-     * Safaricom APIs B2C queue timeout URI.
+     * Safaricom APIs Balance queue timeout URI.
      *
      * @var string
      */
     protected string $queueTimeOutURL;
 
     /**
-     * Where the Safaricom B2C API will post the result of the transaction.
+     * Where the Safaricom Balance API will post the result of the transaction.
      *
      * @var string
      */
     protected string $resultURL;
 
     /**
-     * Necessary initializations for B2C transactions from the config file while
+     * Necessary initializations for Balance transactions from the config file while
      * also initialize parent constructor.
      */
     public function __construct()
@@ -70,16 +70,16 @@ class Balance extends DarajaClient
         $this->securityCredential = DarajaHelper::setSecurityCredential(config('daraja.initiator.password'));
         $this->partyA = config('daraja.shortcode');
         $this->queueTimeOutURL = config('daraja.timeout_url');
-        $this->resultURL = config('daraja.result_url');
+        $this->resultURL = config('daraja.balance_result_url');
         $this->commandId = 'AccountBalance';
     }
 
     /**
-     * Send transaction details to Safaricom B2C API.
+     * Send transaction details to Safaricom Balance API.
      *
      * @return array
      */
-    public function check(): array
+    public function check(): void
     {
         $parameters = [
             'Initiator'          => $this->initiatorName,
@@ -93,27 +93,20 @@ class Balance extends DarajaClient
         ];
 
         /** @var MpesaBalance $balance */
-        $balance = MpesaBalance::create([
-            'json_request' => json_encode($parameters),
-        ]);
+        //$balance = MpesaBalance::create([
+            //'json_request' => json_encode($parameters),
+        //]);
 
         try {
             $response = $this->call($this->endPoint, ['json' => $parameters]);
-            $balance->update(
-                [
-                    'json_response' => json_encode($response),
-                ]
-            );
+            //$balance->update(
+                //[
+                    //'json_response' => json_encode($response),
+               // ]
+           // );
         } catch (DarajaRequestException $e) {
-            return [
-                'status'  => $e->getCode(),
-                'message' => $e->getMessage(),
-            ];
+
         }
 
-        return [
-            'success' => true,
-            'message' => 'Balance request sent out successfully.',
-        ];
     }
 }
