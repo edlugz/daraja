@@ -94,19 +94,17 @@ class Balance extends DarajaClient
 
         /** @var MpesaBalance $balance */
         //$balance = MpesaBalance::create([
-            //'json_request' => json_encode($parameters),
+        //'json_request' => json_encode($parameters),
         //]);
 
         try {
             $response = $this->call($this->endPoint, ['json' => $parameters]);
             //$balance->update(
-                //[
-                    //'json_response' => json_encode($response),
-               // ]
-           // );
+            //[
+            //'json_response' => json_encode($response),
+            // ]
+            // );
         } catch (DarajaRequestException $e) {
-
         }
-
     }
 }
