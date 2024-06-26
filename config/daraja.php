@@ -95,6 +95,7 @@ return [
     |
     */
 
+    'stk_result_url'                => env('DARAJA_STK_RESULT_URL', ''),
     'balance_result_url'            => env('DARAJA_BALANCE_RESULT_URL', ''),
     'mobile_result_url'             => env('DARAJA_MOBILE_RESULT_URL', ''),
     'till_result_url'               => env('DARAJA_MOBILE_RESULT_URL', ''),
