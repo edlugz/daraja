@@ -6,7 +6,6 @@ use EdLugz\Daraja\DarajaClient;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
 use EdLugz\Daraja\Models\MpesaTransaction;
-use Illuminate\Support\Str;
 
 class Reversal extends DarajaClient
 {
@@ -52,7 +51,6 @@ class Reversal extends DarajaClient
      */
     protected string $resultURL;
 
-
     /**
      * Necessary initializations for B2C transactions from the config file while
      * also initialize parent constructor.
@@ -82,7 +80,6 @@ class Reversal extends DarajaClient
         string $recipient,
         string $amount
     ): array {
-
         $parameters = [
             'Initiator'                => $this->initiatorName,
             'SecurityCredential'       => $this->securityCredential,
@@ -94,7 +91,7 @@ class Reversal extends DarajaClient
             'ResultURL'                => $this->resultURL,
             'QueueTimeOutURL'          => $this->queueTimeOutURL,
             'Remarks'                  => 'Reversal',
-            'Occasion'                 => 'Reversal'
+            'Occasion'                 => 'Reversal',
         ];
 
         /** @var MpesaTransaction $transaction */

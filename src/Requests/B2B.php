@@ -23,7 +23,8 @@ class B2B extends DarajaClient
      *
      * @var string
      */
-    protected string $tillCommandId, $paybillCommandId;
+    protected string $tillCommandId;
+    protected string $paybillCommandId;
 
     /**
      * Safaricom APIs initiator short code username.
@@ -58,7 +59,8 @@ class B2B extends DarajaClient
      *
      * @var string
      */
-    protected string $tillResultURL, $paybillResultURL;
+    protected string $tillResultURL;
+    protected string $paybillResultURL;
 
     /**
      * Necessary initializations for B2B transactions from the config file while
@@ -84,7 +86,7 @@ class B2B extends DarajaClient
      * @param string $recipient
      * @param string $amount
      * @param string $requester
-     * @param array $customFieldKeyValue
+     * @param array  $customFieldKeyValue
      *
      * @return MpesaTransaction
      */
@@ -98,9 +100,9 @@ class B2B extends DarajaClient
 
         $balance = MpesaBalance::orderBy('id', 'desc')->first(['utility_account']);
 
-        if ($balance->working_account > $amount) 
-
-        $originatorConversationID = (string) Str::ulid();
+        if ($balance->working_account > $amount) {
+            $originatorConversationID = (string) Str::ulid();
+        }
 
         $parameters = [
             'OriginatorConversationID' => $originatorConversationID,
@@ -133,7 +135,6 @@ class B2B extends DarajaClient
                 ]
             );
         } catch (DarajaRequestException $e) {
-            
         }
 
         return $transaction;
@@ -146,7 +147,7 @@ class B2B extends DarajaClient
      * @param string $requester
      * @param string $amount
      * @param string $accountReference
-     * @param array $customFieldKeyValue
+     * @param array  $customFieldKeyValue
      *
      * @return MpesaTransaction
      */
@@ -161,9 +162,9 @@ class B2B extends DarajaClient
 
         $balance = MpesaBalance::orderBy('id', 'desc')->first(['utility_account']);
 
-        if ($balance->working_account > $amount)
-
-        $originatorConversationID = (string) Str::ulid();
+        if ($balance->working_account > $amount) {
+            $originatorConversationID = (string) Str::ulid();
+        }
 
         $parameters = [
             'OriginatorConversationID' => $originatorConversationID,
@@ -197,7 +198,6 @@ class B2B extends DarajaClient
                 ]
             );
         } catch (DarajaRequestException $e) {
-            
         }
 
         return $transaction;

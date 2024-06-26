@@ -80,22 +80,22 @@ class B2C extends DarajaClient
      *
      * @param string $recipient
      * @param string $amount
-     * @param array $customFieldsKeyValue
+     * @param array  $customFieldsKeyValue
      *
      * @return MpesaTransaction
      */
     protected function pay(
         string $recipient,
         string $amount,
-		array $customFieldsKeyValue = []
+        array $customFieldsKeyValue = []
     ): MpesaTransaction {
         //check balance before sending out transaction
 
         $balance = MpesaBalance::orderBy('id', 'desc')->first(['utility_account']);
 
-        if ($balance->utility_account > $amount) 
-
-        $originatorConversationID = (string) Str::ulid();
+        if ($balance->utility_account > $amount) {
+            $originatorConversationID = (string) Str::ulid();
+        }
 
         $parameters = [
             'OriginatorConversationID' => $originatorConversationID,

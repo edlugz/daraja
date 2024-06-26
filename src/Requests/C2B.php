@@ -96,7 +96,7 @@ class C2B extends DarajaClient
      * @param string $recipient
      * @param string $amount
      * @param string $accountReference
-     * @param array $customFieldsKeyValue
+     * @param array  $customFieldsKeyValue
      *
      * @return MpesaFunding
      */
@@ -104,15 +104,15 @@ class C2B extends DarajaClient
         string $recipient,
         string $amount,
         string $accountReference,
-		array $customFieldsKeyValue = []
+        array $customFieldsKeyValue = []
     ): MpesaFunding {
         //check balance before sending out transaction
 
         $balance = MpesaBalance::orderBy('id', 'desc')->first(['utility_account']);
 
-        if ($balance->utility_account > $amount) 
-
-        $originatorConversationID = (string) Str::ulid();
+        if ($balance->utility_account > $amount) {
+            $originatorConversationID = (string) Str::ulid();
+        }
 
         $parameters = [
             'BusinessShortCode' => $this->partyA,

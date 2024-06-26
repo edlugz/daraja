@@ -2,8 +2,8 @@
 
 namespace EdLugz\Daraja;
 
-use EdLugz\Daraja\Requests\B2C;
 use EdLugz\Daraja\Requests\B2B;
+use EdLugz\Daraja\Requests\B2C;
 use EdLugz\Daraja\Requests\Balance;
 
 class Daraja
