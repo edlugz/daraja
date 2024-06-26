@@ -66,8 +66,8 @@ class Balance extends DarajaClient
     {
         parent::__construct();
 
-        $this->initiatorName = config('daraja.initiator.name');
-        $this->securityCredential = DarajaHelper::setSecurityCredential(config('daraja.initiator.password'));
+        $this->initiatorName = config('daraja.initiator_name');
+        $this->securityCredential = DarajaHelper::setSecurityCredential(config('daraja.initiator_password'));
         $this->partyA = config('daraja.shortcode');
         $this->queueTimeOutURL = config('daraja.timeout_url');
         $this->resultURL = config('daraja.balance_result_url');
@@ -92,19 +92,10 @@ class Balance extends DarajaClient
             'ResultURL'          => $this->resultURL,
         ];
 
-        /** @var MpesaBalance $balance */
-        //$balance = MpesaBalance::create([
-        //'json_request' => json_encode($parameters),
-        //]);
-
         try {
             $response = $this->call($this->endPoint, ['json' => $parameters]);
-            //$balance->update(
-            //[
-            //'json_response' => json_encode($response),
-            // ]
-            // );
         } catch (DarajaRequestException $e) {
-        }
+        
+		}
     }
 }
