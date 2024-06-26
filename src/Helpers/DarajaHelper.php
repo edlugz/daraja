@@ -48,49 +48,31 @@ class DarajaHelper
      */
     public static function balance(Request $request): MpesaBalance
     {
-        $balance = MpesaBalance::where('transaction_id', $request->input('transactionId'))->first();
+        $accountBalances = $request['Result']['ResultParameters']['ResultParameter'][1]['Value'];
 
-        $balance->update(
-            [
-                'json_result' => json_encode($request->all()),
-            ]
-        );
+        $accountsString = $accountBalances;
 
-        if ($request->input('status') == '000000') {
-            $transactionReceipt = $request->input('receiptNumber');
+        // Explode the string into an array of account information
+        $accountsArray = explode('&', $accountsString);
 
-            $registeredName = 'N/A';
+        // Define arrays to store account details
+        $accountBalances = [];
 
-            if ($request->input('resultParameters')) {
-                $params = $request->input('resultParameters');
-                $keyValueParams = [];
-                foreach ($params as $param) {
-                    $keyValueParams[$param['id']] = $param['value'];
-                }
-
-                $transactionReceipt = $keyValueParams['transactionRef'];
-                $registeredName = $keyValueParams['accountName'];
-            }
-
-            $data = [
-                'request_status'      => $request->input('status'),
-                'request_message'     => $request->input('message'),
-                'receipt_number'      => $request->input('receiptNumber'),
-                'transaction_receipt' => $transactionReceipt,
-                'registered_name'     => $registeredName,
-                'timestamp'           => $request->input('timestamp'),
-            ];
-        } else {
-            $data = [
-                'request_status'  => $request->input('status'),
-                'request_message' => $request->input('message'),
-                'timestamp'       => $request->input('timestamp'),
-            ];
+        // Loop through each account information
+        foreach ($accountsArray as $account) {
+            // Explode each account information into an array of details
+            $accountDetails = explode('|', $account);
+            //get balances
+            $accountBalances[] = $accountDetails[2];
         }
 
-        $balance->update($data);
-
-        return $balance;
+       return MpesaBalance::create([
+            'short_code' => env('SHORTCODE'),
+            'utility_account' =>  $accountBalances[1],
+            'working_account' =>  $accountBalances[0],
+            'uncleared_balance' =>  $accountBalances[2],
+            'json_result' => json_encode($request->all())
+        ]);
     }
 
     /**
