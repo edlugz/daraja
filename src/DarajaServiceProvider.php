@@ -23,7 +23,7 @@ class DarajaServiceProvider extends ServiceProvider
         ], 'config');
 
         $this->publishes([
-            __DIR__.'/../database/migrations/' => database_path('migrations'),
+            __DIR__.'/database/migrations/' => database_path('migrations'),
         ], 'migrations');
 
         // Publishing is only necessary when using the CLI.
