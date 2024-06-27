@@ -84,46 +84,49 @@ class DarajaHelper
      *
      * @return MpesaTransaction
      */
-    public static function b2c(Request $request): MpesaTransaction
+    public static function mobile(Request $request): MpesaTransaction
     {
-        $transaction = MpesaTransaction::where('transaction_id', $request->input('transactionId'))->first();
+        $transaction = MpesaTransaction::where('originator_conversation_id', $request['Result']['OriginatorConversationID'])->first();
 
-        $transaction->update(
-            [
-                'json_result' => json_encode($request->all()),
-            ]
-        );
+        // Accessing different elements of the array and assigning them to separate variables
+        $resultType = $request['Result']['ResultType'];
+        $resultCode = $request['Result']['ResultCode'];
+        $resultDesc = $request['Result']['ResultDesc'];
+        $originatorConversationID = $request['Result']['OriginatorConversationID'];
+        $conversationID = $request['Result']['ConversationID'];
+        $transactionID = $request['Result']['TransactionID'];
 
-        if ($request->input('status') == '000000') {
-            $transactionReceipt = $request->input('receiptNumber');
+        $TransactionCompletedDateTime = $ReceiverPartyPublicName = '0';
 
-            if ($request->input('resultParameters')) {
-                $params = $request->input('resultParameters');
-                $keyValueParams = [];
-                foreach ($params as $param) {
-                    $keyValueParams[$param['id']] = $param['value'];
+        // Accessing ResultParameters
+        if($resultDesc == 'The service request is processed successfully.'){
+            $resultParameters = $request['Result']['ResultParameters']['ResultParameter'];
+
+            // Loop through ResultParameters and assign them to separate variables
+            if($resultParameters){
+                foreach ($resultParameters as $parameter) {
+                    ${$parameter['Key']} = $parameter['Value'];
                 }
-
-                $transactionReceipt = $keyValueParams['transactionRef'];
             }
-
-            $data = [
-                'request_status'        => $request->input('status'),
-                'request_message'       => $request->input('message'),
-                'receipt_number'        => $request->input('receiptNumber'),
-                'transaction_reference' => $transactionReceipt,
-                'timestamp'             => $request->input('timestamp'),
-            ];
-        } else {
-            $data = [
-                'request_status'  => $request->input('status'),
-                'request_message' => $request->input('message'),
-                'timestamp'       => $request->input('timestamp'),
-            ];
         }
 
-        $transaction->update($data);
+        if($transaction){
+
+            $transaction->update(
+                [
+                    'result_type' => $resultType,
+                    'result_code' => $resultCode,
+                    'result_description' => $resultDesc,
+                    'transaction_id' => $transactionID,
+                    'transaction_completed_date_time' => $TransactionCompletedDateTime == '0' ? date('YmdHis') : date('YmdHis', strtotime($TransactionCompletedDateTime)),
+                    'receiver_party_public_name' => $ReceiverPartyPublicName  == '0' ? '0' : $ReceiverPartyPublicName,
+                    'json_result' => json_encode($request->all()),
+                ]
+            );
+
+        }
 
         return $transaction;
     }
+
 }
