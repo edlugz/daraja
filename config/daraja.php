@@ -49,6 +49,17 @@ return [
     */
 
     'initiator_password' => env('INITIATOR_PASSWORD', ''),
+ /*
+    |--------------------------------------------------------------------------
+    | Pass Key
+    |--------------------------------------------------------------------------
+    |
+    | This value is the initiator password provided for your shortcode.
+    | The package needs this to make requests to the MPESA APIs.
+    |
+    */
+
+    'pass_key' => env('PASS_KEY', ''),
 
     /*
     |--------------------------------------------------------------------------
@@ -95,8 +106,8 @@ return [
     |
     */
 
-    'stk_result_url'                => env('DARAJA_STK_RESULT_URL', ''),
     'balance_result_url'            => env('DARAJA_BALANCE_RESULT_URL', ''),
+    'stk_result_url'                => env('DARAJA_STK_RESULT_URL', ''),
     'mobile_result_url'             => env('DARAJA_MOBILE_RESULT_URL', ''),
     'till_result_url'               => env('DARAJA_MOBILE_RESULT_URL', ''),
     'paybill_result_url'            => env('DARAJA_PAYBILL_RESULT_URL', ''),
