@@ -106,14 +106,7 @@ class C2B extends DarajaClient
         string $accountReference,
         array $customFieldsKeyValue = []
     ): MpesaFunding {
-        //check balance before sending out transaction
-
-        $balance = MpesaBalance::orderBy('id', 'desc')->first(['utility_account']);
-
-        if ($balance->utility_account > $amount) {
-            $originatorConversationID = (string) Str::ulid();
-        }
-
+        
         $parameters = [
             'BusinessShortCode' => $this->partyA,
             'Password'          => $this->password,
