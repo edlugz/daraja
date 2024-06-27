@@ -83,11 +83,11 @@ class C2B extends DarajaClient
 
         $this->timestamp = date('YmdHis');
         $this->initiatorName = config('daraja.initiator_name');
-        $this->password = DarajaHelper::setPassword(config('daraja.shortcode'), config('daraja.passkey'), $this->timestamp);
+        $this->password = DarajaHelper::setPassword(config('daraja.shortcode'), config('daraja.pass_key'), $this->timestamp);
         $this->partyA = config('daraja.shortcode');
         $this->queueTimeOutURL = config('daraja.timeout_url');
         $this->resultURL = config('daraja.mobile_result_url');
-        $this->commandId = 'SalaryPayment';
+        $this->commandId = 'CustomerPayBillOnline';
     }
 
     /**
@@ -123,13 +123,17 @@ class C2B extends DarajaClient
 
         /** @var MpesaFunding $transaction */
         $transaction = MpesaFunding::create(array_merge([
-            'mobile'         => $recipient,
-            'amount'         => $amount,
+            'mobile_no' => $recipient,
+            'amount' => $amount,
+            'bill_reference' => $accountReference,
             'json_request'   => json_encode($parameters),
         ], $customFieldsKeyValue));
 
         try {
             $response = $this->call($this->endPoint, ['json' => $parameters]);
+
+            Log::info($respone);
+
             $transaction->update(
                 [
                     'json_response' => json_encode($response),
@@ -137,13 +141,28 @@ class C2B extends DarajaClient
             );
         } catch (DarajaRequestException $e) {
             $response = [
-                'status'         => $e->getCode(),
-                'responseCode'   => $e->getCode(),
-                'message'        => $e->getMessage(),
+                'ResponseCode' => $e->getCode(),
+                'ResponseDescription' => $e->getMessage(),
             ];
 
             $response = (object) $response;
         }
+
+        $data = [
+            'response_code'          => $response->ResponseCode,
+            'response_description'   => $response->ResponseDescription
+        ];
+
+        if ($response->ResponseCode == '0') {
+            $data = array_merge($data, [
+                'merchant_request_id'    => $response->MerchantRequestID,
+                'checkout_request_id'    => $response->CheckoutRequestID,
+                'response_code'          => $response->ResponseCode,
+                'response_description'   => $response->ResponseDescription
+            ]);
+        }
+
+        $transaction->update($data);
 
         return $transaction;
     }
