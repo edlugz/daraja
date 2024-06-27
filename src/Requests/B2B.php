@@ -8,6 +8,7 @@ use EdLugz\Daraja\Helpers\DarajaHelper;
 use EdLugz\Daraja\Models\MpesaBalance;
 use EdLugz\Daraja\Models\MpesaTransaction;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class B2B extends DarajaClient
 {
@@ -23,8 +24,7 @@ class B2B extends DarajaClient
      *
      * @var string
      */
-    protected string $tillCommandId;
-    protected string $paybillCommandId;
+    protected string $tillCommandId, $paybillCommandId;
 
     /**
      * Safaricom APIs initiator short code username.
@@ -59,8 +59,7 @@ class B2B extends DarajaClient
      *
      * @var string
      */
-    protected string $tillResultURL;
-    protected string $paybillResultURL;
+    protected string $tillResultURL, $paybillResultURL;
 
     /**
      * Necessary initializations for B2B transactions from the config file while
@@ -97,12 +96,7 @@ class B2B extends DarajaClient
         array $customFieldsKeyValue
     ): MpesaTransaction {
         //check balance before sending out transaction
-
-        $balance = MpesaBalance::orderBy('id', 'desc')->first(['utility_account']);
-
-        if ($balance->working_account > $amount) {
-            $originatorConversationID = (string) Str::ulid();
-        }
+        $originatorConversationID = (string) Str::ulid();
 
         $parameters = [
             'OriginatorConversationID' => $originatorConversationID,
@@ -122,20 +116,63 @@ class B2B extends DarajaClient
 
         /** @var MpesaTransaction $transaction */
         $transaction = MpesaTransaction::create(array_merge([
-            'mobile'         => $recipient,
-            'amount'         => $amount,
+            'payment_reference' => $originatorConversationID,
+            'short_code' => $this->partyA,
+            'transaction_type' => 'BuyGoods',
+            'account_number' => $recipient,
+            'requester_mobile' => $requester,
+            'amount' => $amount,
             'json_request'   => json_encode($parameters),
         ], $customFieldsKeyValue));
 
         try {
             $response = $this->call($this->endPoint, ['json' => $parameters]);
+
+            $array = (array) $response;
+
+            Log::info($array);
+
             $transaction->update(
                 [
                     'json_response' => json_encode($response),
                 ]
             );
+
         } catch (DarajaRequestException $e) {
+            $response = [
+                'ResponseCode'   => $e->getCode(),
+                'ResponseDescription' => $e->getMessage(),
+            ];
+
+            $response = (object) $response;
         }
+
+        if(array_key_exists('errorCode', $array)){
+            $response = [
+                'ResponseCode'   => $response->errorCode,
+                'ResponseDescription' => $response->errorMessage,
+            ];
+
+            $response = (object) $response;
+        }
+
+        $data = [
+            'response_code'          => $response->ResponseCode,
+            'response_description'   => $response->ResponseDescription
+        ];
+
+        if (array_key_exists('ResponseCode', $array)) {
+            if ($response->ResponseCode == '0') {
+                $data = array_merge($data, [
+                    'conversation_id'               => $response->ConversationID,
+                    'originator_conversation_id'    => $response->OriginatorConversationID,
+                    'response_code'                 => $response->ResponseCode,
+                    'response_description'          => $response->ResponseDescription
+                ]);
+            }
+        }
+
+        $transaction->update($data);
 
         return $transaction;
     }
@@ -159,12 +196,7 @@ class B2B extends DarajaClient
         array $customFieldsKeyValue
     ): MpesaTransaction {
         //check balance before sending out transaction
-
-        $balance = MpesaBalance::orderBy('id', 'desc')->first(['utility_account']);
-
-        if ($balance->working_account > $amount) {
-            $originatorConversationID = (string) Str::ulid();
-        }
+        $originatorConversationID = (string) Str::ulid();
 
         $parameters = [
             'OriginatorConversationID' => $originatorConversationID,
@@ -185,20 +217,63 @@ class B2B extends DarajaClient
 
         /** @var MpesaTransaction $transaction */
         $transaction = MpesaTransaction::create(array_merge([
-            'mobile'         => $recipient,
-            'amount'         => $amount,
+            'payment_reference' => $originatorConversationID,
+            'short_code' => $this->partyA,
+            'transaction_type' => 'PayBill',
+            'account_number' => $recipient,
+            'requester_mobile' => $requester,
+            'bill_reference' => $accountReference,
+            'amount' => $amount,
             'json_request'   => json_encode($parameters),
         ], $customFieldsKeyValue));
 
         try {
             $response = $this->call($this->endPoint, ['json' => $parameters]);
+
+            $array = (array) $response;
+
+            Log::info($array);
+
             $transaction->update(
                 [
                     'json_response' => json_encode($response),
                 ]
             );
         } catch (DarajaRequestException $e) {
+            $response = [
+                'ResponseCode'   => $e->getCode(),
+                'ResponseDescription' => $e->getMessage(),
+            ];
+
+            $response = (object) $response;
         }
+
+        if(array_key_exists('errorCode', $array)){
+            $response = [
+                'ResponseCode'   => $response->errorCode,
+                'ResponseDescription' => $response->errorMessage,
+            ];
+
+            $response = (object) $response;
+        }
+
+        $data = [
+            'response_code'          => $response->ResponseCode,
+            'response_description'   => $response->ResponseDescription
+        ];
+
+        if (array_key_exists('ResponseCode', $array)) {
+            if ($response->ResponseCode == '0') {
+                $data = array_merge($data, [
+                    'conversation_id'               => $response->ConversationID,
+                    'originator_conversation_id'    => $response->OriginatorConversationID,
+                    'response_code'                 => $response->ResponseCode,
+                    'response_description'          => $response->ResponseDescription
+                ]);
+            }
+        }
+
+        $transaction->update($data);
 
         return $transaction;
     }
