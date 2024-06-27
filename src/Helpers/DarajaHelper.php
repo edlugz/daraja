@@ -66,13 +66,15 @@ class DarajaHelper
             $accountBalances[] = $accountDetails[2];
         }
 
-       return MpesaBalance::create([
+       $balance =  MpesaBalance::create([
             'short_code' => env('SHORTCODE'),
             'utility_account' =>  $accountBalances[1],
             'working_account' =>  $accountBalances[0],
             'uncleared_balance' =>  $accountBalances[2],
             'json_result' => json_encode($request->all())
         ]);
+		
+		return $balance;
     }
 
     /**
