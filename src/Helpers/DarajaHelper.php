@@ -66,15 +66,15 @@ class DarajaHelper
             $accountBalances[] = $accountDetails[2];
         }
 
-       $balance =  MpesaBalance::create([
-            'short_code' => env('SHORTCODE'),
-            'utility_account' =>  $accountBalances[1],
-            'working_account' =>  $accountBalances[0],
-            'uncleared_balance' =>  $accountBalances[2],
-            'json_result' => json_encode($request->all())
+        $balance = MpesaBalance::create([
+            'short_code'        => env('SHORTCODE'),
+            'utility_account'   => $accountBalances[1],
+            'working_account'   => $accountBalances[0],
+            'uncleared_balance' => $accountBalances[2],
+            'json_result'       => json_encode($request->all()),
         ]);
-		
-		return $balance;
+
+        return $balance;
     }
 
     /**
@@ -99,34 +99,31 @@ class DarajaHelper
         $TransactionCompletedDateTime = $ReceiverPartyPublicName = '0';
 
         // Accessing ResultParameters
-        if($resultDesc == 'The service request is processed successfully.'){
+        if ($resultDesc == 'The service request is processed successfully.') {
             $resultParameters = $request['Result']['ResultParameters']['ResultParameter'];
 
             // Loop through ResultParameters and assign them to separate variables
-            if($resultParameters){
+            if ($resultParameters) {
                 foreach ($resultParameters as $parameter) {
                     ${$parameter['Key']} = $parameter['Value'];
                 }
             }
         }
 
-        if($transaction){
-
+        if ($transaction) {
             $transaction->update(
                 [
-                    'result_type' => $resultType,
-                    'result_code' => $resultCode,
-                    'result_description' => $resultDesc,
-                    'transaction_id' => $transactionID,
+                    'result_type'                     => $resultType,
+                    'result_code'                     => $resultCode,
+                    'result_description'              => $resultDesc,
+                    'transaction_id'                  => $transactionID,
                     'transaction_completed_date_time' => $TransactionCompletedDateTime == '0' ? date('YmdHis') : date('YmdHis', strtotime($TransactionCompletedDateTime)),
-                    'receiver_party_public_name' => $ReceiverPartyPublicName  == '0' ? '0' : $ReceiverPartyPublicName,
-                    'json_result' => json_encode($request->all()),
+                    'receiver_party_public_name'      => $ReceiverPartyPublicName == '0' ? '0' : $ReceiverPartyPublicName,
+                    'json_result'                     => json_encode($request->all()),
                 ]
             );
-
         }
 
         return $transaction;
     }
-
 }

@@ -35,7 +35,7 @@ return new class() extends Migration {
             $table->json('json_response')->nullable();
             $table->json('json_result')->nullable();
             $table->timestamps();
-			$table->softDeletes();
+            $table->softDeletes();
         });
     }
 
