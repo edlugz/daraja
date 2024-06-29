@@ -91,11 +91,11 @@ class Reversal extends DarajaClient
         /** @var MpesaTransaction $transaction */
         $transaction = MpesaTransaction::create(array_merge([
             'payment_reference' => $originatorConversationID,
-            'short_code' => $this->partyA,
-            'transaction_type' => 'Reversal',
-            'account_number' => '0',
-            'amount' => $amount,
-            'json_request'   => json_encode($parameters),
+            'short_code'        => $this->partyA,
+            'transaction_type'  => 'Reversal',
+            'account_number'    => '0',
+            'amount'            => $amount,
+            'json_request'      => json_encode($parameters),
         ], $customFieldsKeyValue));
 
         try {
@@ -110,19 +110,18 @@ class Reversal extends DarajaClient
                     'json_response' => json_encode($response),
                 ]
             );
-
         } catch (DarajaRequestException $e) {
             $response = [
-                'ResponseCode'   => $e->getCode(),
+                'ResponseCode'        => $e->getCode(),
                 'ResponseDescription' => $e->getMessage(),
             ];
 
             $response = (object) $response;
         }
 
-        if(array_key_exists('errorCode', $array)){
+        if (array_key_exists('errorCode', $array)) {
             $response = [
-                'ResponseCode'   => $response->errorCode,
+                'ResponseCode'        => $response->errorCode,
                 'ResponseDescription' => $response->errorMessage,
             ];
 
@@ -131,7 +130,7 @@ class Reversal extends DarajaClient
 
         $data = [
             'response_code'          => $response->ResponseCode,
-            'response_description'   => $response->ResponseDescription
+            'response_description'   => $response->ResponseDescription,
         ];
 
         if (array_key_exists('ResponseCode', $array)) {
@@ -140,7 +139,7 @@ class Reversal extends DarajaClient
                     'conversation_id'               => $response->ConversationID,
                     'originator_conversation_id'    => $response->OriginatorConversationID,
                     'response_code'                 => $response->ResponseCode,
-                    'response_description'          => $response->ResponseDescription
+                    'response_description'          => $response->ResponseDescription,
                 ]);
             }
         }

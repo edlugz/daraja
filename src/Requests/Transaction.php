@@ -61,13 +61,13 @@ class Transaction extends DarajaClient
      *
      * @param string $shortcode
      * @param string $paymentId
-     * @return MpesaTransaction
      *
+     * @return MpesaTransaction
      */
     public function status(
         string $shortcode,
         string $paymentId
-    ) : MpesaTransaction {
+    ): MpesaTransaction {
         //check shortcode for credentials
         $api = ApiCredential::where('short_code', $shortcode)->first();
 
@@ -82,17 +82,17 @@ class Transaction extends DarajaClient
         }
 
         $parameters = [
-            'Initiator' => $api->initiator_name,
-            'SecurityCredential' => DarajaHelper::setSecurityCredential(Crypter::decrypt($api->initiator_password)),
-            'CommandID' =>  $this->commandId,
-            'TransactionID' =>  '',
+            'Initiator'                => $api->initiator_name,
+            'SecurityCredential'       => DarajaHelper::setSecurityCredential(Crypter::decrypt($api->initiator_password)),
+            'CommandID'                => $this->commandId,
+            'TransactionID'            => '',
             'OriginatorConversationID' => $check->originator_conversation_id,
-            'PartyA' => $shortcode,
-            'IdentifierType' => '4',
-            'ResultURL' => $resultUrl,
-            'QueueTimeOutURL' => $this->queueTimeOutURL,
-            'Remarks' => 'OK',
-            'Occasion' => 'OK'
+            'PartyA'                   => $shortcode,
+            'IdentifierType'           => '4',
+            'ResultURL'                => $resultUrl,
+            'QueueTimeOutURL'          => $this->queueTimeOutURL,
+            'Remarks'                  => 'OK',
+            'Occasion'                 => 'OK',
         ];
 
         /** @var MpesaTransaction $transaction */
