@@ -5,9 +5,11 @@ namespace EdLugz\Daraja\Requests;
 use EdLugz\Daraja\DarajaClient;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
+use EdLugz\Daraja\Models\ApiCredential;
+use EdLugz\Daraja\Models\MpesaBalance;
 use EdLugz\Daraja\Models\MpesaTransaction;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class B2C extends DarajaClient
 {
@@ -24,27 +26,6 @@ class B2C extends DarajaClient
      * @var string
      */
     protected string $commandId;
-
-    /**
-     * Safaricom APIs initiator short code username.
-     *
-     * @var string
-     */
-    protected string $initiatorName;
-
-    /**
-     * Safaricom APIs B2C encrypted initiator short code password.
-     *
-     * @var string
-     */
-    protected string $securityCredential;
-
-    /**
-     * Safaricom APIs B2C initiator short code.
-     *
-     * @var string
-     */
-    protected string $partyA;
 
     /**
      * Safaricom APIs B2C queue timeout URI.
@@ -67,9 +48,6 @@ class B2C extends DarajaClient
     {
         parent::__construct();
 
-        $this->initiatorName = config('daraja.initiator_name');
-        $this->securityCredential = DarajaHelper::setSecurityCredential(config('daraja.initiator_password'));
-        $this->partyA = config('daraja.shortcode');
         $this->queueTimeOutURL = config('daraja.timeout_url');
         $this->resultURL = config('daraja.mobile_result_url');
         $this->commandId = 'SalaryPayment';
@@ -78,6 +56,7 @@ class B2C extends DarajaClient
     /**
      * Send transaction details to Safaricom B2C API.
      *
+     * @param string $shortcode
      * @param string $recipient
      * @param string $amount
      * @param array  $customFieldsKeyValue
@@ -85,20 +64,24 @@ class B2C extends DarajaClient
      * @return MpesaTransaction
      */
     public function pay(
+        string $shortcode,
         string $recipient,
         string $amount,
         array $customFieldsKeyValue = []
     ): MpesaTransaction {
+        //check shortcode for credentials
+        $api = ApiCredential::where('short_code', $shortcode)->first();
+
         //check balance before sending out transaction
         $originatorConversationID = (string) Str::ulid();
 
         $parameters = [
             'OriginatorConversationID' => $originatorConversationID,
-            'InitiatorName'            => $this->initiatorName,
-            'SecurityCredential'       => $this->securityCredential,
+            'InitiatorName'            => $api->initiator_name,
+            'SecurityCredential'       => DarajaHelper::setSecurityCredential(Crypter::decrypt($api->initiator_password)),
             'CommandID'                => $this->commandId,
             'Amount'                   => $amount,
-            'PartyA'                   => $this->partyA,
+            'PartyA'                   => $shortcode,
             'PartyB'                   => $recipient,
             'Remarks'                  => 'send to mobile',
             'QueueTimeOutURL'          => $this->queueTimeOutURL,
@@ -109,11 +92,11 @@ class B2C extends DarajaClient
         /** @var MpesaTransaction $transaction */
         $transaction = MpesaTransaction::create(array_merge([
             'payment_reference' => $originatorConversationID,
-            'short_code'        => $this->partyA,
-            'transaction_type'  => 'SendMoney',
-            'account_number'    => $recipient,
-            'amount'            => $amount,
-            'json_request'      => json_encode($parameters),
+            'short_code' => $this->partyA,
+            'transaction_type' => 'SendMoney',
+            'account_number' => $recipient,
+            'amount' => $amount,
+            'json_request'   => json_encode($parameters),
         ], $customFieldsKeyValue));
 
         try {
@@ -129,17 +112,18 @@ class B2C extends DarajaClient
                 ]
             );
         } catch (DarajaRequestException $e) {
+
             $response = [
-                'ResponseCode'        => $e->getCode(),
+                'ResponseCode'   => $e->getCode(),
                 'ResponseDescription' => $e->getMessage(),
             ];
 
             $response = (object) $response;
         }
 
-        if (array_key_exists('errorCode', $array)) {
+        if(array_key_exists('errorCode', $array)){
             $response = [
-                'ResponseCode'        => $response->errorCode,
+                'ResponseCode'   => $response->errorCode,
                 'ResponseDescription' => $response->errorMessage,
             ];
 
@@ -148,7 +132,7 @@ class B2C extends DarajaClient
 
         $data = [
             'response_code'          => $response->ResponseCode,
-            'response_description'   => $response->ResponseDescription,
+            'response_description'   => $response->ResponseDescription
         ];
 
         if (array_key_exists('ResponseCode', $array)) {
@@ -157,7 +141,7 @@ class B2C extends DarajaClient
                     'conversation_id'               => $response->ConversationID,
                     'originator_conversation_id'    => $response->OriginatorConversationID,
                     'response_code'                 => $response->ResponseCode,
-                    'response_description'          => $response->ResponseDescription,
+                    'response_description'          => $response->ResponseDescription
                 ]);
             }
         }

@@ -5,7 +5,10 @@ namespace EdLugz\Daraja\Requests;
 use EdLugz\Daraja\DarajaClient;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
+use EdLugz\Daraja\Models\ApiCredential;
 use EdLugz\Daraja\Models\MpesaTransaction;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class Reversal extends DarajaClient
 {
@@ -22,20 +25,6 @@ class Reversal extends DarajaClient
      * @var string
      */
     protected string $commandId;
-
-    /**
-     * Safaricom APIs initiator short code username.
-     *
-     * @var string
-     */
-    protected string $initiatorName;
-
-    /**
-     * Safaricom APIs B2C encrypted initiator short code password.
-     *
-     * @var string
-     */
-    protected string $securityCredential;
 
     /**
      * Safaricom APIs B2C queue timeout URI.
@@ -59,8 +48,6 @@ class Reversal extends DarajaClient
     {
         parent::__construct();
 
-        $this->initiatorName = config('daraja.initiator_name');
-        $this->securityCredential = DarajaHelper::setSecurityCredential(config('daraja.initiator_password'));
         $this->queueTimeOutURL = config('daraja.timeout_url');
         $this->resultURL = config('daraja.reversal_result_url');
         $this->commandId = 'TransactionReversal';
@@ -69,24 +56,31 @@ class Reversal extends DarajaClient
     /**
      * Send transaction details to Safaricom Reversal API.
      *
+     * @param string $shortcode
      * @param string $transactionId
      * @param string $recipient
      * @param string $amount
      *
      * @return array
      */
-    protected function request(
+    public function request(
+        string $shortcode,
         string $transactionId,
-        string $recipient,
-        string $amount
-    ): array {
+        string $amount,
+        array $customFieldsKeyValue = []
+    ): MpesaTransaction {
+        //check shortcode for credentials
+        $api = ApiCredential::where('short_code', $shortcode)->first();
+
+        $originatorConversationID = (string) Str::ulid();
+
         $parameters = [
-            'Initiator'                => $this->initiatorName,
-            'SecurityCredential'       => $this->securityCredential,
+            'Initiator'                => $api->initiator_name,
+            'SecurityCredential'       => DarajaHelper::setSecurityCredential(Crypter::decrypt($api->initiator_password)),
             'CommandID'                => $this->commandId,
             'TransactionID'            => $transactionId,
             'Amount'                   => $amount,
-            'ReceiverParty'            => $recipient,
+            'ReceiverParty'            => $shortcode,
             'RecieverIdentifierType'   => 11,
             'ResultURL'                => $this->resultURL,
             'QueueTimeOutURL'          => $this->queueTimeOutURL,
@@ -95,30 +89,64 @@ class Reversal extends DarajaClient
         ];
 
         /** @var MpesaTransaction $transaction */
-        $transaction = MpesaTransaction::create([
-            'transaction_id' => $transactionId,
-            'mobile'         => $recipient,
-            'amount'         => $amount,
+        $transaction = MpesaTransaction::create(array_merge([
+            'payment_reference' => $originatorConversationID,
+            'short_code' => $this->partyA,
+            'transaction_type' => 'Reversal',
+            'account_number' => '0',
+            'amount' => $amount,
             'json_request'   => json_encode($parameters),
-        ]);
+        ], $customFieldsKeyValue));
 
         try {
             $response = $this->call($this->endPoint, ['json' => $parameters]);
+
+            $array = (array) $response;
+
+            Log::info($array);
+
             $transaction->update(
                 [
                     'json_response' => json_encode($response),
                 ]
             );
+
         } catch (DarajaRequestException $e) {
-            return [
-                'status'         => $e->getCode(),
-                'message'        => $e->getMessage(),
+            $response = [
+                'ResponseCode'   => $e->getCode(),
+                'ResponseDescription' => $e->getMessage(),
             ];
+
+            $response = (object) $response;
         }
 
-        return [
-            'success' => true,
-            'message' => 'Transaction sent out successfully.',
+        if(array_key_exists('errorCode', $array)){
+            $response = [
+                'ResponseCode'   => $response->errorCode,
+                'ResponseDescription' => $response->errorMessage,
+            ];
+
+            $response = (object) $response;
+        }
+
+        $data = [
+            'response_code'          => $response->ResponseCode,
+            'response_description'   => $response->ResponseDescription
         ];
+
+        if (array_key_exists('ResponseCode', $array)) {
+            if ($response->ResponseCode == '0') {
+                $data = array_merge($data, [
+                    'conversation_id'               => $response->ConversationID,
+                    'originator_conversation_id'    => $response->OriginatorConversationID,
+                    'response_code'                 => $response->ResponseCode,
+                    'response_description'          => $response->ResponseDescription
+                ]);
+            }
+        }
+
+        $transaction->update($data);
+
+        return $transaction;
     }
 }

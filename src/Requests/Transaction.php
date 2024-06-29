@@ -5,6 +5,7 @@ namespace EdLugz\Daraja\Requests;
 use EdLugz\Daraja\DarajaClient;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
+use EdLugz\Daraja\Models\ApiCredential;
 use EdLugz\Daraja\Models\MpesaTransaction;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
@@ -24,27 +25,6 @@ class Transaction extends DarajaClient
      * @var string
      */
     protected string $commandId;
-
-    /**
-     * Safaricom APIs initiator short code username.
-     *
-     * @var string
-     */
-    protected string $initiatorName;
-
-    /**
-     * Safaricom APIs C2B encrypted initiator short code password.
-     *
-     * @var string
-     */
-    protected string $securityCredential;
-
-    /**
-     * Safaricom APIs C2B initiator short code.
-     *
-     * @var string
-     */
-    protected string $partyA;
 
     /**
      * Safaricom APIs C2B queue timeout URI.
@@ -68,9 +48,6 @@ class Transaction extends DarajaClient
         parent::__construct();
 
         $this->timestamp = date('YmdHis');
-        $this->initiatorName = config('daraja.initiator_name');
-        $this->securityCredential = DarajaHelper::setSecurityCredential(config('daraja.initiator_password'));
-        $this->partyA = config('daraja.shortcode');
         $this->queueTimeOutURL = config('daraja.timeout_url');
         $this->mobileResultURL = config('daraja.transaction_query_mobile_result_url');
         $this->tillResultURL = config('daraja.transaction_query_till_result_url');
@@ -81,13 +58,17 @@ class Transaction extends DarajaClient
     /**
      * Send transaction details to Safaricom C2B API.
      *
+     * @param string $shortcode
      * @param string $paymentId
+     * @return MpesaTransaction
      *
-     * @return MpesaFunding
      */
     public function status(
+        string $shortcode,
         string $paymentId
     ) : MpesaTransaction {
+        //check shortcode for credentials
+        $api = ApiCredential::where('short_code', $shortcode)->first();
 
         $check = MpesaTransaction::where('payment_id', $paymentId)->first();
 
@@ -100,12 +81,12 @@ class Transaction extends DarajaClient
         }
 
         $parameters = [
-            'Initiator' => $this->initiatorName,
-            'SecurityCredential' => $this->securityCredential,
+            'Initiator' => $api->initiator_name,
+            'SecurityCredential' => DarajaHelper::setSecurityCredential(Crypter::decrypt($api->initiator_password)),
             'CommandID' =>  $this->commandId,
             'TransactionID' =>  '',
             'OriginatorConversationID' => $check->originator_conversation_id,
-            'PartyA' => $this->partyA,
+            'PartyA' => $shortcode,
             'IdentifierType' => '4',
             'ResultURL' => $resultUrl,
             'QueueTimeOutURL' => $this->queueTimeOutURL,

@@ -5,9 +5,11 @@ namespace EdLugz\Daraja\Requests;
 use EdLugz\Daraja\DarajaClient;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
+use EdLugz\Daraja\Models\ApiCredential;
+use EdLugz\Daraja\Models\MpesaBalance;
 use EdLugz\Daraja\Models\MpesaTransaction;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class B2B extends DarajaClient
 {
@@ -23,29 +25,7 @@ class B2B extends DarajaClient
      *
      * @var string
      */
-    protected string $tillCommandId;
-    protected string $paybillCommandId;
-
-    /**
-     * Safaricom APIs initiator short code username.
-     *
-     * @var string
-     */
-    protected string $initiatorName;
-
-    /**
-     * Safaricom APIs B2B encrypted initiator short code password.
-     *
-     * @var string
-     */
-    protected string $securityCredential;
-
-    /**
-     * Safaricom APIs B2B initiator short code.
-     *
-     * @var string
-     */
-    protected string $partyA;
+    protected string $tillCommandId, $paybillCommandId;
 
     /**
      * Safaricom APIs queue timeout URI.
@@ -59,8 +39,7 @@ class B2B extends DarajaClient
      *
      * @var string
      */
-    protected string $tillResultURL;
-    protected string $paybillResultURL;
+    protected string $tillResultURL, $paybillResultURL;
 
     /**
      * Necessary initializations for B2B transactions from the config file while
@@ -70,9 +49,6 @@ class B2B extends DarajaClient
     {
         parent::__construct();
 
-        $this->initiatorName = config('daraja.initiator_name');
-        $this->securityCredential = DarajaHelper::setSecurityCredential(config('daraja.initiator_password'));
-        $this->partyA = config('daraja.shortcode');
         $this->queueTimeOutURL = config('daraja.timeout_url');
         $this->tillResultURL = config('daraja.till_result_url');
         $this->paybillResultURL = config('daraja.paybill_result_url');
@@ -83,6 +59,7 @@ class B2B extends DarajaClient
     /**
      * Send transaction details to Safaricom B2B API.
      *
+     * @param string $shortcode
      * @param string $recipient
      * @param string $amount
      * @param string $requester
@@ -91,23 +68,27 @@ class B2B extends DarajaClient
      * @return MpesaTransaction
      */
     protected function till(
+        string $shortcode,
         string $recipient,
         string $requester,
         string $amount,
         array $customFieldsKeyValue
     ): MpesaTransaction {
+        //check shortcode for credentials
+        $api = ApiCredential::where('short_code', $shortcode)->first();
+
         //check balance before sending out transaction
         $originatorConversationID = (string) Str::ulid();
 
         $parameters = [
             'OriginatorConversationID' => $originatorConversationID,
-            'Initiator'                => $this->initiatorName,
-            'SecurityCredential'       => $this->securityCredential,
+            'Initiator'                => $api->initiator_name,
+            'SecurityCredential'       => DarajaHelper::setSecurityCredential(Crypter::decrypt($api->initiator_password)),
             'CommandID'                => $this->tillCommandId,
             'SenderIdentifierType'     => 4,
             'RecieverIdentifierType'   => 2,
             'Amount'                   => $amount,
-            'PartyA'                   => $this->partyA,
+            'PartyA'                   => $shortcode,
             'PartyB'                   => $recipient,
             'Requester'                => $requester,
             'Remarks'                  => 'till payment',
@@ -118,12 +99,12 @@ class B2B extends DarajaClient
         /** @var MpesaTransaction $transaction */
         $transaction = MpesaTransaction::create(array_merge([
             'payment_reference' => $originatorConversationID,
-            'short_code'        => $this->partyA,
-            'transaction_type'  => 'BuyGoods',
-            'account_number'    => $recipient,
-            'requester_mobile'  => $requester,
-            'amount'            => $amount,
-            'json_request'      => json_encode($parameters),
+            'short_code' => $this->partyA,
+            'transaction_type' => 'BuyGoods',
+            'account_number' => $recipient,
+            'requester_mobile' => $requester,
+            'amount' => $amount,
+            'json_request'   => json_encode($parameters),
         ], $customFieldsKeyValue));
 
         try {
@@ -138,18 +119,19 @@ class B2B extends DarajaClient
                     'json_response' => json_encode($response),
                 ]
             );
+
         } catch (DarajaRequestException $e) {
             $response = [
-                'ResponseCode'        => $e->getCode(),
+                'ResponseCode'   => $e->getCode(),
                 'ResponseDescription' => $e->getMessage(),
             ];
 
             $response = (object) $response;
         }
 
-        if (array_key_exists('errorCode', $array)) {
+        if(array_key_exists('errorCode', $array)){
             $response = [
-                'ResponseCode'        => $response->errorCode,
+                'ResponseCode'   => $response->errorCode,
                 'ResponseDescription' => $response->errorMessage,
             ];
 
@@ -158,7 +140,7 @@ class B2B extends DarajaClient
 
         $data = [
             'response_code'          => $response->ResponseCode,
-            'response_description'   => $response->ResponseDescription,
+            'response_description'   => $response->ResponseDescription
         ];
 
         if (array_key_exists('ResponseCode', $array)) {
@@ -167,7 +149,7 @@ class B2B extends DarajaClient
                     'conversation_id'               => $response->ConversationID,
                     'originator_conversation_id'    => $response->OriginatorConversationID,
                     'response_code'                 => $response->ResponseCode,
-                    'response_description'          => $response->ResponseDescription,
+                    'response_description'          => $response->ResponseDescription
                 ]);
             }
         }
@@ -180,6 +162,7 @@ class B2B extends DarajaClient
     /**
      * Send transaction details to Safaricom B2B API fro paybill.
      *
+     * @param string $shortcode
      * @param string $recipient
      * @param string $requester
      * @param string $amount
@@ -189,25 +172,29 @@ class B2B extends DarajaClient
      * @return MpesaTransaction
      */
     protected function paybill(
+        string $shortcode,
         string $recipient,
         string $requester,
         string $amount,
         string $accountReference,
         array $customFieldsKeyValue
     ): MpesaTransaction {
+        //check shortcode for credentials
+        $api = ApiCredential::where('short_code', $shortcode)->first();
+
         //check balance before sending out transaction
         $originatorConversationID = (string) Str::ulid();
 
         $parameters = [
             'OriginatorConversationID' => $originatorConversationID,
-            'Initiator'                => $this->initiatorName,
-            'SecurityCredential'       => $this->securityCredential,
+            'Initiator'                => $api->initiator_name,
+            'SecurityCredential'       => DarajaHelper::setSecurityCredential(Crypter::decrypt($api->initiator_password)),
             'CommandID'                => $this->tillCommandId,
             'SenderIdentifierType'     => 4,
             'RecieverIdentifierType'   => 4,
             'Amount'                   => $amount,
             'AccountReference'         => $accountReference,
-            'PartyA'                   => $this->partyA,
+            'PartyA'                   => $shortcode,
             'PartyB'                   => $recipient,
             'Requester'                => $requester,
             'Remarks'                  => 'paybill payment',
@@ -218,13 +205,13 @@ class B2B extends DarajaClient
         /** @var MpesaTransaction $transaction */
         $transaction = MpesaTransaction::create(array_merge([
             'payment_reference' => $originatorConversationID,
-            'short_code'        => $this->partyA,
-            'transaction_type'  => 'PayBill',
-            'account_number'    => $recipient,
-            'requester_mobile'  => $requester,
-            'bill_reference'    => $accountReference,
-            'amount'            => $amount,
-            'json_request'      => json_encode($parameters),
+            'short_code' => $this->partyA,
+            'transaction_type' => 'PayBill',
+            'account_number' => $recipient,
+            'requester_mobile' => $requester,
+            'bill_reference' => $accountReference,
+            'amount' => $amount,
+            'json_request'   => json_encode($parameters),
         ], $customFieldsKeyValue));
 
         try {
@@ -241,16 +228,16 @@ class B2B extends DarajaClient
             );
         } catch (DarajaRequestException $e) {
             $response = [
-                'ResponseCode'        => $e->getCode(),
+                'ResponseCode'   => $e->getCode(),
                 'ResponseDescription' => $e->getMessage(),
             ];
 
             $response = (object) $response;
         }
 
-        if (array_key_exists('errorCode', $array)) {
+        if(array_key_exists('errorCode', $array)){
             $response = [
-                'ResponseCode'        => $response->errorCode,
+                'ResponseCode'   => $response->errorCode,
                 'ResponseDescription' => $response->errorMessage,
             ];
 
@@ -259,7 +246,7 @@ class B2B extends DarajaClient
 
         $data = [
             'response_code'          => $response->ResponseCode,
-            'response_description'   => $response->ResponseDescription,
+            'response_description'   => $response->ResponseDescription
         ];
 
         if (array_key_exists('ResponseCode', $array)) {
@@ -268,7 +255,7 @@ class B2B extends DarajaClient
                     'conversation_id'               => $response->ConversationID,
                     'originator_conversation_id'    => $response->OriginatorConversationID,
                     'response_code'                 => $response->ResponseCode,
-                    'response_description'          => $response->ResponseDescription,
+                    'response_description'          => $response->ResponseDescription
                 ]);
             }
         }
