@@ -5,7 +5,6 @@ namespace EdLugz\Daraja\Requests;
 use EdLugz\Daraja\DarajaClient;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
-use EdLugz\Daraja\Models\MpesaBalance;
 
 class Balance extends DarajaClient
 {
@@ -95,7 +94,6 @@ class Balance extends DarajaClient
         try {
             $response = $this->call($this->endPoint, ['json' => $parameters]);
         } catch (DarajaRequestException $e) {
-        
-		}
+        }
     }
 }
