@@ -69,7 +69,7 @@ class Transaction extends DarajaClient
 
         $this->timestamp = date('YmdHis');
         $this->initiatorName = config('daraja.initiator_name');
-        $this->securityCredential = DarajaHelper =>  => setSecurityCredential(config('daraja.initiator_password'));
+        $this->securityCredential = DarajaHelper::setSecurityCredential(config('daraja.initiator_password'));
         $this->partyA = config('daraja.shortcode');
         $this->queueTimeOutURL = config('daraja.timeout_url');
         $this->mobileResultURL = config('daraja.transaction_query_mobile_result_url');
@@ -91,15 +91,23 @@ class Transaction extends DarajaClient
 
         $check = MpesaTransaction::where('payment_id', $paymentId)->first();
 
+        if($check->transaction_type == 'SendMoney'){
+            $resultUrl = $this->mobileResultURL;
+        } elseif($check->transaction_type == 'BuyGoods'){
+            $resultUrl = $this->tillResultURL;
+        } elseif($check->transaction_type == 'PayBill'){
+            $resultUrl = $this->paybillResultURL;
+        }
+
         $parameters = [
             'Initiator' => $this->initiatorName,
             'SecurityCredential' => $this->securityCredential,
-            'Command ID' =>  $this->commandId,
-            'Transaction ID' =>  '',
+            'CommandID' =>  $this->commandId,
+            'TransactionID' =>  '',
             'OriginatorConversationID' => $check->originator_conversation_id,
             'PartyA' => $this->partyA,
             'IdentifierType' => '4',
-            'ResultURL' => $this->resultURL,
+            'ResultURL' => $resultUrl,
             'QueueTimeOutURL' => $this->queueTimeOutURL,
             'Remarks' => 'OK',
             'Occasion' => 'OK'
