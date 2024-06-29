@@ -6,10 +6,9 @@ use EdLugz\Daraja\DarajaClient;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
 use EdLugz\Daraja\Models\ApiCredential;
-use EdLugz\Daraja\Models\MpesaBalance;
 use EdLugz\Daraja\Models\MpesaTransaction;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class B2C extends DarajaClient
 {
@@ -92,11 +91,11 @@ class B2C extends DarajaClient
         /** @var MpesaTransaction $transaction */
         $transaction = MpesaTransaction::create(array_merge([
             'payment_reference' => $originatorConversationID,
-            'short_code' => $this->partyA,
-            'transaction_type' => 'SendMoney',
-            'account_number' => $recipient,
-            'amount' => $amount,
-            'json_request'   => json_encode($parameters),
+            'short_code'        => $this->partyA,
+            'transaction_type'  => 'SendMoney',
+            'account_number'    => $recipient,
+            'amount'            => $amount,
+            'json_request'      => json_encode($parameters),
         ], $customFieldsKeyValue));
 
         try {
@@ -112,18 +111,17 @@ class B2C extends DarajaClient
                 ]
             );
         } catch (DarajaRequestException $e) {
-
             $response = [
-                'ResponseCode'   => $e->getCode(),
+                'ResponseCode'        => $e->getCode(),
                 'ResponseDescription' => $e->getMessage(),
             ];
 
             $response = (object) $response;
         }
 
-        if(array_key_exists('errorCode', $array)){
+        if (array_key_exists('errorCode', $array)) {
             $response = [
-                'ResponseCode'   => $response->errorCode,
+                'ResponseCode'        => $response->errorCode,
                 'ResponseDescription' => $response->errorMessage,
             ];
 
@@ -132,7 +130,7 @@ class B2C extends DarajaClient
 
         $data = [
             'response_code'          => $response->ResponseCode,
-            'response_description'   => $response->ResponseDescription
+            'response_description'   => $response->ResponseDescription,
         ];
 
         if (array_key_exists('ResponseCode', $array)) {
@@ -141,7 +139,7 @@ class B2C extends DarajaClient
                     'conversation_id'               => $response->ConversationID,
                     'originator_conversation_id'    => $response->OriginatorConversationID,
                     'response_code'                 => $response->ResponseCode,
-                    'response_description'          => $response->ResponseDescription
+                    'response_description'          => $response->ResponseDescription,
                 ]);
             }
         }
