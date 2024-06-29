@@ -5,9 +5,7 @@ namespace EdLugz\Daraja\Requests;
 use EdLugz\Daraja\DarajaClient;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
-use EdLugz\Daraja\Models\MpesaBalance;
 use EdLugz\Daraja\Models\MpesaFunding;
-use Illuminate\Support\Str;
 
 class C2B extends DarajaClient
 {
@@ -106,7 +104,6 @@ class C2B extends DarajaClient
         string $accountReference,
         array $customFieldsKeyValue = []
     ): MpesaFunding {
-        
         $parameters = [
             'BusinessShortCode' => $this->partyA,
             'Password'          => $this->password,
@@ -123,8 +120,8 @@ class C2B extends DarajaClient
 
         /** @var MpesaFunding $transaction */
         $transaction = MpesaFunding::create(array_merge([
-            'mobile_no' => $recipient,
-            'amount' => $amount,
+            'mobile_no'      => $recipient,
+            'amount'         => $amount,
             'bill_reference' => $accountReference,
             'json_request'   => json_encode($parameters),
         ], $customFieldsKeyValue));
@@ -141,7 +138,7 @@ class C2B extends DarajaClient
             );
         } catch (DarajaRequestException $e) {
             $response = [
-                'ResponseCode' => $e->getCode(),
+                'ResponseCode'        => $e->getCode(),
                 'ResponseDescription' => $e->getMessage(),
             ];
 
@@ -150,7 +147,7 @@ class C2B extends DarajaClient
 
         $data = [
             'response_code'          => $response->ResponseCode,
-            'response_description'   => $response->ResponseDescription
+            'response_description'   => $response->ResponseDescription,
         ];
 
         if ($response->ResponseCode == '0') {
@@ -158,7 +155,7 @@ class C2B extends DarajaClient
                 'merchant_request_id'    => $response->MerchantRequestID,
                 'checkout_request_id'    => $response->CheckoutRequestID,
                 'response_code'          => $response->ResponseCode,
-                'response_description'   => $response->ResponseDescription
+                'response_description'   => $response->ResponseDescription,
             ]);
         }
 
