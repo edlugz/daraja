@@ -7,7 +7,6 @@ use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
 use EdLugz\Daraja\Models\ApiCredential;
 use EdLugz\Daraja\Models\MpesaTransaction;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 
 class Transaction extends DarajaClient
@@ -38,7 +37,9 @@ class Transaction extends DarajaClient
      *
      * @var string
      */
-    protected string $mobileResultURL, $tillResultURL, $paybillResultURL;
+    protected string $mobileResultURL;
+    protected string $tillResultURL;
+    protected string $paybillResultURL;
 
     /**
      * Necessary initializations for C2B transactions from the config file.
@@ -72,11 +73,11 @@ class Transaction extends DarajaClient
 
         $check = MpesaTransaction::where('payment_id', $paymentId)->first();
 
-        if($check->transaction_type == 'SendMoney'){
+        if ($check->transaction_type == 'SendMoney') {
             $resultUrl = $this->mobileResultURL;
-        } elseif($check->transaction_type == 'BuyGoods'){
+        } elseif ($check->transaction_type == 'BuyGoods') {
             $resultUrl = $this->tillResultURL;
-        } elseif($check->transaction_type == 'PayBill'){
+        } elseif ($check->transaction_type == 'PayBill') {
             $resultUrl = $this->paybillResultURL;
         }
 
@@ -102,24 +103,24 @@ class Transaction extends DarajaClient
             'transaction_type'  => 'TransactionStatus',
             'account_number'    => $check->account_number,
             'amount'            => $check->amount,
-            'json_request'      => json_encode($parameters)
+            'json_request'      => json_encode($parameters),
         ]);
 
-       try {
-           $response = $this->call($this->endPoint, ['json' => $parameters]);
+        try {
+            $response = $this->call($this->endPoint, ['json' => $parameters]);
 
-           $array = (array) $response;
+            $array = (array) $response;
 
-           Log::info($array);
+            Log::info($array);
 
-           $transaction->update(
-               [
-                   'json_response' => json_encode($response),
-               ]
-           );
+            $transaction->update(
+                [
+                    'json_response' => json_encode($response),
+                ]
+            );
         } catch (DarajaRequestException $e) {
             $response = [
-                'ResponseCode' => $e->getCode(),
+                'ResponseCode'        => $e->getCode(),
                 'ResponseDescription' => $e->getMessage(),
             ];
 
@@ -128,12 +129,12 @@ class Transaction extends DarajaClient
 
         $data = [
             'response_code'          => $response->ResponseCode,
-            'response_description'   => $response->ResponseDescription
+            'response_description'   => $response->ResponseDescription,
         ];
 
-        if(array_key_exists('errorCode', $array)){
+        if (array_key_exists('errorCode', $array)) {
             $response = [
-                'ResponseCode'   => $response->errorCode,
+                'ResponseCode'        => $response->errorCode,
                 'ResponseDescription' => $response->errorMessage,
             ];
 
@@ -146,7 +147,7 @@ class Transaction extends DarajaClient
                     'conversation_id'               => $response->ConversationID,
                     'originator_conversation_id'    => $response->OriginatorConversationID,
                     'response_code'                 => $response->ResponseCode,
-                    'response_description'          => $response->ResponseDescription
+                    'response_description'          => $response->ResponseDescription,
                 ]);
             }
         }
