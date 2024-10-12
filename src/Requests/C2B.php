@@ -129,7 +129,7 @@ class C2B extends DarajaClient
         try {
             $response = $this->call($this->endPoint, ['json' => $parameters]);
 
-            Log::info($respone);
+            Log::info($response);
 
             $transaction->update(
                 [
