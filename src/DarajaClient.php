@@ -11,6 +11,9 @@ use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\ServerException;
 use Illuminate\Support\Facades\Cache;
 
+/**
+ *
+ */
 class DarajaClient
 {
     /**
@@ -55,15 +58,17 @@ class DarajaClient
      * Make the initializations required to make calls to the Daraja APIs
      * and throw the necessary exception if there are any missing-required
      * configurations.
-     *
+     * @param string $consumerKey
+     * @param string $consumerSecret
+     * @param string $name
      * @throws DarajaRequestException
      */
-    public function __construct()
+    public function __construct(string $consumerKey, string $consumerSecret, string $name)
     {
         try {
             $this->validateConfigurations();
 
-            $mode = config('daraja.mode');
+            $mode = $this->config('daraja.mode');
 
             $options = [
                 'base_uri' => $this->base_url[$mode],
@@ -75,9 +80,9 @@ class DarajaClient
             }
 
             $this->client = new Client($options);
-            $this->consumerKey = config('daraja.consumer_key');
-            $this->consumerSecret = config('daraja.consumer_secret');
-            $this->getAccessToken();
+            $this->consumerKey = $consumerKey;
+            $this->consumerSecret = $consumerSecret;
+            $this->getAccessToken($name);
         } catch(Exception $e) {
             throw new DarajaRequestException('Daraja APIs: '.$e->getMessage(), $e->getCode());
         }
@@ -90,10 +95,10 @@ class DarajaClient
      *
      * @return void
      */
-    protected function getAccessToken(): void
+    protected function getAccessToken(string $name): void
     {
         //check if access token exists and not expired
-        if (!Cache::get('darajaToken')) {
+        if (!Cache::get($name)) {
             // Set the auth option and fetch new token
             $options = [
                 'auth' => [
@@ -105,7 +110,7 @@ class DarajaClient
             $accessTokenDetails = $this->call('oauth/v1/generate?grant_type=client_credentials', $options, 'GET');
 
             //add to Cache
-            Cache::add('darajaToken', $accessTokenDetails->access_token, now()->addMinutes(58));
+            Cache::add($name, $accessTokenDetails->access_token, now()->addMinutes(58));
         }
 
         $this->accessToken = Cache::get('darajaToken');
@@ -168,4 +173,5 @@ class DarajaClient
             throw new DarajaRequestException('Daraja APIs: '.$e->getMessage(), $e->getCode());
         }
     }
+
 }
