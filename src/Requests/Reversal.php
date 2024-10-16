@@ -91,7 +91,7 @@ class Reversal extends DarajaClient
         /** @var MpesaTransaction $transaction */
         $transaction = MpesaTransaction::create(array_merge([
             'payment_reference' => $originatorConversationID,
-            'short_code'        => $this->partyA,
+            'short_code'        => $shortcode,
             'transaction_type'  => 'Reversal',
             'account_number'    => '0',
             'amount'            => $amount,

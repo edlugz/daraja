@@ -91,7 +91,7 @@ class B2C extends DarajaClient
         /** @var MpesaTransaction $transaction */
         $transaction = MpesaTransaction::create(array_merge([
             'payment_reference' => $originatorConversationID,
-            'short_code'        => $this->partyA,
+            'short_code'        => $shortcode,
             'transaction_type'  => 'SendMoney',
             'account_number'    => $recipient,
             'amount'            => $amount,

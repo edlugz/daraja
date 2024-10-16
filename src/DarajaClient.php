@@ -113,7 +113,7 @@ class DarajaClient
             Cache::add($name, $accessTokenDetails->access_token, now()->addMinutes(58));
         }
 
-        $this->accessToken = Cache::get('darajaToken');
+        $this->accessToken = Cache::get($name);
     }
 
     /**

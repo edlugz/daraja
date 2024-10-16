@@ -99,7 +99,7 @@ class Transaction extends DarajaClient
         $transaction = MpesaTransaction::create([
             'payment_id'        => $check->payment_id,
             'payment_reference' => $check->originator_conversation_id,
-            'short_code'        => $this->partyA,
+            'short_code'        => $shortcode,
             'transaction_type'  => 'TransactionStatus',
             'account_number'    => $check->account_number,
             'amount'            => $check->amount,

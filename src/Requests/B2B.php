@@ -100,7 +100,7 @@ class B2B extends DarajaClient
         /** @var MpesaTransaction $transaction */
         $transaction = MpesaTransaction::create(array_merge([
             'payment_reference' => $originatorConversationID,
-            'short_code'        => $this->partyA,
+            'short_code'        => $shortcode,
             'transaction_type'  => 'BuyGoods',
             'account_number'    => $recipient,
             'requester_mobile'  => $requester,
@@ -205,7 +205,7 @@ class B2B extends DarajaClient
         /** @var MpesaTransaction $transaction */
         $transaction = MpesaTransaction::create(array_merge([
             'payment_reference' => $originatorConversationID,
-            'short_code'        => $this->partyA,
+            'short_code'        => $shortcode,
             'transaction_type'  => 'PayBill',
             'account_number'    => $recipient,
             'requester_mobile'  => $requester,

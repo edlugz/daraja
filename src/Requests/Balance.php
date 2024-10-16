@@ -5,6 +5,7 @@ namespace EdLugz\Daraja\Requests;
 use EdLugz\Daraja\DarajaClient;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
+use EdLugz\Daraja\Models\ApiCredential;
 
 class Balance extends DarajaClient
 {
@@ -36,12 +37,6 @@ class Balance extends DarajaClient
      */
     protected string $securityCredential;
 
-    /**
-     * Safaricom APIs Balance initiator short code.
-     *
-     * @var string
-     */
-    protected string $partyA;
 
     /**
      * Safaricom APIs Balance queue timeout URI.
@@ -51,7 +46,7 @@ class Balance extends DarajaClient
     protected string $queueTimeOutURL;
 
     /**
-     * Where the Safaricom Balance API will post the result of the transaction.
+     * Where the Safaricom Account Balance API will post the result of the transaction.
      *
      * @var string
      */
@@ -65,11 +60,7 @@ class Balance extends DarajaClient
     {
         parent::__construct();
 
-        $this->initiatorName = config('daraja.initiator_name');
-        $this->securityCredential = DarajaHelper::setSecurityCredential(config('daraja.initiator_password'));
-        $this->partyA = config('daraja.shortcode');
         $this->queueTimeOutURL = config('daraja.timeout_url');
-        $this->resultURL = config('daraja.balance_result_url');
         $this->commandId = 'AccountBalance';
     }
 
@@ -78,22 +69,27 @@ class Balance extends DarajaClient
      *
      * @return array
      */
-    public function check(): void
+    public function check(
+        string $shortcode
+    ): void
     {
+        $api = ApiCredential::where('short_code', $shortcode)->first();
+
         $parameters = [
-            'Initiator'          => $this->initiatorName,
-            'SecurityCredential' => $this->securityCredential,
+            'Initiator'          => $api->initiator_name,
+            'SecurityCredential' => DarajaHelper::setSecurityCredential(Crypter::decrypt($api->initiator_password)),
             'CommandID'          => $this->commandId,
-            'PartyA'             => $this->partyA,
+            'PartyA'             => $shortcode,
             'IdentifierType'     => '4',
             'Remarks'            => 'Account balance',
             'QueueTimeOutURL'    => $this->queueTimeOutURL,
-            'ResultURL'          => $this->resultURL,
+            'ResultURL'          => api->balance_result_url,
         ];
 
         try {
             $response = $this->call($this->endPoint, ['json' => $parameters]);
         } catch (DarajaRequestException $e) {
+
         }
     }
 }
