@@ -67,7 +67,7 @@ class Balance extends DarajaClient
     /**
      * Send transaction details to Safaricom Balance API.
      *
-     * @return array
+     * @return void
      */
     public function check(
         string $shortcode
@@ -90,6 +90,7 @@ class Balance extends DarajaClient
 
             Log::info($response);
         } catch (DarajaRequestException $e) {
+
         }
     }
 }
