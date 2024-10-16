@@ -72,12 +72,12 @@ class B2C extends DarajaClient
         $api = ApiCredential::where('short_code', $shortcode)->first();
 
         //check balance before sending out transaction
-        $originatorConversationID = (string) Str::ulid();
+        $originatorConversationID = (string) Str::uuid();
 
         $parameters = [
             'OriginatorConversationID' => $originatorConversationID,
             'InitiatorName'            => $api->initiator_name,
-            'SecurityCredential'       => DarajaHelper::setSecurityCredential(Crypter::decrypt($api->initiator_password)),
+            'SecurityCredential'       => DarajaHelper::setSecurityCredential($api->initiator_password),
             'CommandID'                => $this->commandId,
             'Amount'                   => $amount,
             'PartyA'                   => $shortcode,

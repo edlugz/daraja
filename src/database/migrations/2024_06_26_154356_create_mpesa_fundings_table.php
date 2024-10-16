@@ -12,6 +12,7 @@ return new class() extends Migration {
     {
         Schema::create('mpesa_fundings', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid');
             $table->integer('fund_id');
             $table->string('mobile_no');
             $table->string('amount');
@@ -24,10 +25,11 @@ return new class() extends Migration {
             $table->string('result_desc')->nullable();
             $table->string('mpesa_receipt_number')->nullable();
             $table->string('transaction_date')->nullable();
-            $table->string('json_request')->nullable();
-            $table->string('json_response')->nullable();
-            $table->string('json_result')->nullable();
+            $table->json('json_request')->nullable();
+            $table->json('json_response')->nullable();
+            $table->json('json_result')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

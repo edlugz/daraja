@@ -84,7 +84,7 @@ class B2B extends DarajaClient
         $parameters = [
             'OriginatorConversationID' => $originatorConversationID,
             'Initiator'                => $api->initiator_name,
-            'SecurityCredential'       => DarajaHelper::setSecurityCredential(Crypter::decrypt($api->initiator_password)),
+            'SecurityCredential'       => DarajaHelper::setSecurityCredential($api->initiator_password),
             'CommandID'                => $this->tillCommandId,
             'SenderIdentifierType'     => 4,
             'RecieverIdentifierType'   => 2,
@@ -183,12 +183,12 @@ class B2B extends DarajaClient
         $api = ApiCredential::where('short_code', $shortcode)->first();
 
         //check balance before sending out transaction
-        $originatorConversationID = (string) Str::ulid();
+        $originatorConversationID = (string) Str::uuid();
 
         $parameters = [
             'OriginatorConversationID' => $originatorConversationID,
             'Initiator'                => $api->initiator_name,
-            'SecurityCredential'       => DarajaHelper::setSecurityCredential(Crypter::decrypt($api->initiator_password)),
+            'SecurityCredential'       => DarajaHelper::setSecurityCredential($api->initiator_password),
             'CommandID'                => $this->tillCommandId,
             'SenderIdentifierType'     => 4,
             'RecieverIdentifierType'   => 4,

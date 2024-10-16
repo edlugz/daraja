@@ -12,6 +12,7 @@ return new class() extends Migration {
     {
         Schema::create('api_credentials', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid');
             $table->integer('account_id');
             $table->string('short_code')->nullable();
             $table->string('initiator')->nullable();
@@ -21,6 +22,7 @@ return new class() extends Migration {
             $table->string('balance_result_url')->nullable();
             $table->boolean('api_status')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

@@ -83,7 +83,7 @@ class Transaction extends DarajaClient
 
         $parameters = [
             'Initiator'                => $api->initiator_name,
-            'SecurityCredential'       => DarajaHelper::setSecurityCredential(Crypter::decrypt($api->initiator_password)),
+            'SecurityCredential'       => DarajaHelper::setSecurityCredential($api->initiator_password),
             'CommandID'                => $this->commandId,
             'TransactionID'            => '',
             'OriginatorConversationID' => $check->originator_conversation_id,

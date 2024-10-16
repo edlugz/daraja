@@ -12,12 +12,15 @@ return new class() extends Migration {
     {
         Schema::create('mpesa_balances', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid');
+            $table->integer('account_id')->nullable();
             $table->string('short_code');
             $table->float('utility_account');
             $table->float('working_account');
             $table->float('uncleared_balance');
             $table->json('json_result');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

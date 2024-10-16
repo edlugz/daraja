@@ -12,7 +12,7 @@ return [
    |
    */
 
-    'consumer_key' => env('CONSUMER_KEY', ''),
+    'consumer_key' => env('DARAJA_CONSUMER_KEY', ''),
 
     /*
     |--------------------------------------------------------------------------
@@ -24,7 +24,7 @@ return [
     |
     */
 
-    'consumer_secret' => env('CONSUMER_SECRET', ''),
+    'consumer_secret' => env('DARAJA_CONSUMER_SECRET', ''),
 
     /*
     |--------------------------------------------------------------------------
@@ -36,7 +36,7 @@ return [
     |
     */
 
-    'initiator_name' => env('INITIATOR_NAME', ''),
+    'initiator_name' => env('DARAJA_INITIATOR_NAME', ''),
 
     /*
     |--------------------------------------------------------------------------
@@ -48,7 +48,7 @@ return [
     |
     */
 
-    'initiator_password' => env('INITIATOR_PASSWORD', ''),
+    'initiator_password' => env('DARAJA_INITIATOR_PASSWORD', ''),
     /*
     |--------------------------------------------------------------------------
     | Pass Key
@@ -59,7 +59,7 @@ return [
     |
     */
 
-    'pass_key' => env('PASS_KEY', ''),
+    'pass_key' => env('DARAJA_PASS_KEY', ''),
 
     /*
     |--------------------------------------------------------------------------
@@ -71,7 +71,7 @@ return [
     |
     */
 
-    'shortcode' => env('SHORTCODE', ''),
+    'shortcode' => env('DARAJA_SHORTCODE', ''),
 
     /*
     |--------------------------------------------------------------------------
@@ -94,7 +94,7 @@ return [
     |
     */
 
-    'base_url' => env('BASE_URL', ''),
+    'base_url' => env('DARAJA_BASE_URL', ''),
 
     /*
     |--------------------------------------------------------------------------
@@ -109,7 +109,7 @@ return [
     'balance_result_url'                   => env('DARAJA_BALANCE_RESULT_URL', ''),
     'stk_result_url'                       => env('DARAJA_STK_RESULT_URL', ''),
     'mobile_result_url'                    => env('DARAJA_MOBILE_RESULT_URL', ''),
-    'till_result_url'                      => env('DARAJA_MOBILE_RESULT_URL', ''),
+    'till_result_url'                      => env('DARAJA_TILL_RESULT_URL', ''),
     'paybill_result_url'                   => env('DARAJA_PAYBILL_RESULT_URL', ''),
     'reversal_result_url'                  => env('DARAJA_REVERSAL_RESULT_URL', ''),
     'transaction_query_mobile_result_url'  => env('DARAJA_TRANSACTION_QUERY_MOBILE_RESULT_URL', ''),
@@ -126,7 +126,7 @@ return [
     |
     */
 
-    'timeout_url' => env('TIMEOUT_URL', ''),
+    'timeout_url' => env('DARAJA_TIMEOUT_URL', ''),
 
     /*
     |--------------------------------------------------------------------------

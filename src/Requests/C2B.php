@@ -84,7 +84,7 @@ class C2B extends DarajaClient
         $this->password = DarajaHelper::setPassword(config('daraja.shortcode'), config('daraja.pass_key'), $this->timestamp);
         $this->partyA = config('daraja.shortcode');
         $this->queueTimeOutURL = config('daraja.timeout_url');
-        $this->resultURL = config('daraja.mobile_result_url');
+        $this->resultURL = config('daraja.c2b_result_url');
         $this->commandId = 'CustomerPayBillOnline';
     }
 

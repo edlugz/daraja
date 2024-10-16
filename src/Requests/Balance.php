@@ -62,6 +62,7 @@ class Balance extends DarajaClient
 
         $this->queueTimeOutURL = config('daraja.timeout_url');
         $this->commandId = 'AccountBalance';
+        $this->resultURL = config('daraja.balance_result_url');
     }
 
     /**
@@ -77,17 +78,20 @@ class Balance extends DarajaClient
 
         $parameters = [
             'Initiator'          => $api->initiator_name,
-            'SecurityCredential' => DarajaHelper::setSecurityCredential(Crypter::decrypt($api->initiator_password)),
+            'SecurityCredential' => DarajaHelper::setSecurityCredential($api->initiator_password),
             'CommandID'          => $this->commandId,
             'PartyA'             => $shortcode,
             'IdentifierType'     => '4',
             'Remarks'            => 'Account balance',
             'QueueTimeOutURL'    => $this->queueTimeOutURL,
-            'ResultURL'          => api->balance_result_url,
+            'ResultURL'          => $this->resultURL,
         ];
 
         try {
             $response = $this->call($this->endPoint, ['json' => $parameters]);
+
+            Log::info($response);
+
         } catch (DarajaRequestException $e) {
 
         }

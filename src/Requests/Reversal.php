@@ -72,11 +72,11 @@ class Reversal extends DarajaClient
         //check shortcode for credentials
         $api = ApiCredential::where('short_code', $shortcode)->first();
 
-        $originatorConversationID = (string) Str::ulid();
+        $originatorConversationID = (string) Str::uuid();
 
         $parameters = [
             'Initiator'                => $api->initiator_name,
-            'SecurityCredential'       => DarajaHelper::setSecurityCredential(Crypter::decrypt($api->initiator_password)),
+            'SecurityCredential'       => DarajaHelper::setSecurityCredential($api->initiator_password),
             'CommandID'                => $this->commandId,
             'TransactionID'            => $transactionId,
             'Amount'                   => $amount,
