@@ -2,9 +2,9 @@
 
 namespace EdLugz\Daraja\Models;
 
-use Ramsey\Uuid\Uuid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Ramsey\Uuid\Uuid;
 
 class MpesaTransaction extends Model
 {
