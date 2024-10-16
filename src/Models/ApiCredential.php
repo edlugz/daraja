@@ -2,14 +2,13 @@
 
 namespace EdLugz\Daraja\Models;
 
-use Ramsey\Uuid\Uuid;
+use EdLugz\Daraja\Casts\Encrypted;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use EdLugz\Daraja\Casts\Encrypted;
+use Ramsey\Uuid\Uuid;
 
 class ApiCredential extends Model
 {
-
     use SoftDeletes;
 
     protected $guarded = [];
@@ -28,4 +27,3 @@ class ApiCredential extends Model
         return ['uuid'];
     }
 }
-
