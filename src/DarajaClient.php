@@ -11,9 +11,6 @@ use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\ServerException;
 use Illuminate\Support\Facades\Cache;
 
-/**
- *
- */
 class DarajaClient
 {
     /**
@@ -58,9 +55,11 @@ class DarajaClient
      * Make the initializations required to make calls to the Daraja APIs
      * and throw the necessary exception if there are any missing-required
      * configurations.
+     *
      * @param string $consumerKey
      * @param string $consumerSecret
      * @param string $name
+     *
      * @throws DarajaRequestException
      */
     public function __construct(string $consumerKey, string $consumerSecret, string $name)
@@ -173,5 +172,4 @@ class DarajaClient
             throw new DarajaRequestException('Daraja APIs: '.$e->getMessage(), $e->getCode());
         }
     }
-
 }
