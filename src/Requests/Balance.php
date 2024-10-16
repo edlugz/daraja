@@ -24,20 +24,6 @@ class Balance extends DarajaClient
     protected string $commandId;
 
     /**
-     * Safaricom APIs initiator short code username.
-     *
-     * @var string
-     */
-    protected string $initiatorName;
-
-    /**
-     * Safaricom APIs Balance encrypted initiator short code password.
-     *
-     * @var string
-     */
-    protected string $securityCredential;
-
-    /**
      * Safaricom APIs Balance queue timeout URI.
      *
      * @var string
@@ -55,9 +41,9 @@ class Balance extends DarajaClient
      * Necessary initializations for Balance transactions from the config file while
      * also initialize parent constructor.
      */
-    public function __construct($resultURL = null)
+    public function __construct($consumerKey, $consumerSecret, $shortcode, $resultURL = null)
     {
-        parent::__construct();
+        parent::__construct($consumerKey, $consumerSecret, $shortcode);
 
         $this->queueTimeOutURL = config('daraja.timeout_url');
         $this->commandId = 'AccountBalance';
@@ -67,18 +53,18 @@ class Balance extends DarajaClient
     /**
      * Send transaction details to Safaricom Balance API.
      *
+     * @param string $shortcode
      * @return void
      */
     public function check(
-        string $shortcode
+        ApiCredential $apiCredential
     ): void {
-        $api = ApiCredential::where('short_code', $shortcode)->first();
 
         $parameters = [
-            'Initiator'          => $api->initiator_name,
-            'SecurityCredential' => DarajaHelper::setSecurityCredential($api->initiator_password),
+            'Initiator'          => DarajaHelper::apiCredentials($apiCredential)->initiator,
+            'SecurityCredential' => DarajaHelper::setSecurityCredential(DarajaHelper::apiCredentials($apiCredential)->password),
             'CommandID'          => $this->commandId,
-            'PartyA'             => $shortcode,
+            'PartyA'             => DarajaHelper::apiCredentials($apiCredential)->shortcode,
             'IdentifierType'     => '4',
             'Remarks'            => 'Account balance',
             'QueueTimeOutURL'    => $this->queueTimeOutURL,
@@ -86,9 +72,9 @@ class Balance extends DarajaClient
         ];
 
         try {
-            $response = $this->call($this->endPoint, ['json' => $parameters]);
 
-            Log::info($response);
+            $this->call($this->endPoint, ['json' => $parameters]);
+
         } catch (DarajaRequestException $e) {
 
         }

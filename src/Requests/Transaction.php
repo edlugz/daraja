@@ -43,10 +43,11 @@ class Transaction extends DarajaClient
 
     /**
      * Necessary initializations for C2B transactions from the config file.
+     * @throws DarajaRequestException
      */
-    public function __construct()
+    public function __construct($consumerKey, $consumerSecret, $shortcode)
     {
-        parent::__construct();
+        parent::__construct($consumerKey, $consumerSecret, $shortcode);
 
         $this->queueTimeOutURL = config('daraja.timeout_url');
         $this->mobileResultURL = config('daraja.transaction_query_mobile_result_url');
@@ -64,11 +65,9 @@ class Transaction extends DarajaClient
      * @return MpesaTransaction
      */
     public function status(
-        string $shortcode,
+        ApiCredential $apiCredential,
         string $paymentId
     ): MpesaTransaction {
-        //check shortcode for credentials
-        $api = ApiCredential::where('short_code', $shortcode)->first();
 
         $check = MpesaTransaction::where('payment_id', $paymentId)->first();
 
@@ -83,12 +82,12 @@ class Transaction extends DarajaClient
         }
 
         $parameters = [
-            'Initiator'                => $api->initiator_name,
-            'SecurityCredential'       => DarajaHelper::setSecurityCredential($api->initiator_password),
+            'Initiator'                => DarajaHelper::apiCredentials($apiCredential)->initiator,
+            'SecurityCredential'       => DarajaHelper::setSecurityCredential(DarajaHelper::apiCredentials($apiCredential)->password),
             'CommandID'                => $this->commandId,
             'TransactionID'            => '',
             'OriginatorConversationID' => $check->originator_conversation_id,
-            'PartyA'                   => $shortcode,
+            'PartyA'                   => DarajaHelper::apiCredentials($apiCredential)->shortcode,
             'IdentifierType'           => '4',
             'ResultURL'                => $resultUrl,
             'QueueTimeOutURL'          => $this->queueTimeOutURL,
@@ -100,7 +99,7 @@ class Transaction extends DarajaClient
         $transaction = MpesaTransaction::create([
             'payment_id'        => $check->payment_id,
             'payment_reference' => $check->originator_conversation_id,
-            'short_code'        => $shortcode,
+            'short_code'        => DarajaHelper::apiCredentials($apiCredential)->shortcode,
             'transaction_type'  => 'TransactionStatus',
             'account_number'    => $check->account_number,
             'amount'            => $check->amount,

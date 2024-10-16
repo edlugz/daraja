@@ -46,9 +46,9 @@ class B2B extends DarajaClient
      * Necessary initializations for B2B transactions from the config file while
      * also initialize parent constructor.
      */
-    public function __construct()
+    public function __construct($consumerKey, $consumerSecret, $shortcode)
     {
-        parent::__construct();
+        parent::__construct($consumerKey, $consumerSecret, $shortcode);
 
         $this->queueTimeOutURL = config('daraja.timeout_url');
         $this->tillResultURL = config('daraja.till_result_url');
@@ -60,36 +60,33 @@ class B2B extends DarajaClient
     /**
      * Send transaction details to Safaricom B2B API.
      *
-     * @param string $shortcode
+     * @param ApiCredential $apiCredential
      * @param string $recipient
-     * @param string $amount
      * @param string $requester
-     * @param array  $customFieldKeyValue
-     *
+     * @param string $amount
+     * @param array $customFieldsKeyValue
      * @return MpesaTransaction
      */
     protected function till(
-        string $shortcode,
+        ApiCredential $apiCredential,
         string $recipient,
         string $requester,
         string $amount,
         array $customFieldsKeyValue
     ): MpesaTransaction {
-        //check shortcode for credentials
-        $api = ApiCredential::where('short_code', $shortcode)->first();
 
         //check balance before sending out transaction
-        $originatorConversationID = (string) Str::ulid();
+        $originatorConversationID = (string) Str::uuid();
 
         $parameters = [
             'OriginatorConversationID' => $originatorConversationID,
-            'Initiator'                => $api->initiator_name,
-            'SecurityCredential'       => DarajaHelper::setSecurityCredential($api->initiator_password),
+            'Initiator'                => DarajaHelper::apiCredentials($apiCredential)->initiator,
+            'SecurityCredential'       => DarajaHelper::setSecurityCredential(DarajaHelper::apiCredentials($apiCredential)->password),
             'CommandID'                => $this->tillCommandId,
             'SenderIdentifierType'     => 4,
             'RecieverIdentifierType'   => 2,
             'Amount'                   => $amount,
-            'PartyA'                   => $shortcode,
+            'PartyA'                   => DarajaHelper::apiCredentials($apiCredential)->shortcode,
             'PartyB'                   => $recipient,
             'Requester'                => $requester,
             'Remarks'                  => 'till payment',
@@ -100,7 +97,7 @@ class B2B extends DarajaClient
         /** @var MpesaTransaction $transaction */
         $transaction = MpesaTransaction::create(array_merge([
             'payment_reference' => $originatorConversationID,
-            'short_code'        => $shortcode,
+            'short_code'        => DarajaHelper::apiCredentials($apiCredential)->shortcode,
             'transaction_type'  => 'BuyGoods',
             'account_number'    => $recipient,
             'requester_mobile'  => $requester,
@@ -160,41 +157,37 @@ class B2B extends DarajaClient
     }
 
     /**
-     * Send transaction details to Safaricom B2B API fro paybill.
+     * Send transaction details to Safaricom B2B API for paybill.
      *
-     * @param string $shortcode
+     * @param ApiCredential $apiCredential
      * @param string $recipient
      * @param string $requester
      * @param string $amount
      * @param string $accountReference
-     * @param array  $customFieldKeyValue
-     *
+     * @param array $customFieldsKeyValue
      * @return MpesaTransaction
      */
     protected function paybill(
-        string $shortcode,
+        ApiCredential $apiCredential,
         string $recipient,
         string $requester,
         string $amount,
         string $accountReference,
         array $customFieldsKeyValue
     ): MpesaTransaction {
-        //check shortcode for credentials
-        $api = ApiCredential::where('short_code', $shortcode)->first();
-
         //check balance before sending out transaction
         $originatorConversationID = (string) Str::uuid();
 
         $parameters = [
             'OriginatorConversationID' => $originatorConversationID,
-            'Initiator'                => $api->initiator_name,
-            'SecurityCredential'       => DarajaHelper::setSecurityCredential($api->initiator_password),
+            'Initiator'                => DarajaHelper::apiCredentials($apiCredential)->initiator,
+            'SecurityCredential'       => DarajaHelper::setSecurityCredential(DarajaHelper::apiCredentials($apiCredential)->password),
             'CommandID'                => $this->tillCommandId,
             'SenderIdentifierType'     => 4,
             'RecieverIdentifierType'   => 4,
             'Amount'                   => $amount,
             'AccountReference'         => $accountReference,
-            'PartyA'                   => $shortcode,
+            'PartyA'                   => DarajaHelper::apiCredentials($apiCredential)->shortcode,
             'PartyB'                   => $recipient,
             'Requester'                => $requester,
             'Remarks'                  => 'paybill payment',
@@ -205,7 +198,7 @@ class B2B extends DarajaClient
         /** @var MpesaTransaction $transaction */
         $transaction = MpesaTransaction::create(array_merge([
             'payment_reference' => $originatorConversationID,
-            'short_code'        => $shortcode,
+            'short_code'        => DarajaHelper::apiCredentials($apiCredential)->shortcode,
             'transaction_type'  => 'PayBill',
             'account_number'    => $recipient,
             'requester_mobile'  => $requester,

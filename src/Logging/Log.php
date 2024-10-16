@@ -43,7 +43,7 @@ class Log
         $handler = new Logger(
             'Daraja',
             [
-                new RotatingFileHandler(storage_path('logs/daraja.log'), 30, $level),
+                new RotatingFileHandler(storage_path('logs/daraja/daraja.log'), 30, $level),
             ]
         );
 

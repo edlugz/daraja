@@ -43,9 +43,9 @@ class B2C extends DarajaClient
     /**
      * Necessary initializations for B2C transactions from the config file.
      */
-    public function __construct()
+    public function __construct($consumerKey, $consumerSecret, $shortcode)
     {
-        parent::__construct();
+        parent::__construct($consumerKey, $consumerSecret, $shortcode);
 
         $this->queueTimeOutURL = config('daraja.timeout_url');
         $this->resultURL = config('daraja.mobile_result_url');
@@ -63,24 +63,22 @@ class B2C extends DarajaClient
      * @return MpesaTransaction
      */
     public function pay(
-        string $shortcode,
+        ApiCredential $apiCredential,
         string $recipient,
         string $amount,
         array $customFieldsKeyValue = []
     ): MpesaTransaction {
-        //check shortcode for credentials
-        $api = ApiCredential::where('short_code', $shortcode)->first();
 
         //check balance before sending out transaction
         $originatorConversationID = (string) Str::uuid();
 
         $parameters = [
             'OriginatorConversationID' => $originatorConversationID,
-            'InitiatorName'            => $api->initiator_name,
-            'SecurityCredential'       => DarajaHelper::setSecurityCredential($api->initiator_password),
+            'InitiatorName'            => DarajaHelper::apiCredentials($apiCredential)->initiator,
+            'SecurityCredential'       => DarajaHelper::setSecurityCredential(DarajaHelper::apiCredentials($apiCredential)->password),
             'CommandID'                => $this->commandId,
             'Amount'                   => $amount,
-            'PartyA'                   => $shortcode,
+            'PartyA'                   => DarajaHelper::apiCredentials($apiCredential)->shortcode,
             'PartyB'                   => $recipient,
             'Remarks'                  => 'send to mobile',
             'QueueTimeOutURL'          => $this->queueTimeOutURL,
@@ -91,7 +89,7 @@ class B2C extends DarajaClient
         /** @var MpesaTransaction $transaction */
         $transaction = MpesaTransaction::create(array_merge([
             'payment_reference' => $originatorConversationID,
-            'short_code'        => $shortcode,
+            'short_code'        => DarajaHelper::apiCredentials($apiCredential)->shortcode,
             'transaction_type'  => 'SendMoney',
             'account_number'    => $recipient,
             'amount'            => $amount,
