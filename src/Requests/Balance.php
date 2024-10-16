@@ -37,7 +37,6 @@ class Balance extends DarajaClient
      */
     protected string $securityCredential;
 
-
     /**
      * Safaricom APIs Balance queue timeout URI.
      *
@@ -72,8 +71,7 @@ class Balance extends DarajaClient
      */
     public function check(
         string $shortcode
-    ): void
-    {
+    ): void {
         $api = ApiCredential::where('short_code', $shortcode)->first();
 
         $parameters = [
@@ -93,7 +91,6 @@ class Balance extends DarajaClient
             Log::info($response);
 
         } catch (DarajaRequestException $e) {
-
         }
     }
 }
