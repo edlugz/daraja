@@ -82,7 +82,7 @@ class Balance extends DarajaClient
             'IdentifierType'     => '4',
             'Remarks'            => 'Account balance',
             'QueueTimeOutURL'    => $this->queueTimeOutURL,
-            'ResultURL'          => $this->resultURL.'/',
+            'ResultURL'          => $this->resultURL,
         ];
 
         try {
