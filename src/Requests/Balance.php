@@ -49,19 +49,19 @@ class Balance extends DarajaClient
      *
      * @var string
      */
-    protected string $resultURL;
+    public string $resultURL;
 
     /**
      * Necessary initializations for Balance transactions from the config file while
      * also initialize parent constructor.
      */
-    public function __construct()
+    public function __construct($resultURL = null)
     {
         parent::__construct();
 
         $this->queueTimeOutURL = config('daraja.timeout_url');
         $this->commandId = 'AccountBalance';
-        $this->resultURL = config('daraja.balance_result_url');
+        $this->resultURL = $resultURL ?? config('daraja.balance_result_url');
     }
 
     /**
@@ -82,7 +82,7 @@ class Balance extends DarajaClient
             'IdentifierType'     => '4',
             'Remarks'            => 'Account balance',
             'QueueTimeOutURL'    => $this->queueTimeOutURL,
-            'ResultURL'          => $this->resultURL,
+            'ResultURL'          => $this->resultURL.'/',
         ];
 
         try {

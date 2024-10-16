@@ -48,7 +48,6 @@ class Transaction extends DarajaClient
     {
         parent::__construct();
 
-        $this->timestamp = date('YmdHis');
         $this->queueTimeOutURL = config('daraja.timeout_url');
         $this->mobileResultURL = config('daraja.transaction_query_mobile_result_url');
         $this->tillResultURL = config('daraja.transaction_query_till_result_url');
@@ -79,6 +78,8 @@ class Transaction extends DarajaClient
             $resultUrl = $this->tillResultURL;
         } elseif ($check->transaction_type == 'PayBill') {
             $resultUrl = $this->paybillResultURL;
+        } else {
+            $resultUrl = $this->mobileResultURL;
         }
 
         $parameters = [
