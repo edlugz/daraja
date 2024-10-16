@@ -43,9 +43,9 @@ class B2C extends DarajaClient
     /**
      * Necessary initializations for B2C transactions from the config file.
      */
-    public function __construct($consumerKey, $consumerSecret, $shortcode)
+    public function __construct(ApiCredential $apiCredential)
     {
-        parent::__construct($consumerKey, $consumerSecret, $shortcode);
+        parent::__construct($apiCredential);
 
         $this->queueTimeOutURL = config('daraja.timeout_url');
         $this->resultURL = config('daraja.mobile_result_url');
@@ -55,7 +55,6 @@ class B2C extends DarajaClient
     /**
      * Send transaction details to Safaricom B2C API.
      *
-     * @param string $shortcode
      * @param string $recipient
      * @param string $amount
      * @param array  $customFieldsKeyValue
@@ -63,7 +62,6 @@ class B2C extends DarajaClient
      * @return MpesaTransaction
      */
     public function pay(
-        ApiCredential $apiCredential,
         string $recipient,
         string $amount,
         array $customFieldsKeyValue = []
@@ -74,11 +72,11 @@ class B2C extends DarajaClient
 
         $parameters = [
             'OriginatorConversationID' => $originatorConversationID,
-            'InitiatorName'            => DarajaHelper::apiCredentials($apiCredential)->initiator,
-            'SecurityCredential'       => DarajaHelper::setSecurityCredential(DarajaHelper::apiCredentials($apiCredential)->password),
+            'InitiatorName'            => DarajaHelper::apiCredentials($this->apiCredential)->initiator,
+            'SecurityCredential'       => DarajaHelper::setSecurityCredential(DarajaHelper::apiCredentials($this->apiCredential)->password),
             'CommandID'                => $this->commandId,
             'Amount'                   => $amount,
-            'PartyA'                   => DarajaHelper::apiCredentials($apiCredential)->shortcode,
+            'PartyA'                   => DarajaHelper::apiCredentials($this->apiCredential)->shortcode,
             'PartyB'                   => $recipient,
             'Remarks'                  => 'send to mobile',
             'QueueTimeOutURL'          => $this->queueTimeOutURL,

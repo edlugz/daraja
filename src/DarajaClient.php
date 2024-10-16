@@ -4,7 +4,8 @@ namespace EdLugz\Daraja;
 
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Logging\Log;
-use Exception;
+use EdLugz\Daraja\Models\ApiCredential;
+use EdLugz\Daraja\Helpers\DarajaHelper;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
@@ -48,6 +49,13 @@ class DarajaClient
     protected string $accessToken;
 
     /**
+     * ApiCredential Model.
+     *
+     * @var string
+     */
+    protected ApiCredential $apiCredential;
+
+    /**
      * Base URL end points for the Daraja APIs.
      *
      * @var array
@@ -62,14 +70,14 @@ class DarajaClient
      * and throw the necessary exception if there are any missing-required
      * configurations.
      *
-     * @param string $consumerKey
-     * @param string $consumerSecret
-     * @param string $shortcode
+     * @param
      *
      * @throws DarajaRequestException
      */
-    public function __construct(string $consumerKey, string $consumerSecret, string $shortcode)
+    public function __construct(ApiCredential $apiCredential)
     {
+        $this->apiCredential = $apiCredential;
+
         try {
 
             $mode = $this->config('daraja.mode');
@@ -84,10 +92,10 @@ class DarajaClient
             }
 
             $this->client = new Client($options);
-            $this->consumerKey = $consumerKey;
-            $this->consumerSecret = $consumerSecret;
-            $this->shortcode = $shortcode;
-            $this->getAccessToken($this->shortcode);
+            $this->consumerKey = DarajaHelper::apiCredentials($apiCredential)->consumerKey;
+            $this->consumerSecret = DarajaHelper::apiCredentials($apiCredential)->consumerSecret;
+            $this->shortcode = DarajaHelper::apiCredentials($apiCredential)->shortcode;
+            $this->getAccessToken(DarajaHelper::apiCredentials($apiCredential)->shortcode);
         } catch(Exception $e) {
             throw new DarajaRequestException('Daraja APIs: '.$e->getMessage(), $e->getCode());
         }

@@ -45,9 +45,9 @@ class Transaction extends DarajaClient
      * Necessary initializations for C2B transactions from the config file.
      * @throws DarajaRequestException
      */
-    public function __construct($consumerKey, $consumerSecret, $shortcode)
+    public function __construct(ApiCredential $apiCredential)
     {
-        parent::__construct($consumerKey, $consumerSecret, $shortcode);
+        parent::__construct($apiCredential);
 
         $this->queueTimeOutURL = config('daraja.timeout_url');
         $this->mobileResultURL = config('daraja.transaction_query_mobile_result_url');
@@ -59,13 +59,11 @@ class Transaction extends DarajaClient
     /**
      * Send transaction details to Safaricom C2B API.
      *
-     * @param string $shortcode
      * @param string $paymentId
      *
      * @return MpesaTransaction
      */
     public function status(
-        ApiCredential $apiCredential,
         string $paymentId
     ): MpesaTransaction {
 
@@ -82,12 +80,12 @@ class Transaction extends DarajaClient
         }
 
         $parameters = [
-            'Initiator'                => DarajaHelper::apiCredentials($apiCredential)->initiator,
-            'SecurityCredential'       => DarajaHelper::setSecurityCredential(DarajaHelper::apiCredentials($apiCredential)->password),
+            'Initiator'                => DarajaHelper::apiCredentials($this->apiCredential)->initiator,
+            'SecurityCredential'       => DarajaHelper::setSecurityCredential(DarajaHelper::apiCredentials($this->apiCredential)->password),
             'CommandID'                => $this->commandId,
             'TransactionID'            => '',
             'OriginatorConversationID' => $check->originator_conversation_id,
-            'PartyA'                   => DarajaHelper::apiCredentials($apiCredential)->shortcode,
+            'PartyA'                   => DarajaHelper::apiCredentials($this->apiCredential)->shortcode,
             'IdentifierType'           => '4',
             'ResultURL'                => $resultUrl,
             'QueueTimeOutURL'          => $this->queueTimeOutURL,
@@ -99,7 +97,7 @@ class Transaction extends DarajaClient
         $transaction = MpesaTransaction::create([
             'payment_id'        => $check->payment_id,
             'payment_reference' => $check->originator_conversation_id,
-            'short_code'        => DarajaHelper::apiCredentials($apiCredential)->shortcode,
+            'short_code'        => DarajaHelper::apiCredentials($this->apiCredential)->shortcode,
             'transaction_type'  => 'TransactionStatus',
             'account_number'    => $check->account_number,
             'amount'            => $check->amount,
