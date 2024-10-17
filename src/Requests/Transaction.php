@@ -3,9 +3,9 @@
 namespace EdLugz\Daraja\Requests;
 
 use EdLugz\Daraja\DarajaClient;
+use EdLugz\Daraja\Data\ClientCredential;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
-use EdLugz\Daraja\Models\ApiCredential;
 use EdLugz\Daraja\Models\MpesaTransaction;
 use Illuminate\Support\Facades\Log;
 
@@ -45,7 +45,7 @@ class Transaction extends DarajaClient
      * Necessary initializations for C2B transactions from the config file.
      * @throws DarajaRequestException
      */
-    public function __construct(ApiCredential $apiCredential)
+    public function __construct(ClientCredential $apiCredential)
     {
         parent::__construct($apiCredential);
 
@@ -80,12 +80,12 @@ class Transaction extends DarajaClient
         }
 
         $parameters = [
-            'Initiator'                => DarajaHelper::apiCredentials($this->apiCredential)->initiator,
-            'SecurityCredential'       => DarajaHelper::setSecurityCredential(DarajaHelper::apiCredentials($this->apiCredential)->password),
+            'Initiator'                => $this->apiCredential->initiator,
+            'SecurityCredential'       => DarajaHelper::setSecurityCredential($this->apiCredential->password),
             'CommandID'                => $this->commandId,
             'TransactionID'            => '',
             'OriginatorConversationID' => $check->originator_conversation_id,
-            'PartyA'                   => DarajaHelper::apiCredentials($this->apiCredential)->shortcode,
+            'PartyA'                   => $this->apiCredential->shortcode,
             'IdentifierType'           => '4',
             'ResultURL'                => $resultUrl,
             'QueueTimeOutURL'          => $this->queueTimeOutURL,
@@ -97,7 +97,7 @@ class Transaction extends DarajaClient
         $transaction = MpesaTransaction::create([
             'payment_id'        => $check->payment_id,
             'payment_reference' => $check->originator_conversation_id,
-            'short_code'        => DarajaHelper::apiCredentials($this->apiCredential)->shortcode,
+            'short_code'        => $this->apiCredential->shortcode,
             'transaction_type'  => 'TransactionStatus',
             'account_number'    => $check->account_number,
             'amount'            => $check->amount,

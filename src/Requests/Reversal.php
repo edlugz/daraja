@@ -3,6 +3,7 @@
 namespace EdLugz\Daraja\Requests;
 
 use EdLugz\Daraja\DarajaClient;
+use EdLugz\Daraja\Data\ClientCredential;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
 use EdLugz\Daraja\Models\ApiCredential;
@@ -43,10 +44,11 @@ class Reversal extends DarajaClient
     /**
      * Necessary initializations for B2C transactions from the config file while
      * also initialize parent constructor.
+     * @throws \EdLugz\Daraja\Exceptions\DarajaRequestException
      */
-    public function __construct()
+    public function __construct(ClientCredential $apiCredential)
     {
-        parent::__construct();
+        parent::__construct($apiCredential);
 
         $this->queueTimeOutURL = config('daraja.timeout_url');
         $this->resultURL = config('daraja.reversal_result_url');
@@ -58,10 +60,9 @@ class Reversal extends DarajaClient
      *
      * @param string $shortcode
      * @param string $transactionId
-     * @param string $recipient
      * @param string $amount
-     *
-     * @return array
+     * @param array $customFieldsKeyValue
+     * @return \EdLugz\Daraja\Models\MpesaTransaction
      */
     public function request(
         string $shortcode,

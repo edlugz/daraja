@@ -3,6 +3,7 @@
 namespace EdLugz\Daraja\Requests;
 
 use EdLugz\Daraja\DarajaClient;
+use EdLugz\Daraja\Data\ClientCredential;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
 use EdLugz\Daraja\Models\ApiCredential;
@@ -42,8 +43,9 @@ class B2C extends DarajaClient
 
     /**
      * Necessary initializations for B2C transactions from the config file.
+     * @throws \EdLugz\Daraja\Exceptions\DarajaRequestException
      */
-    public function __construct(ApiCredential $apiCredential)
+    public function __construct(ClientCredential $apiCredential)
     {
         parent::__construct($apiCredential);
 
@@ -72,11 +74,11 @@ class B2C extends DarajaClient
 
         $parameters = [
             'OriginatorConversationID' => $originatorConversationID,
-            'InitiatorName'            => DarajaHelper::apiCredentials($this->apiCredential)->initiator,
-            'SecurityCredential'       => DarajaHelper::setSecurityCredential(DarajaHelper::apiCredentials($this->apiCredential)->password),
+            'InitiatorName'            => $this->apiCredential->initiator,
+            'SecurityCredential'       => DarajaHelper::setSecurityCredential($this->apiCredential->password),
             'CommandID'                => $this->commandId,
             'Amount'                   => $amount,
-            'PartyA'                   => DarajaHelper::apiCredentials($this->apiCredential)->shortcode,
+            'PartyA'                   => $this->apiCredential->shortcode,
             'PartyB'                   => $recipient,
             'Remarks'                  => 'send to mobile',
             'QueueTimeOutURL'          => $this->queueTimeOutURL,
@@ -87,7 +89,7 @@ class B2C extends DarajaClient
         /** @var MpesaTransaction $transaction */
         $transaction = MpesaTransaction::create(array_merge([
             'payment_reference' => $originatorConversationID,
-            'short_code'        => DarajaHelper::apiCredentials($apiCredential)->shortcode,
+            'short_code'        => $this->apiCredential->shortcode,
             'transaction_type'  => 'SendMoney',
             'account_number'    => $recipient,
             'amount'            => $amount,

@@ -8,6 +8,8 @@ readonly class ClientCredential
      * @param string $consumerKey
      * @param string $consumerSecret
      * @param string $shortcode
+     * @param string $initiator
+     * @param string $password
      */
     public function __construct(
         public string $consumerKey,

@@ -2,6 +2,7 @@
 
 namespace EdLugz\Daraja;
 
+use EdLugz\Daraja\Data\ClientCredential;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Logging\Log;
 use EdLugz\Daraja\Models\ApiCredential;
@@ -48,12 +49,6 @@ class DarajaClient
      */
     protected string $accessToken;
 
-    /**
-     * ApiCredential Model.
-     *
-     * @var string
-     */
-    protected ApiCredential $apiCredential;
 
     /**
      * Base URL end points for the Daraja APIs.
@@ -74,9 +69,8 @@ class DarajaClient
      *
      * @throws DarajaRequestException
      */
-    public function __construct(ApiCredential $apiCredential)
+    public function __construct(public ClientCredential $apiCredential)
     {
-        $this->apiCredential = $apiCredential;
 
         try {
 
@@ -92,10 +86,10 @@ class DarajaClient
             }
 
             $this->client = new Client($options);
-            $this->consumerKey = DarajaHelper::apiCredentials($apiCredential)->consumerKey;
-            $this->consumerSecret = DarajaHelper::apiCredentials($apiCredential)->consumerSecret;
-            $this->shortcode = DarajaHelper::apiCredentials($apiCredential)->shortcode;
-            $this->getAccessToken(DarajaHelper::apiCredentials($apiCredential)->shortcode);
+            $this->consumerKey = $this->apiCredential->consumerKey;
+            $this->consumerSecret = $this->apiCredential->consumerSecret;
+            $this->shortcode = $this->apiCredential->shortcode;
+            $this->getAccessToken($this->apiCredential->shortcode);
         } catch(Exception $e) {
             throw new DarajaRequestException('Daraja APIs: '.$e->getMessage(), $e->getCode());
         }

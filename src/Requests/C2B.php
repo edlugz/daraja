@@ -3,6 +3,7 @@
 namespace EdLugz\Daraja\Requests;
 
 use EdLugz\Daraja\DarajaClient;
+use EdLugz\Daraja\Data\ClientCredential;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
 use EdLugz\Daraja\Models\MpesaFunding;
@@ -75,9 +76,9 @@ class C2B extends DarajaClient
     /**
      * Necessary initializations for C2B transactions from the config file.
      */
-    public function __construct()
+    public function __construct(ClientCredential $apiCredential)
     {
-        parent::__construct();
+        parent::__construct($apiCredential);
 
         $this->timestamp = date('YmdHis');
         $this->initiatorName = config('daraja.initiator_name');

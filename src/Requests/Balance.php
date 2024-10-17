@@ -3,6 +3,7 @@
 namespace EdLugz\Daraja\Requests;
 
 use EdLugz\Daraja\DarajaClient;
+use EdLugz\Daraja\Data\ClientCredential;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
 use EdLugz\Daraja\Models\ApiCredential;
@@ -42,7 +43,7 @@ class Balance extends DarajaClient
      * also initialize parent constructor.
      * @throws DarajaRequestException
      */
-    public function __construct(ApiCredential $apiCredential)
+    public function __construct(ClientCredential $apiCredential)
     {
         parent::__construct($apiCredential);
 
@@ -54,20 +55,20 @@ class Balance extends DarajaClient
     /**
      * Send transaction details to Safaricom Balance API.
      *
-     * @param ApiCredential $apiCredential
      * @return void
      */
-    public function check(): void {
+    public function check(): void
+    {
 
         $parameters = [
-            'Initiator'          => DarajaHelper::apiCredentials($this->apiCredential)->initiator,
-            'SecurityCredential' => DarajaHelper::setSecurityCredential(DarajaHelper::apiCredentials($this->apiCredential)->password),
-            'CommandID'          => $this->commandId,
-            'PartyA'             => DarajaHelper::apiCredentials($this->apiCredential)->shortcode,
-            'IdentifierType'     => '4',
-            'Remarks'            => 'Account balance',
-            'QueueTimeOutURL'    => $this->queueTimeOutURL,
-            'ResultURL'          => $this->resultURL,
+            'Initiator' => $this->apiCredential->initiator,
+            'SecurityCredential' => DarajaHelper::setSecurityCredential($this->apiCredential->password),
+            'CommandID' => $this->commandId,
+            'PartyA' => $this->apiCredential->shortcode,
+            'IdentifierType' => '4',
+            'Remarks' => 'Account balance',
+            'QueueTimeOutURL' => $this->queueTimeOutURL,
+            'ResultURL' => $this->resultURL,
         ];
 
         try {
