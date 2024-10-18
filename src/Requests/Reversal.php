@@ -58,30 +58,26 @@ class Reversal extends DarajaClient
     /**
      * Send transaction details to Safaricom Reversal API.
      *
-     * @param string $shortcode
      * @param string $transactionId
      * @param string $amount
      * @param array $customFieldsKeyValue
      * @return \EdLugz\Daraja\Models\MpesaTransaction
      */
     public function request(
-        string $shortcode,
         string $transactionId,
         string $amount,
         array $customFieldsKeyValue = []
     ): MpesaTransaction {
-        //check shortcode for credentials
-        $api = ApiCredential::where('short_code', $shortcode)->first();
 
         $originatorConversationID = (string) Str::uuid();
 
         $parameters = [
-            'Initiator'                => $api->initiator_name,
-            'SecurityCredential'       => DarajaHelper::setSecurityCredential($api->initiator_password),
+            'Initiator'                => $this->apiCredential->initiator,
+            'SecurityCredential'       => DarajaHelper::setSecurityCredential($this->apiCredential->password),
             'CommandID'                => $this->commandId,
             'TransactionID'            => $transactionId,
             'Amount'                   => $amount,
-            'ReceiverParty'            => $shortcode,
+            'ReceiverParty'            => $this->apiCredential->shortcode,
             'RecieverIdentifierType'   => 11,
             'ResultURL'                => $this->resultURL,
             'QueueTimeOutURL'          => $this->queueTimeOutURL,
@@ -92,7 +88,7 @@ class Reversal extends DarajaClient
         /** @var MpesaTransaction $transaction */
         $transaction = MpesaTransaction::create(array_merge([
             'payment_reference' => $originatorConversationID,
-            'short_code'        => $shortcode,
+            'short_code'        => $this->apiCredential->shortcode,
             'transaction_type'  => 'Reversal',
             'account_number'    => '0',
             'amount'            => $amount,
