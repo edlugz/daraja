@@ -2,13 +2,12 @@
 
 namespace EdLugz\Daraja;
 
-use EdLugz\Daraja\Requests\C2B;
 use EdLugz\Daraja\Requests\B2B;
 use EdLugz\Daraja\Requests\B2C;
 use EdLugz\Daraja\Requests\Balance;
+use EdLugz\Daraja\Requests\C2B;
 use EdLugz\Daraja\Requests\Reversal;
 use EdLugz\Daraja\Requests\Transaction;
-use http\Client;
 
 class Daraja
 {
@@ -16,9 +15,8 @@ class Daraja
      * Initiate a business to business transaction.
      *
      * @return B2B
-     *
      */
-    public function b2b() : B2B
+    public function b2b(): B2B
     {
         return new B2B();
     }
@@ -28,7 +26,7 @@ class Daraja
      *
      * @return B2C
      */
-    public function b2c() : B2C
+    public function b2c(): B2C
     {
         return new B2C();
     }
@@ -38,7 +36,7 @@ class Daraja
      *
      * @return Balance
      */
-    public function balance() : Balance
+    public function balance(): Balance
     {
         return new Balance();
     }
@@ -48,7 +46,7 @@ class Daraja
      *
      * @return C2B
      */
-    public function c2b() : C2B
+    public function c2b(): C2B
     {
         return new C2B();
     }
@@ -58,7 +56,7 @@ class Daraja
      *
      * @return Reversal
      */
-    public function reversal() : Reversal
+    public function reversal(): Reversal
     {
         return new Reversal();
     }
@@ -68,9 +66,8 @@ class Daraja
      *
      * @return Transaction
      */
-    public function transaction() : Transaction
+    public function transaction(): Transaction
     {
         return new Transaction();
     }
-
 }
