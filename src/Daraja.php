@@ -2,9 +2,15 @@
 
 namespace EdLugz\Daraja;
 
+use EdLugz\Daraja\Data\ClientCredential;
+use EdLugz\Daraja\Exceptions\DarajaRequestException;
+use EdLugz\Daraja\Requests\C2B;
 use EdLugz\Daraja\Requests\B2B;
 use EdLugz\Daraja\Requests\B2C;
 use EdLugz\Daraja\Requests\Balance;
+use EdLugz\Daraja\Requests\Reversal;
+use EdLugz\Daraja\Requests\Transaction;
+use http\Client;
 
 class Daraja
 {
@@ -12,8 +18,9 @@ class Daraja
      * Initiate a business to business transaction.
      *
      * @return B2B
+     *
      */
-    public function b2b()
+    public function b2b() : B2B
     {
         return new B2B();
     }
@@ -23,7 +30,7 @@ class Daraja
      *
      * @return B2C
      */
-    public function b2c()
+    public function b2c() : B2C
     {
         return new B2C();
     }
@@ -33,7 +40,7 @@ class Daraja
      *
      * @return Balance
      */
-    public function balance()
+    public function balance() : Balance
     {
         return new Balance();
     }
@@ -43,7 +50,7 @@ class Daraja
      *
      * @return C2B
      */
-    public function c2b()
+    public function c2b() : C2B
     {
         return new C2B();
     }
@@ -53,7 +60,7 @@ class Daraja
      *
      * @return Reversal
      */
-    public function reversal()
+    public function reversal() : Reversal
     {
         return new Reversal();
     }
@@ -63,18 +70,9 @@ class Daraja
      *
      * @return Transaction
      */
-    public function transaction()
+    public function transaction() : Transaction
     {
         return new Transaction();
     }
-
-    /**
-     * Initiate a LIPA NA MPESA ONLINE transaction using STK push.
-     *
-     * @return STK
-     */
-    public function STK()
-    {
-        return new STK();
-    }
+    
 }

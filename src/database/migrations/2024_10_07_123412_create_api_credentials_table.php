@@ -17,6 +17,7 @@ return new class() extends Migration {
             $table->string('short_code')->nullable();
             $table->string('initiator')->nullable();
             $table->string('initiator_password')->nullable();
+            $table->string('pass_key')->nullable();
             $table->string('consumer_key')->nullable();
             $table->string('consumer_secret')->nullable();
             $table->string('balance_result_url')->nullable();

@@ -16,7 +16,8 @@ readonly class ClientCredential
         public string $consumerSecret,
         public string $shortcode,
         public string $initiator,
-        public string $password
+        public string $password,
+        public string $passkey,
     )
     {
     }
