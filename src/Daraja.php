@@ -2,8 +2,6 @@
 
 namespace EdLugz\Daraja;
 
-use EdLugz\Daraja\Data\ClientCredential;
-use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Requests\C2B;
 use EdLugz\Daraja\Requests\B2B;
 use EdLugz\Daraja\Requests\B2C;
@@ -74,5 +72,5 @@ class Daraja
     {
         return new Transaction();
     }
-    
+
 }
