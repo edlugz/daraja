@@ -6,7 +6,6 @@ use EdLugz\Daraja\DarajaClient;
 use EdLugz\Daraja\Data\ClientCredential;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
-use EdLugz\Daraja\Models\ApiCredential;
 
 class Balance extends DarajaClient
 {
@@ -41,6 +40,7 @@ class Balance extends DarajaClient
     /**
      * Necessary initializations for Balance transactions from the config file while
      * also initialize parent constructor.
+     *
      * @throws DarajaRequestException
      */
     public function __construct(ClientCredential $apiCredential)
@@ -59,24 +59,20 @@ class Balance extends DarajaClient
      */
     public function check(): void
     {
-
         $parameters = [
-            'Initiator' => $this->apiCredential->initiator,
+            'Initiator'          => $this->apiCredential->initiator,
             'SecurityCredential' => DarajaHelper::setSecurityCredential($this->apiCredential->password),
-            'CommandID' => $this->commandId,
-            'PartyA' => $this->apiCredential->shortcode,
-            'IdentifierType' => '4',
-            'Remarks' => 'Account balance',
-            'QueueTimeOutURL' => $this->queueTimeOutURL,
-            'ResultURL' => $this->resultURL,
+            'CommandID'          => $this->commandId,
+            'PartyA'             => $this->apiCredential->shortcode,
+            'IdentifierType'     => '4',
+            'Remarks'            => 'Account balance',
+            'QueueTimeOutURL'    => $this->queueTimeOutURL,
+            'ResultURL'          => $this->resultURL,
         ];
 
         try {
-
             $this->call($this->endPoint, ['json' => $parameters]);
-
         } catch (DarajaRequestException $e) {
-
         }
     }
 }

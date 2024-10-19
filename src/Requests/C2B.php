@@ -75,6 +75,7 @@ class C2B extends DarajaClient
 
     /**
      * Necessary initializations for C2B transactions from the config file.
+     *
      * @throws DarajaRequestException
      */
     public function __construct(ClientCredential $apiCredential)

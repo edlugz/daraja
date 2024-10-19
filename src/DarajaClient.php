@@ -5,8 +5,6 @@ namespace EdLugz\Daraja;
 use EdLugz\Daraja\Data\ClientCredential;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Logging\Log;
-use EdLugz\Daraja\Models\ApiCredential;
-use EdLugz\Daraja\Helpers\DarajaHelper;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
@@ -49,7 +47,6 @@ class DarajaClient
      */
     protected string $accessToken;
 
-
     /**
      * Base URL end points for the Daraja APIs.
      *
@@ -71,9 +68,7 @@ class DarajaClient
      */
     public function __construct(public ClientCredential $apiCredential)
     {
-
         try {
-
             $mode = $this->config('daraja.mode');
 
             $options = [
@@ -99,6 +94,7 @@ class DarajaClient
      * Get access token from Daraja APIs.
      *
      * @param string $shortcode
+     *
      * @throws DarajaRequestException
      *
      * @return void
