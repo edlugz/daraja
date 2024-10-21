@@ -11,15 +11,17 @@ use Illuminate\Support\Facades\File;
 
 class DarajaHelper
 {
-    public static function apiCredentials(ApiCredential $apiCredential) : ClientCredential
+    public static function apiCredentials(ApiCredential $apiCredential): ClientCredential
     {
         return new ClientCredential(
             consumerKey: $apiCredential->consumer_key,
             consumerSecret: $apiCredential->consumer_secret,
             shortcode: $apiCredential->short_code,
             initiator: $apiCredential->initiator_name,
-            password: $apiCredential->initiator_password);
+            password: $apiCredential->initiator_password
+        );
     }
+
     /**
      * Encrypt initiator password.
      *

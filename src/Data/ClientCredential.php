@@ -19,7 +19,6 @@ readonly class ClientCredential
         public string $initiator,
         public string $password,
         public string $passkey,
-    )
-    {
+    ) {
     }
 }

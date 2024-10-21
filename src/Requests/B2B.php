@@ -46,6 +46,7 @@ class B2B extends DarajaClient
     /**
      * Necessary initializations for B2B transactions from the config file while
      * also initialize parent constructor.
+     *
      * @throws DarajaRequestException
      */
     public function __construct(ClientCredential $apiCredential)
@@ -68,7 +69,8 @@ class B2B extends DarajaClient
      * @param string $recipient
      * @param string $requester
      * @param string $amount
-     * @param array $customFieldsKeyValue
+     * @param array  $customFieldsKeyValue
+     *
      * @return MpesaTransaction
      *
      */
@@ -78,7 +80,6 @@ class B2B extends DarajaClient
         string $amount,
         array $customFieldsKeyValue
     ): MpesaTransaction {
-
         //check balance before sending out transaction
         $originatorConversationID = (string) Str::uuid();
 
@@ -165,7 +166,8 @@ class B2B extends DarajaClient
      * @param string $requester
      * @param string $amount
      * @param string $accountReference
-     * @param array $customFieldsKeyValue
+     * @param array  $customFieldsKeyValue
+     *
      * @return MpesaTransaction
      *
      */

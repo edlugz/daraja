@@ -45,6 +45,7 @@ class Transaction extends DarajaClient
 
     /**
      * Necessary initializations for C2B transactions from the config file.
+     *
      * @throws DarajaRequestException
      */
     public function __construct(ClientCredential $apiCredential)
@@ -70,7 +71,6 @@ class Transaction extends DarajaClient
     public function status(
         string $paymentId
     ): MpesaTransaction {
-
         $check = MpesaTransaction::where('payment_id', $paymentId)->first();
 
         if ($check->transaction_type == 'SendMoney') {
