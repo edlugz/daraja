@@ -103,8 +103,6 @@ class Reversal extends DarajaClient
         try {
             $response = $this->call($this->endPoint, ['json' => $parameters]);
 
-            $array = (array) $response;
-
             Log::info('Daraja Reversal Response: ', (array) $response);
 
             $transaction->update(
