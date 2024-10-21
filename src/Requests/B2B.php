@@ -6,7 +6,6 @@ use EdLugz\Daraja\DarajaClient;
 use EdLugz\Daraja\Data\ClientCredential;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
-use EdLugz\Daraja\Models\ApiCredential;
 use EdLugz\Daraja\Models\MpesaTransaction;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -42,6 +41,7 @@ class B2B extends DarajaClient
      */
     protected string $tillResultURL;
     protected string $paybillResultURL;
+    public ClientCredential $apiCredential;
 
     /**
      * Necessary initializations for B2B transactions from the config file while
@@ -50,11 +50,13 @@ class B2B extends DarajaClient
      */
     public function __construct(ClientCredential $apiCredential)
     {
+        $this->apiCredential = $apiCredential;
+
         parent::__construct($apiCredential);
 
-        $this->queueTimeOutURL = config('daraja.timeout_url');
-        $this->tillResultURL = config('daraja.till_result_url');
-        $this->paybillResultURL = config('daraja.paybill_result_url');
+        $this->queueTimeOutURL = env('DARAJA_TIMEOUT_URL');
+        $this->tillResultURL = env('DARAJA_TILL_RESULT_URL');
+        $this->paybillResultURL = env('DARAJA_PAYBILL_RESULT_URL');
         $this->tillCommandId = 'BusinessBuyGoods';
         $this->paybillCommandId = 'BusinessPayBill';
     }
@@ -68,8 +70,9 @@ class B2B extends DarajaClient
      * @param string $amount
      * @param array $customFieldsKeyValue
      * @return MpesaTransaction
+     *
      */
-    protected function till(
+    public function till(
         string $recipient,
         string $requester,
         string $amount,
@@ -109,9 +112,7 @@ class B2B extends DarajaClient
         try {
             $response = $this->call($this->endPoint, ['json' => $parameters]);
 
-            $array = (array) $response;
-
-            Log::info($array);
+            Log::info('B2B Till Response', (array) $response);
 
             $transaction->update(
                 [
@@ -166,6 +167,7 @@ class B2B extends DarajaClient
      * @param string $accountReference
      * @param array $customFieldsKeyValue
      * @return MpesaTransaction
+     *
      */
     protected function paybill(
         string $recipient,
@@ -209,9 +211,7 @@ class B2B extends DarajaClient
         try {
             $response = $this->call($this->endPoint, ['json' => $parameters]);
 
-            $array = (array) $response;
-
-            Log::info($array);
+            Log::info('B2B Paybill Response', (array) $response);
 
             $transaction->update(
                 [

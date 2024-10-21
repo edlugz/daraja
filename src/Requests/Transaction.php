@@ -41,18 +41,22 @@ class Transaction extends DarajaClient
     protected string $tillResultURL;
     protected string $paybillResultURL;
 
+    public ClientCredential $apiCredential;
+
     /**
      * Necessary initializations for C2B transactions from the config file.
      * @throws DarajaRequestException
      */
     public function __construct(ClientCredential $apiCredential)
     {
+        $this->apiCredential = $apiCredential;
+
         parent::__construct($apiCredential);
 
-        $this->queueTimeOutURL = config('daraja.timeout_url');
-        $this->mobileResultURL = config('daraja.transaction_query_mobile_result_url');
-        $this->tillResultURL = config('daraja.transaction_query_till_result_url');
-        $this->paybillResultURL = config('daraja.transaction_query_paybill_result_url');
+        $this->queueTimeOutURL = env('DARAJA_TIMEOUT_URL');
+        $this->mobileResultURL = env('DARAJA_TRANSACTION_QUERY_MOBILE_RESULT_URL');
+        $this->tillResultURL = env('DARAJA_TRANSACTION_QUERY_TILL_RESULT_URL');
+        $this->paybillResultURL = config('DARAJA_TRANSACTION_QUERY_PAYBILL_RESULT_URL');
         $this->commandId = 'TransactionStatusQuery';
     }
 
@@ -107,9 +111,7 @@ class Transaction extends DarajaClient
         try {
             $response = $this->call($this->endPoint, ['json' => $parameters]);
 
-            $array = (array) $response;
-
-            Log::info($array);
+            Log::info('Daraja Transaction Status Response: ', (array) $response);
 
             $transaction->update(
                 [

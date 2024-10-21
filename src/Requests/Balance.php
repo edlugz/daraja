@@ -6,7 +6,7 @@ use EdLugz\Daraja\DarajaClient;
 use EdLugz\Daraja\Data\ClientCredential;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
-use EdLugz\Daraja\Models\ApiCredential;
+use Illuminate\Support\Facades\Log;
 
 class Balance extends DarajaClient
 {
@@ -38,18 +38,22 @@ class Balance extends DarajaClient
      */
     public string $resultURL;
 
+    public ClientCredential $apiCredential;
+
     /**
      * Necessary initializations for Balance transactions from the config file while
      * also initialize parent constructor.
      * @throws DarajaRequestException
      */
-    public function __construct(ClientCredential $apiCredential)
+    public function __construct(ClientCredential $apiCredential, string $resultURL)
     {
+        $this->apiCredential = $apiCredential;
+
         parent::__construct($apiCredential);
 
-        $this->queueTimeOutURL = config('daraja.timeout_url');
+        $this->queueTimeOutURL = env('DARAJA_TIMEOUT_URL');
         $this->commandId = 'AccountBalance';
-        $this->resultURL = $resultURL ?? config('daraja.balance_result_url');
+        $this->resultURL = $resultURL;
     }
 
     /**
@@ -73,7 +77,9 @@ class Balance extends DarajaClient
 
         try {
 
-            $this->call($this->endPoint, ['json' => $parameters]);
+            $response = $this->call($this->endPoint, ['json' => $parameters]);
+
+            Log::info('Daraja Balance Response: ', (array) $response);
 
         } catch (DarajaRequestException $e) {
 

@@ -41,16 +41,21 @@ class B2C extends DarajaClient
      */
     protected string $resultURL;
 
+    public ClientCredential $apiCredential;
+
     /**
      * Necessary initializations for B2C transactions from the config file.
-     * @throws \EdLugz\Daraja\Exceptions\DarajaRequestException
+     * @param ClientCredential $apiCredential
+     * @throws DarajaRequestException
      */
     public function __construct(ClientCredential $apiCredential)
     {
+        $this->apiCredential = $apiCredential;
+
         parent::__construct($apiCredential);
 
-        $this->queueTimeOutURL = config('daraja.timeout_url');
-        $this->resultURL = config('daraja.mobile_result_url');
+        $this->queueTimeOutURL = env('DARAJA_TIMEOUT_URL');
+        $this->resultURL = env('DARAJA_MOBILE_RESULT_URL');
         $this->commandId = 'SalaryPayment';
     }
 
@@ -99,9 +104,7 @@ class B2C extends DarajaClient
         try {
             $response = $this->call($this->endPoint, ['json' => $parameters]);
 
-            $array = (array) $response;
-
-            Log::info($array);
+            Log::info('Daraja B2C Mobile Response', (array) $response);
 
             $transaction->update(
                 [

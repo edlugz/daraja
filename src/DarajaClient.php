@@ -5,8 +5,6 @@ namespace EdLugz\Daraja;
 use EdLugz\Daraja\Data\ClientCredential;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Logging\Log;
-use EdLugz\Daraja\Models\ApiCredential;
-use EdLugz\Daraja\Helpers\DarajaHelper;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
@@ -49,6 +47,8 @@ class DarajaClient
      */
     protected string $accessToken;
 
+    const MODE_LIVE = 'live';
+    const MODE_UAT = 'uat';
 
     /**
      * Base URL end points for the Daraja APIs.
@@ -56,8 +56,8 @@ class DarajaClient
      * @var array
      */
     protected array $base_url = [
-        'uat'  => 'https://sandbox.safaricom.co.ke/',
-        'live' => 'https://api.safaricom.co.ke',
+        self::MODE_UAT  => 'https://sandbox.safaricom.co.ke/',
+        self::MODE_LIVE => 'https://api.safaricom.co.ke',
     ];
 
     /**
@@ -65,8 +65,7 @@ class DarajaClient
      * and throw the necessary exception if there are any missing-required
      * configurations.
      *
-     * @param
-     *
+     * @param ClientCredential $apiCredential
      * @throws DarajaRequestException
      */
     public function __construct(public ClientCredential $apiCredential)
@@ -74,23 +73,22 @@ class DarajaClient
 
         try {
 
-            $mode = $this->config('daraja.mode');
+            $mode = self::MODE_LIVE;
 
             $options = [
                 'base_uri' => $this->base_url[$mode],
                 'verify'   => $mode !== 'uat',
             ];
 
-            if (config('daraja.logs.enabled')) {
-                $options = Log::enable($options);
-            }
+            $options = Log::enable($options);
 
             $this->client = new Client($options);
             $this->consumerKey = $this->apiCredential->consumerKey;
             $this->consumerSecret = $this->apiCredential->consumerSecret;
             $this->shortcode = $this->apiCredential->shortcode;
             $this->getAccessToken($this->apiCredential->shortcode);
-        } catch(Exception $e) {
+
+        } catch(\Exception $e) {
             throw new DarajaRequestException('Daraja APIs: '.$e->getMessage(), $e->getCode());
         }
     }

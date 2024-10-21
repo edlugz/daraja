@@ -7,6 +7,8 @@ use EdLugz\Daraja\Data\ClientCredential;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
 use EdLugz\Daraja\Models\MpesaFunding;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class C2B extends DarajaClient
 {
@@ -73,20 +75,25 @@ class C2B extends DarajaClient
      */
     protected string $resultURL;
 
+    public ClientCredential $apiCredential;
+
     /**
      * Necessary initializations for C2B transactions from the config file.
+     * @param ClientCredential $apiCredential
      * @throws DarajaRequestException
      */
     public function __construct(ClientCredential $apiCredential)
     {
+        $this->apiCredential = $apiCredential;
+
         parent::__construct($apiCredential);
 
         $this->timestamp = date('YmdHis');
         $this->initiatorName = $this->apiCredential->initiator;
         $this->password = DarajaHelper::setPassword($this->apiCredential->shortcode, $this->apiCredential->passkey, $this->timestamp);
         $this->partyA = $this->apiCredential->shortcode;
-        $this->queueTimeOutURL = config('daraja.timeout_url');
-        $this->resultURL = config('daraja.stk_result_url');
+        $this->queueTimeOutURL = env('DARAJA_TIMEOUT_URL');
+        $this->resultURL = env('DARAJA_STK_RESULT_URL');
         $this->commandId = 'CustomerPayBillOnline';
     }
 
@@ -100,7 +107,7 @@ class C2B extends DarajaClient
      *
      * @return MpesaFunding
      */
-    protected function send(
+    public function send(
         string $recipient,
         string $amount,
         string $accountReference,
@@ -131,7 +138,7 @@ class C2B extends DarajaClient
         try {
             $response = $this->call($this->endPoint, ['json' => $parameters]);
 
-            Log::info($response);
+            Log::info('Daraja C2B Response', (array) $response);
 
             $transaction->update(
                 [
