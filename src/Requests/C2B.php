@@ -7,7 +7,6 @@ use EdLugz\Daraja\Data\ClientCredential;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
 use EdLugz\Daraja\Models\MpesaFunding;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 
 class C2B extends DarajaClient
@@ -79,7 +78,9 @@ class C2B extends DarajaClient
 
     /**
      * Necessary initializations for C2B transactions from the config file.
+     *
      * @param ClientCredential $apiCredential
+     *
      * @throws DarajaRequestException
      */
     public function __construct(ClientCredential $apiCredential)

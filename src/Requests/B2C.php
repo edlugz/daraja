@@ -6,7 +6,6 @@ use EdLugz\Daraja\DarajaClient;
 use EdLugz\Daraja\Data\ClientCredential;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
-use EdLugz\Daraja\Models\ApiCredential;
 use EdLugz\Daraja\Models\MpesaTransaction;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -45,7 +44,9 @@ class B2C extends DarajaClient
 
     /**
      * Necessary initializations for B2C transactions from the config file.
+     *
      * @param ClientCredential $apiCredential
+     *
      * @throws DarajaRequestException
      */
     public function __construct(ClientCredential $apiCredential)
@@ -73,7 +74,6 @@ class B2C extends DarajaClient
         string $amount,
         array $customFieldsKeyValue = []
     ): MpesaTransaction {
-
         //check balance before sending out transaction
         $originatorConversationID = (string) Str::uuid();
 

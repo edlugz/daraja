@@ -6,7 +6,6 @@ use EdLugz\Daraja\DarajaClient;
 use EdLugz\Daraja\Data\ClientCredential;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
-use EdLugz\Daraja\Models\ApiCredential;
 use EdLugz\Daraja\Models\MpesaTransaction;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -46,7 +45,9 @@ class Reversal extends DarajaClient
     /**
      * Necessary initializations for B2C transactions from the config file while
      * also initialize parent constructor.
+     *
      * @param ClientCredential $apiCredential
+     *
      * @throws DarajaRequestException
      */
     public function __construct(ClientCredential $apiCredential)
@@ -65,7 +66,8 @@ class Reversal extends DarajaClient
      *
      * @param string $transactionId
      * @param string $amount
-     * @param array $customFieldsKeyValue
+     * @param array  $customFieldsKeyValue
+     *
      * @return MpesaTransaction
      */
     public function request(
@@ -73,7 +75,6 @@ class Reversal extends DarajaClient
         string $amount,
         array $customFieldsKeyValue = []
     ): MpesaTransaction {
-
         $originatorConversationID = (string) Str::uuid();
 
         $parameters = [

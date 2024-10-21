@@ -66,13 +66,12 @@ class DarajaClient
      * configurations.
      *
      * @param ClientCredential $apiCredential
+     *
      * @throws DarajaRequestException
      */
     public function __construct(public ClientCredential $apiCredential)
     {
-
         try {
-
             $mode = self::MODE_LIVE;
 
             $options = [
@@ -87,7 +86,6 @@ class DarajaClient
             $this->consumerSecret = $this->apiCredential->consumerSecret;
             $this->shortcode = $this->apiCredential->shortcode;
             $this->getAccessToken($this->apiCredential->shortcode);
-
         } catch(\Exception $e) {
             throw new DarajaRequestException('Daraja APIs: '.$e->getMessage(), $e->getCode());
         }
@@ -97,6 +95,7 @@ class DarajaClient
      * Get access token from Daraja APIs.
      *
      * @param string $shortcode
+     *
      * @throws DarajaRequestException
      *
      * @return void
