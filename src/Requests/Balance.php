@@ -43,6 +43,7 @@ class Balance extends DarajaClient
     /**
      * Necessary initializations for Balance transactions from the config file while
      * also initialize parent constructor.
+     *
      * @throws DarajaRequestException
      */
     public function __construct(ClientCredential $apiCredential, string $resultURL)
@@ -63,26 +64,22 @@ class Balance extends DarajaClient
      */
     public function check(): void
     {
-
         $parameters = [
-            'Initiator' => $this->apiCredential->initiator,
+            'Initiator'          => $this->apiCredential->initiator,
             'SecurityCredential' => DarajaHelper::setSecurityCredential($this->apiCredential->password),
-            'CommandID' => $this->commandId,
-            'PartyA' => $this->apiCredential->shortcode,
-            'IdentifierType' => '4',
-            'Remarks' => 'Account balance',
-            'QueueTimeOutURL' => $this->queueTimeOutURL,
-            'ResultURL' => $this->resultURL,
+            'CommandID'          => $this->commandId,
+            'PartyA'             => $this->apiCredential->shortcode,
+            'IdentifierType'     => '4',
+            'Remarks'            => 'Account balance',
+            'QueueTimeOutURL'    => $this->queueTimeOutURL,
+            'ResultURL'          => $this->resultURL,
         ];
 
         try {
-
             $response = $this->call($this->endPoint, ['json' => $parameters]);
 
             Log::info('Daraja Balance Response: ', (array) $response);
-
         } catch (DarajaRequestException $e) {
-
         }
     }
 }

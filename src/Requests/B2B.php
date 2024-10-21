@@ -72,7 +72,6 @@ class B2B extends DarajaClient
      * @param array  $customFieldsKeyValue
      *
      * @return MpesaTransaction
-     *
      */
     public function till(
         string $recipient,
@@ -169,7 +168,6 @@ class B2B extends DarajaClient
      * @param array  $customFieldsKeyValue
      *
      * @return MpesaTransaction
-     *
      */
     protected function paybill(
         string $recipient,
