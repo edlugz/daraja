@@ -10,9 +10,9 @@ class ApiCredential extends Model
 {
     use SoftDeletes;
 
-    protected array $guarded = [];
+    protected $guarded = [];
 
-    protected array $casts = [
+    protected $casts = [
         'initiator_password' => 'encrypted',
         'pass_key' => 'encrypted',
         'consumer_key' => 'encrypted',
