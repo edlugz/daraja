@@ -15,17 +15,35 @@ Via Composer
 composer require edlugz/daraja
 ```
 
+## Publish Migration Files
+
+```bash
+php artisan vendor:publish --provider="EdLugz\Tanda\TandaServiceProvider" --tag="migrations"
+```
+
+Fill in all the details you will be requiring for your application. Here are the env variables for quick copy paste.
+
+```bash
+DARAJA_STK_RESULT_URL=
+DARAJA_BALANCE_RESULT_URL=
+DARAJA_MOBILE_RESULT_URL=
+DARAJA_TILL_RESULT_URL=
+DARAJA_PAYBILL_RESULT_URL=
+DARAJA_REVERSAL_RESULT_URL=
+DARAJA_TRANSACTION_QUERY_MOBILE_RESULT_URL=
+DARAJA_TRANSACTION_QUERY_TILL_RESULT_URL=
+DARAJA_TRANSACTION_QUERY_PAYBILL_RESULT_URL=
+DARAJA_TIMEOUT_URL=
+DARAJA_BALANCE_URL=
+```
+
 ## Usage
 
 ## Change log
 
 Please see the [changelog](changelog.md) for more information on what has changed recently.
 
-## Testing
 
-```bash
-composer test
-```
 
 ## Contributing
 
