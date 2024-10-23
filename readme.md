@@ -18,7 +18,7 @@ composer require edlugz/daraja
 ## Publish Migration Files
 
 ```bash
-php artisan vendor:publish --provider="EdLugz\Tanda\TandaServiceProvider" --tag="migrations"
+php artisan vendor:publish --provider="EdLugz\Daraja\DarajaServiceProvider" --tag="migrations"
 ```
 
 Fill in all the details you will be requiring for your application. Here are the env variables for quick copy paste.
