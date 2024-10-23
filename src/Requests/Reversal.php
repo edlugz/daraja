@@ -120,7 +120,7 @@ class Reversal extends DarajaClient
             $response = (object) $response;
         }
 
-        if (array_key_exists('errorCode', $array)) {
+        if (array_key_exists('errorCode', (array) $response)) {
             $response = [
                 'ResponseCode'        => $response->errorCode,
                 'ResponseDescription' => $response->errorMessage,

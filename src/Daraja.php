@@ -11,12 +11,25 @@ use EdLugz\Daraja\Requests\C2B;
 use EdLugz\Daraja\Requests\Reversal;
 use EdLugz\Daraja\Requests\Transaction;
 
+/**
+ *
+ */
 class Daraja
 {
+    /**
+     * @var ClientCredential
+     */
     protected ClientCredential $apiCredential;
 
+<<<<<<< Updated upstream
     public function __construct(ClientCredential $apiCredential)
     {
+=======
+    /**
+     * @param ClientCredential $apiCredential
+     */
+    public function __construct(ClientCredential $apiCredential){
+>>>>>>> Stashed changes
         $this->apiCredential = $apiCredential;
     }
 
@@ -52,14 +65,23 @@ class Daraja
      * Initiate a balance enquiry.
      *
      * @param ClientCredential $apiCredential
+<<<<<<< Updated upstream
      *
+=======
+     * @param string $resultUrl
+     * @return Balance
+>>>>>>> Stashed changes
      * @throws DarajaRequestException
      *
      * @return Balance
      */
+<<<<<<< Updated upstream
     public function balance(ClientCredential $apiCredential): Balance
+=======
+    public function balance(ClientCredential $apiCredential, string $resultUrl) : Balance
+>>>>>>> Stashed changes
     {
-        return new Balance($apiCredential);
+        return new Balance($apiCredential, $resultUrl);
     }
 
     /**

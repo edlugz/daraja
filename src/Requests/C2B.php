@@ -9,6 +9,9 @@ use EdLugz\Daraja\Helpers\DarajaHelper;
 use EdLugz\Daraja\Models\MpesaFunding;
 use Illuminate\Support\Facades\Log;
 
+/**
+ *
+ */
 class C2B extends DarajaClient
 {
     /**
@@ -47,13 +50,6 @@ class C2B extends DarajaClient
     protected string $timestamp;
 
     /**
-     * Safaricom APIs C2B encrypted initiator short code password.
-     *
-     * @var string
-     */
-    protected string $securityCredential;
-
-    /**
      * Safaricom APIs C2B initiator short code.
      *
      * @var string
@@ -74,6 +70,11 @@ class C2B extends DarajaClient
      */
     protected string $resultURL;
 
+    /**
+     * DTO for api credentials
+     *
+     * @var ClientCredential
+     */
     public ClientCredential $apiCredential;
 
     /**

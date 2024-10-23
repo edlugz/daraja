@@ -2,6 +2,7 @@
 
 namespace EdLugz\Daraja\Logging;
 
+use Exception;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\MessageFormatter;
 use GuzzleHttp\Middleware;
@@ -32,11 +33,11 @@ class Log
      *
      * @param $options
      *
-     * @throws \Exception
+     * @throws Exception
      *
-     * @return int
+     * @return array
      */
-    public static function enable($options)
+    public static function enable($options) : array
     {
         $level = self::getLogLevel();
 
@@ -63,7 +64,7 @@ class Log
     /**
      * Determine the log level specified in the configurations.
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @return mixed
      */
@@ -75,6 +76,6 @@ class Log
             return self::$levels[$level];
         }
 
-        throw new \Exception('Debug level not recognized');
+        throw new Exception('Debug level not recognized');
     }
 }

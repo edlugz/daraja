@@ -10,6 +10,9 @@ use EdLugz\Daraja\Models\MpesaTransaction;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
+/**
+ *
+ */
 class B2B extends DarajaClient
 {
     /**
@@ -25,6 +28,9 @@ class B2B extends DarajaClient
      * @var string
      */
     protected string $tillCommandId;
+    /**
+     * @var string
+     */
     protected string $paybillCommandId;
 
     /**
@@ -40,7 +46,16 @@ class B2B extends DarajaClient
      * @var string
      */
     protected string $tillResultURL;
+    /**
+     * @var string
+     */
     protected string $paybillResultURL;
+
+    /**
+     * DTO for api credentials
+     *
+     * @var ClientCredential
+     */
     public ClientCredential $apiCredential;
 
     /**
@@ -128,7 +143,7 @@ class B2B extends DarajaClient
             $response = (object) $response;
         }
 
-        if (array_key_exists('errorCode', $array)) {
+        if (array_key_exists('errorCode', (array) $response)) {
             $response = [
                 'ResponseCode'        => $response->errorCode,
                 'ResponseDescription' => $response->errorMessage,

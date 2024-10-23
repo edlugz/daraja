@@ -5,6 +5,7 @@ namespace EdLugz\Daraja;
 use EdLugz\Daraja\Data\ClientCredential;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Logging\Log;
+use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
@@ -86,7 +87,12 @@ class DarajaClient
             $this->consumerSecret = $this->apiCredential->consumerSecret;
             $this->shortcode = $this->apiCredential->shortcode;
             $this->getAccessToken($this->apiCredential->shortcode);
+<<<<<<< Updated upstream
         } catch(\Exception $e) {
+=======
+
+        } catch(Exception $e) {
+>>>>>>> Stashed changes
             throw new DarajaRequestException('Daraja APIs: '.$e->getMessage(), $e->getCode());
         }
     }

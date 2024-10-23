@@ -101,8 +101,12 @@ class B2C extends DarajaClient
             'json_request'      => json_encode($parameters),
         ], $customFieldsKeyValue));
 
+        $array = [];
+
         try {
             $response = $this->call($this->endPoint, ['json' => $parameters]);
+
+            $array = $response;
 
             Log::info('Daraja B2C Mobile Response', (array) $response);
 
@@ -120,7 +124,7 @@ class B2C extends DarajaClient
             $response = (object) $response;
         }
 
-        if (array_key_exists('errorCode', $array)) {
+        if (array_key_exists('errorCode', (array) $response)) {
             $response = [
                 'ResponseCode'        => $response->errorCode,
                 'ResponseDescription' => $response->errorMessage,

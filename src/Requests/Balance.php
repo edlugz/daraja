@@ -8,6 +8,9 @@ use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
 use Illuminate\Support\Facades\Log;
 
+/**
+ *
+ */
 class Balance extends DarajaClient
 {
     /**
@@ -38,6 +41,11 @@ class Balance extends DarajaClient
      */
     public string $resultURL;
 
+    /**
+     *  DTO for api credentials
+     *
+     * @var ClientCredential
+     */
     public ClientCredential $apiCredential;
 
     /**
@@ -80,6 +88,10 @@ class Balance extends DarajaClient
 
             Log::info('Daraja Balance Response: ', (array) $response);
         } catch (DarajaRequestException $e) {
+<<<<<<< Updated upstream
+=======
+            Log::error($e);
+>>>>>>> Stashed changes
         }
     }
 }

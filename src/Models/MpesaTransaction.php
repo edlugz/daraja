@@ -9,7 +9,6 @@ use Ramsey\Uuid\Uuid;
 class MpesaTransaction extends Model
 {
     use SoftDeletes;
-    use HasUuids;
 
     protected $guarded = [];
 

@@ -2,7 +2,6 @@
 
 namespace EdLugz\Daraja\Models;
 
-use EdLugz\Daraja\Casts\Encrypted;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Ramsey\Uuid\Uuid;
@@ -14,7 +13,7 @@ class ApiCredential extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'initiator_password' => Encrypted::class,
+        'initiator_password' => 'encrypted',
     ];
 
     public function newUniqueId(): string

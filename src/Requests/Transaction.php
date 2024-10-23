@@ -132,7 +132,7 @@ class Transaction extends DarajaClient
             'response_description'   => $response->ResponseDescription,
         ];
 
-        if (array_key_exists('errorCode', $array)) {
+        if (array_key_exists('errorCode', (array) $response)) {
             $response = [
                 'ResponseCode'        => $response->errorCode,
                 'ResponseDescription' => $response->errorMessage,
