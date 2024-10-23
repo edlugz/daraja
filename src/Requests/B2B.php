@@ -157,7 +157,7 @@ class B2B extends DarajaClient
             'response_description'   => $response->ResponseDescription,
         ];
 
-        if (array_key_exists('ResponseCode', $array)) {
+        if (array_key_exists('ResponseCode', (array) $response)) {
             if ($response->ResponseCode == '0') {
                 $data = array_merge($data, [
                     'conversation_id'               => $response->ConversationID,
@@ -242,7 +242,7 @@ class B2B extends DarajaClient
             $response = (object) $response;
         }
 
-        if (array_key_exists('errorCode', $array)) {
+        if (array_key_exists('errorCode', (array) $response)) {
             $response = [
                 'ResponseCode'        => $response->errorCode,
                 'ResponseDescription' => $response->errorMessage,
@@ -256,7 +256,7 @@ class B2B extends DarajaClient
             'response_description'   => $response->ResponseDescription,
         ];
 
-        if (array_key_exists('ResponseCode', $array)) {
+        if (array_key_exists('ResponseCode', (array) $response)) {
             if ($response->ResponseCode == '0') {
                 $data = array_merge($data, [
                     'conversation_id'               => $response->ConversationID,

@@ -141,7 +141,7 @@ class Transaction extends DarajaClient
             $response = (object) $response;
         }
 
-        if (array_key_exists('ResponseCode', $array)) {
+        if (array_key_exists('ResponseCode', (array) $response)) {
             if ($response->ResponseCode == '0') {
                 $data = array_merge($data, [
                     'conversation_id'               => $response->ConversationID,

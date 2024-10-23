@@ -88,10 +88,7 @@ class Balance extends DarajaClient
 
             Log::info('Daraja Balance Response: ', (array) $response);
         } catch (DarajaRequestException $e) {
-<<<<<<< Updated upstream
-=======
             Log::error($e);
->>>>>>> Stashed changes
         }
     }
 }

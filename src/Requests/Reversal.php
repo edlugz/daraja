@@ -134,7 +134,7 @@ class Reversal extends DarajaClient
             'response_description'   => $response->ResponseDescription,
         ];
 
-        if (array_key_exists('ResponseCode', $array)) {
+        if (array_key_exists('ResponseCode', (array) $response)) {
             if ($response->ResponseCode == '0') {
                 $data = array_merge($data, [
                     'conversation_id'               => $response->ConversationID,

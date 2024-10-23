@@ -87,12 +87,8 @@ class DarajaClient
             $this->consumerSecret = $this->apiCredential->consumerSecret;
             $this->shortcode = $this->apiCredential->shortcode;
             $this->getAccessToken($this->apiCredential->shortcode);
-<<<<<<< Updated upstream
-        } catch(\Exception $e) {
-=======
 
         } catch(Exception $e) {
->>>>>>> Stashed changes
             throw new DarajaRequestException('Daraja APIs: '.$e->getMessage(), $e->getCode());
         }
     }
