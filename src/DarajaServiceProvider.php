@@ -33,21 +33,6 @@ class DarajaServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register any package services.
-     *
-     * @return void
-     */
-    public function register(): void
-    {
-        $this->mergeConfigFrom(__DIR__.'/../config/daraja.php', 'daraja');
-
-        // Register the service the package provides.
-        $this->app->singleton('daraja', function ($app) {
-            return new Daraja();
-        });
-    }
-
-    /**
      * Get the services provided by the provider.
      *
      * @return array
