@@ -128,4 +128,79 @@ class DarajaHelper
 
         return $transaction;
     }
+
+    /**
+     * Process b2b - paybill results.
+     *
+     * @param Request $request
+     *
+     * @return MpesaTransaction
+     */
+    public static function b2b(Request $request): MpesaTransaction
+    {
+        $transaction = MpesaTransaction::where('originator_conversation_id', $request['Result']['OriginatorConversationID'])->first();
+
+        // Accessing different elements of the array and assigning them to separate variables
+        $resultType = $request['Result']['ResultType'];
+        $resultCode = $request['Result']['ResultCode'];
+        $resultDesc = $request['Result']['ResultDesc'];
+        $originatorConversationID = $request['Result']['OriginatorConversationID'];
+        $conversationID = $request['Result']['ConversationID'];
+        $transactionID = $request['Result']['TransactionID'];
+
+        $TransactionCompletedDateTime = $ReceiverPartyPublicName = '0';
+
+        // Accessing ResultParameters
+        if ($resultCode == 0) {
+            $resultParameters = $request['Result']['ResultParameters']['ResultParameter'];
+
+            // Loop through ResultParameters and assign them to separate variables
+            if ($resultParameters) {
+                foreach ($resultParameters as $parameter) {
+                    ${$parameter['Key']} = $parameter['Value'];
+                    if ($InitiatorAccountCurrentBalance) {
+                        $parsedBalance = parseBalanceString($InitiatorAccountCurrentBalance);
+                        if ($parsedBalance) {
+                            $B2CWorkingAccountAvailableFunds = $parsedBalance['BasicAmount'];
+                        }
+                    }
+                }
+            }
+        }
+
+        if ($transaction) {
+            $transaction->update(
+                [
+                    'result_type'                     => $resultType,
+                    'result_code'                     => $resultCode,
+                    'result_description'              => $resultDesc,
+                    'transaction_id'                  => $transactionID,
+                    'transaction_completed_date_time' => $TransCompletedTime == '0' ? date('YmdHis') : date('YmdHis', strtotime($TransCompletedTime)),
+                    'receiver_party_public_name'      => $ReceiverPartyPublicName == '0' ? '0' : $ReceiverPartyPublicName,
+                    'working_account_balance'         => $B2CWorkingAccountAvailableFunds,
+                    'utility_account_balance'         => null,
+                    'json_result'                     => json_encode($request->all()),
+                ]
+            );
+        }
+
+        return $transaction;
+    }
+
+    /**
+     * @param $balanceString
+     * @return array|null
+     */
+    protected static function parseBalanceString($balanceString): ?array
+    {
+        $pattern = '/CurrencyCode=(.*?), MinimumAmount=(.*?), BasicAmount=(.*?)}/';
+        if (preg_match($pattern, $balanceString, $matches)) {
+            return [
+                'CurrencyCode' => $matches[1],
+                'MinimumAmount' => $matches[2],
+                'BasicAmount' => $matches[3]
+            ];
+        }
+        return null;
+    }
 }
