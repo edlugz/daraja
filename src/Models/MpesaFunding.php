@@ -12,5 +12,5 @@ class MpesaFunding extends Model
     use HasUuid;
 
     protected $guarded = [];
-    
+
 }
