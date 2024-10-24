@@ -13,7 +13,7 @@ return new class() extends Migration {
     {
         Schema::create('mpesa_transactions', function (Blueprint $table) {
             $table->id();
-            $table->uuid('uuid')->default(DB::raw('(UUID())'))->unique();
+            $table->uuid('uuid')->unique();
             $table->integer('payment_id');
             $table->string('payment_reference');
             $table->string('short_code');

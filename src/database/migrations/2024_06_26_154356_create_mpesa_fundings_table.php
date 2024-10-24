@@ -13,7 +13,7 @@ return new class() extends Migration {
     {
         Schema::create('mpesa_fundings', function (Blueprint $table) {
             $table->id();
-            $table->uuid('uuid')->default(DB::raw('(UUID())'))->unique();
+            $table->uuid('uuid')->unique();
             $table->integer('fund_id');
             $table->string('mobile_no');
             $table->string('amount');
