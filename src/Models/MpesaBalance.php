@@ -16,6 +16,7 @@ class MpesaBalance extends Model
     protected $casts = [
         'working_account' => Money::class,
         'utility_account' => Money::class,
+        'uncleared_balance' => Money::class,
     ];
 
 }
