@@ -191,7 +191,7 @@ class DarajaHelper
      * @param $balanceString
      * @return array|null
      */
-    protected static function parseBalanceString($balanceString): ?array
+    protected function parseBalanceString($balanceString): ?array
     {
         $pattern = '/CurrencyCode=(.*?), MinimumAmount=(.*?), BasicAmount=(.*?)}/';
         if (preg_match($pattern, $balanceString, $matches)) {
