@@ -17,10 +17,10 @@ return new class() extends Migration {
             $table->integer('account_id');
             $table->string('short_code')->nullable();
             $table->string('initiator')->nullable();
-            $table->string('initiator_password')->nullable();
-            $table->string('pass_key')->nullable();
-            $table->string('consumer_key')->nullable();
-            $table->string('consumer_secret')->nullable();
+            $table->text('initiator_password')->nullable();
+            $table->text('pass_key')->nullable();
+            $table->text('consumer_key')->nullable();
+            $table->text('consumer_secret')->nullable();
             $table->string('balance_result_url')->nullable();
             $table->boolean('api_status')->nullable();
             $table->timestamps();
