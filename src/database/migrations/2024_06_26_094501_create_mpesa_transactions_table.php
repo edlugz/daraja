@@ -33,8 +33,8 @@ return new class() extends Migration {
             $table->string('transaction_id')->nullable();
             $table->timestamp('transaction_completed_date_time')->nullable();
             $table->string('receiver_party_public_name')->nullable();
-            $table->integer('utility_account_balance')->nullable();
-            $table->integer('working_account_balance')->nullable();
+            $table->float('utility_account_balance')->nullable();
+            $table->float('working_account_balance')->nullable();
             $table->json('json_request')->nullable();
             $table->json('json_response')->nullable();
             $table->json('json_result')->nullable();
