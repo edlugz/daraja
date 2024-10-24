@@ -2,6 +2,7 @@
 
 namespace EdLugz\Daraja\Models;
 
+use EdLugz\Daraja\Casts\Money;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use EdLugz\Daraja\Traits\HasUuid;
@@ -12,5 +13,9 @@ class MpesaFunding extends Model
     use HasUuid;
 
     protected $guarded = [];
+
+    protected $casts = [
+        'amount' => Money::class,
+    ];
 
 }
