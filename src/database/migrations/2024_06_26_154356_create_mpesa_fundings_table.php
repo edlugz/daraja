@@ -16,7 +16,7 @@ return new class() extends Migration {
             $table->uuid('uuid')->unique();
             $table->integer('fund_id');
             $table->string('mobile_no');
-            $table->integer('amount');
+            $table->bigInteger('amount');
             $table->string('bill_reference');
             $table->string('merchant_request_id')->nullable();
             $table->string('checkout_request_id')->nullable();

@@ -16,9 +16,9 @@ return new class() extends Migration {
             $table->uuid('uuid');
             $table->integer('account_id')->nullable();
             $table->string('short_code');
-            $table->float('utility_account');
-            $table->float('working_account');
-            $table->float('uncleared_balance');
+            $table->bigInteger('utility_account');
+            $table->bigInteger('working_account');
+            $table->bigInteger('uncleared_balance');
             $table->json('json_result');
             $table->timestamps();
             $table->softDeletes();

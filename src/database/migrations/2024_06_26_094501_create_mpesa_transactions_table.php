@@ -19,7 +19,7 @@ return new class() extends Migration {
             $table->string('short_code');
             $table->string('transaction_type');
             $table->string('account_number');
-            $table->integer('amount');
+            $table->bigInteger('amount');
             $table->integer('bill_reference')->nullable();
             $table->string('requester_name')->nullable();
             $table->string('requester_mobile')->nullable();
@@ -33,8 +33,8 @@ return new class() extends Migration {
             $table->string('transaction_id')->nullable();
             $table->timestamp('transaction_completed_date_time')->nullable();
             $table->string('receiver_party_public_name')->nullable();
-            $table->float('utility_account_balance')->nullable();
-            $table->float('working_account_balance')->nullable();
+            $table->bigInteger('utility_account_balance')->nullable();
+            $table->bigInteger('working_account_balance')->nullable();
             $table->json('json_request')->nullable();
             $table->json('json_response')->nullable();
             $table->json('json_result')->nullable();
