@@ -218,7 +218,7 @@ class DarajaHelper
             consumerKey: $apiCredential->consumer_key,
             consumerSecret: $apiCredential->consumer_secret,
             shortcode: $apiCredential->short_code,
-            initiator: $apiCredential->initiator_name,
+            initiator: $apiCredential->initiator,
             password: $apiCredential->initiator_password,
             passkey:  $apiCredential->pass_key
         );
