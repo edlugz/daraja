@@ -72,6 +72,7 @@ class DarajaHelper
         }
 
         return MpesaBalance::create([
+            'account_id'        => $apiCredential->accountId,
             'short_code'        => $apiCredential->shortcode,
             'utility_account'   => $accountBalances[1],
             'working_account'   => $accountBalances[0],
@@ -215,6 +216,7 @@ class DarajaHelper
     public static function getCredentials(ApiCredential $apiCredential): ClientCredential
     {
         return new ClientCredential(
+            accountId: $apiCredential->account_id,
             consumerKey: $apiCredential->consumer_key,
             consumerSecret: $apiCredential->consumer_secret,
             shortcode: $apiCredential->short_code,
