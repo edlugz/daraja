@@ -71,8 +71,6 @@ class B2B extends DarajaClient
         parent::__construct($clientCredential);
 
         $this->queueTimeOutURL = DarajaHelper::getTimeoutUrl();
-        $this->tillResultURL = DarajaHelper::getTillResultUrl();
-        $this->paybillResultURL = DarajaHelper::getPaybillResultUrl();
         $this->tillCommandId = 'BusinessBuyGoods';
         $this->paybillCommandId = 'BusinessPayBill';
     }
@@ -84,17 +82,21 @@ class B2B extends DarajaClient
      * @param string $recipient
      * @param string $requester
      * @param string $amount
-     * @param array  $customFieldsKeyValue
-     *
+     * @param array $customFieldsKeyValue
+     * @param string|null $resultUrl
      * @return MpesaTransaction
      */
     public function till(
         string $recipient,
         string $requester,
         string $amount,
-        array $customFieldsKeyValue
+        array $customFieldsKeyValue,
+        string $resultUrl = null,
     ): MpesaTransaction {
         //check balance before sending out transaction
+
+        $resultUrl = $resultUrl ?? DarajaHelper::getStkResultUrl();
+
         $originatorConversationID = (string) Str::uuid();
 
         $parameters = [
@@ -110,7 +112,7 @@ class B2B extends DarajaClient
             'Requester'                => $requester,
             'Remarks'                  => 'till payment',
             'QueueTimeOutURL'          => $this->queueTimeOutURL,
-            'ResultURL'                => $this->tillResultURL,
+            'ResultURL'                => $resultUrl,
         ];
 
         /** @var MpesaTransaction $transaction */
@@ -189,9 +191,13 @@ class B2B extends DarajaClient
         string $requester,
         string $amount,
         string $accountReference,
-        array $customFieldsKeyValue
+        array $customFieldsKeyValue,
+        string $resultUrl = null
     ): MpesaTransaction {
         //check balance before sending out transaction
+
+        $resultUrl = $resultUrl ?? DarajaHelper::getPaybillResultUrl();
+
         $originatorConversationID = (string) Str::uuid();
 
         $parameters = [
@@ -208,7 +214,7 @@ class B2B extends DarajaClient
             'Requester'                => $requester,
             'Remarks'                  => 'paybill payment',
             'QueueTimeOutURL'          => $this->queueTimeOutURL,
-            'ResultURL'                => $this->paybillResultURL,
+            'ResultURL'                => $resultUrl,
         ];
 
         /** @var MpesaTransaction $transaction */
