@@ -41,18 +41,18 @@ class Transaction extends DarajaClient
     protected string $tillResultURL;
     protected string $paybillResultURL;
 
-    public ClientCredential $apiCredential;
+    public ClientCredential $clientCredential;
 
     /**
      * Necessary initializations for C2B transactions from the config file.
      *
      * @throws DarajaRequestException
      */
-    public function __construct(ClientCredential $apiCredential)
+    public function __construct(ClientCredential $clientCredential)
     {
-        $this->apiCredential = $apiCredential;
+        $this->clientCredential = $clientCredential;
 
-        parent::__construct($apiCredential);
+        parent::__construct($clientCredential);
 
         $this->queueTimeOutURL = DarajaHelper::getTimeoutUrl();
         $this->mobileResultURL = DarajaHelper::getTransactionQueryMobileResultUrl();
@@ -84,12 +84,12 @@ class Transaction extends DarajaClient
         }
 
         $parameters = [
-            'Initiator'                => $this->apiCredential->initiator,
-            'SecurityCredential'       => DarajaHelper::setSecurityCredential($this->apiCredential->password),
+            'Initiator'                => $this->clientCredential->initiator,
+            'SecurityCredential'       => DarajaHelper::setSecurityCredential($this->clientCredential->password),
             'CommandID'                => $this->commandId,
             'TransactionID'            => '',
             'OriginatorConversationID' => $check->originator_conversation_id,
-            'PartyA'                   => $this->apiCredential->shortcode,
+            'PartyA'                   => $this->clientCredential->shortcode,
             'IdentifierType'           => '4',
             'ResultURL'                => $resultUrl,
             'QueueTimeOutURL'          => $this->queueTimeOutURL,
@@ -101,7 +101,7 @@ class Transaction extends DarajaClient
         $transaction = MpesaTransaction::create([
             'payment_id'        => $check->payment_id,
             'payment_reference' => $check->originator_conversation_id,
-            'short_code'        => $this->apiCredential->shortcode,
+            'short_code'        => $this->clientCredential->shortcode,
             'transaction_type'  => 'TransactionStatus',
             'account_number'    => $check->account_number,
             'amount'            => $check->amount,

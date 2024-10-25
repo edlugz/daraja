@@ -75,25 +75,25 @@ class C2B extends DarajaClient
      *
      * @var ClientCredential
      */
-    public ClientCredential $apiCredential;
+    public ClientCredential $clientCredential;
 
     /**
      * Necessary initializations for C2B transactions from the config file.
      *
-     * @param ClientCredential $apiCredential
+     * @param ClientCredential $clientCredential
      *
      * @throws DarajaRequestException
      */
-    public function __construct(ClientCredential $apiCredential)
+    public function __construct(ClientCredential $clientCredential)
     {
-        $this->apiCredential = $apiCredential;
+        $this->clientCredential = $clientCredential;
 
-        parent::__construct($apiCredential);
+        parent::__construct($clientCredential);
 
         $this->timestamp = date('YmdHis');
-        $this->initiatorName = $this->apiCredential->initiator;
-        $this->password = DarajaHelper::setPassword($this->apiCredential->shortcode, $this->apiCredential->passkey, $this->timestamp);
-        $this->partyA = $this->apiCredential->shortcode;
+        $this->initiatorName = $this->clientCredential->initiator;
+        $this->password = DarajaHelper::setPassword($this->clientCredential->shortcode, $this->clientCredential->passkey, $this->timestamp);
+        $this->partyA = $this->clientCredential->shortcode;
         $this->queueTimeOutURL = DarajaHelper::getTimeoutUrl();
         $this->resultURL = DarajaHelper::getStkResultUrl();
         $this->commandId = 'CustomerPayBillOnline';

@@ -40,20 +40,20 @@ class B2C extends DarajaClient
      */
     protected string $resultURL;
 
-    public ClientCredential $apiCredential;
+    public ClientCredential $clientCredential;
 
     /**
      * Necessary initializations for B2C transactions from the config file.
      *
-     * @param ClientCredential $apiCredential
+     * @param ClientCredential $clientCredential
      *
      * @throws DarajaRequestException
      */
-    public function __construct(ClientCredential $apiCredential)
+    public function __construct(ClientCredential $clientCredential)
     {
-        $this->apiCredential = $apiCredential;
+        $this->clientCredential = $clientCredential;
 
-        parent::__construct($apiCredential);
+        parent::__construct($clientCredential);
 
         $this->queueTimeOutURL = DarajaHelper::getTimeoutUrl();
         $this->resultURL = DarajaHelper::getMobileResultUrl();
@@ -79,11 +79,11 @@ class B2C extends DarajaClient
 
         $parameters = [
             'OriginatorConversationID' => $originatorConversationID,
-            'InitiatorName'            => $this->apiCredential->initiator,
-            'SecurityCredential'       => DarajaHelper::setSecurityCredential($this->apiCredential->password),
+            'InitiatorName'            => $this->clientCredential->initiator,
+            'SecurityCredential'       => DarajaHelper::setSecurityCredential($this->clientCredential->password),
             'CommandID'                => $this->commandId,
             'Amount'                   => $amount,
-            'PartyA'                   => $this->apiCredential->shortcode,
+            'PartyA'                   => $this->clientCredential->shortcode,
             'PartyB'                   => $recipient,
             'Remarks'                  => 'send to mobile',
             'QueueTimeOutURL'          => $this->queueTimeOutURL,
@@ -94,7 +94,7 @@ class B2C extends DarajaClient
         /** @var MpesaTransaction $transaction */
         $transaction = MpesaTransaction::create(array_merge([
             'payment_reference' => $originatorConversationID,
-            'short_code'        => $this->apiCredential->shortcode,
+            'short_code'        => $this->clientCredential->shortcode,
             'transaction_type'  => 'SendMoney',
             'account_number'    => $recipient,
             'amount'            => $amount,

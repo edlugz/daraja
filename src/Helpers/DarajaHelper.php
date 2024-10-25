@@ -48,10 +48,10 @@ class DarajaHelper
      * Process balance results.
      *
      * @param Request $request
-     * @param ClientCredential $apiCredential
+     * @param ClientCredential $clientCredential
      * @return MpesaBalance
      */
-    public static function balance(Request $request, ClientCredential $apiCredential): MpesaBalance
+    public static function balance(Request $request, ClientCredential $clientCredential): MpesaBalance
     {
         $accountBalances = $request['Result']['ResultParameters']['ResultParameter'][1]['Value'];
 
@@ -72,8 +72,8 @@ class DarajaHelper
         }
 
         return MpesaBalance::create([
-            'account_id'        => $apiCredential->accountId,
-            'short_code'        => $apiCredential->shortcode,
+            'account_id'        => $clientCredential->accountId,
+            'short_code'        => $clientCredential->shortcode,
             'utility_account'   => $accountBalances[1],
             'working_account'   => $accountBalances[0],
             'uncleared_balance' => $accountBalances[2],

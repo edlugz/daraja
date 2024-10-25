@@ -56,7 +56,7 @@ class B2B extends DarajaClient
      *
      * @var ClientCredential
      */
-    public ClientCredential $apiCredential;
+    public ClientCredential $clientCredential;
 
     /**
      * Necessary initializations for B2B transactions from the config file while
@@ -64,11 +64,11 @@ class B2B extends DarajaClient
      *
      * @throws DarajaRequestException
      */
-    public function __construct(ClientCredential $apiCredential)
+    public function __construct(ClientCredential $clientCredential)
     {
-        $this->apiCredential = $apiCredential;
+        $this->clientCredential = $clientCredential;
 
-        parent::__construct($apiCredential);
+        parent::__construct($clientCredential);
 
         $this->queueTimeOutURL = DarajaHelper::getTimeoutUrl();
         $this->tillResultURL = DarajaHelper::getTillResultUrl();
@@ -99,13 +99,13 @@ class B2B extends DarajaClient
 
         $parameters = [
             'OriginatorConversationID' => $originatorConversationID,
-            'Initiator'                => $this->apiCredential->initiator,
-            'SecurityCredential'       => DarajaHelper::setSecurityCredential($this->apiCredential->password),
+            'Initiator'                => $this->clientCredential->initiator,
+            'SecurityCredential'       => DarajaHelper::setSecurityCredential($this->clientCredential->password),
             'CommandID'                => $this->tillCommandId,
             'SenderIdentifierType'     => 4,
             'RecieverIdentifierType'   => 2,
             'Amount'                   => $amount,
-            'PartyA'                   => $this->apiCredential->shortcode,
+            'PartyA'                   => $this->clientCredential->shortcode,
             'PartyB'                   => $recipient,
             'Requester'                => $requester,
             'Remarks'                  => 'till payment',
@@ -116,7 +116,7 @@ class B2B extends DarajaClient
         /** @var MpesaTransaction $transaction */
         $transaction = MpesaTransaction::create(array_merge([
             'payment_reference' => $originatorConversationID,
-            'short_code'        => $this->apiCredential->shortcode,
+            'short_code'        => $this->clientCredential->shortcode,
             'transaction_type'  => 'BuyGoods',
             'account_number'    => $recipient,
             'requester_mobile'  => $requester,
@@ -196,14 +196,14 @@ class B2B extends DarajaClient
 
         $parameters = [
             'OriginatorConversationID' => $originatorConversationID,
-            'Initiator'                => $this->apiCredential->initiator,
-            'SecurityCredential'       => DarajaHelper::setSecurityCredential($this->apiCredential->password),
+            'Initiator'                => $this->clientCredential->initiator,
+            'SecurityCredential'       => DarajaHelper::setSecurityCredential($this->clientCredential->password),
             'CommandID'                => $this->tillCommandId,
             'SenderIdentifierType'     => 4,
             'RecieverIdentifierType'   => 4,
             'Amount'                   => $amount,
             'AccountReference'         => $accountReference,
-            'PartyA'                   => $this->apiCredential->shortcode,
+            'PartyA'                   => $this->clientCredential->shortcode,
             'PartyB'                   => $recipient,
             'Requester'                => $requester,
             'Remarks'                  => 'paybill payment',
@@ -214,7 +214,7 @@ class B2B extends DarajaClient
         /** @var MpesaTransaction $transaction */
         $transaction = MpesaTransaction::create(array_merge([
             'payment_reference' => $originatorConversationID,
-            'short_code'        => $this->apiCredential->shortcode,
+            'short_code'        => $this->clientCredential->shortcode,
             'transaction_type'  => 'PayBill',
             'account_number'    => $recipient,
             'requester_mobile'  => $requester,

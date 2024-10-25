@@ -40,21 +40,21 @@ class Reversal extends DarajaClient
      */
     protected string $resultURL;
 
-    public ClientCredential $apiCredential;
+    public ClientCredential $clientCredential;
 
     /**
      * Necessary initializations for B2C transactions from the config file while
      * also initialize parent constructor.
      *
-     * @param ClientCredential $apiCredential
+     * @param ClientCredential $clientCredential
      *
      * @throws DarajaRequestException
      */
-    public function __construct(ClientCredential $apiCredential)
+    public function __construct(ClientCredential $clientCredential)
     {
-        $this->apiCredential = $apiCredential;
+        $this->clientCredential = $clientCredential;
 
-        parent::__construct($apiCredential);
+        parent::__construct($clientCredential);
 
         $this->queueTimeOutURL = DarajaHelper::getTimeoutUrl();
         $this->resultURL = DarajaHelper::getReversalResultUrl();
@@ -78,12 +78,12 @@ class Reversal extends DarajaClient
         $originatorConversationID = (string) Str::uuid();
 
         $parameters = [
-            'Initiator'                => $this->apiCredential->initiator,
-            'SecurityCredential'       => DarajaHelper::setSecurityCredential($this->apiCredential->password),
+            'Initiator'                => $this->clientCredential->initiator,
+            'SecurityCredential'       => DarajaHelper::setSecurityCredential($this->clientCredential->password),
             'CommandID'                => $this->commandId,
             'TransactionID'            => $transactionId,
             'Amount'                   => $amount,
-            'ReceiverParty'            => $this->apiCredential->shortcode,
+            'ReceiverParty'            => $this->clientCredential->shortcode,
             'RecieverIdentifierType'   => 11,
             'ResultURL'                => $this->resultURL,
             'QueueTimeOutURL'          => $this->queueTimeOutURL,
@@ -94,7 +94,7 @@ class Reversal extends DarajaClient
         /** @var MpesaTransaction $transaction */
         $transaction = MpesaTransaction::create(array_merge([
             'payment_reference' => $originatorConversationID,
-            'short_code'        => $this->apiCredential->shortcode,
+            'short_code'        => $this->clientCredential->shortcode,
             'transaction_type'  => 'Reversal',
             'account_number'    => '0',
             'amount'            => $amount,

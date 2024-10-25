@@ -66,11 +66,11 @@ class DarajaClient
      * and throw the necessary exception if there are any missing-required
      * configurations.
      *
-     * @param ClientCredential $apiCredential
+     * @param ClientCredential $clientCredential
      *
      * @throws DarajaRequestException
      */
-    public function __construct(public ClientCredential $apiCredential)
+    public function __construct(public ClientCredential $clientCredential)
     {
         try {
             $mode = self::MODE_LIVE;
@@ -83,10 +83,10 @@ class DarajaClient
             $options = Log::enable($options);
 
             $this->client = new Client($options);
-            $this->consumerKey = $this->apiCredential->consumerKey;
-            $this->consumerSecret = $this->apiCredential->consumerSecret;
-            $this->shortcode = $this->apiCredential->shortcode;
-            $this->getAccessToken($this->apiCredential->shortcode);
+            $this->consumerKey = $this->clientCredential->consumerKey;
+            $this->consumerSecret = $this->clientCredential->consumerSecret;
+            $this->shortcode = $this->clientCredential->shortcode;
+            $this->getAccessToken($this->clientCredential->shortcode);
 
         } catch(Exception $e) {
             throw new DarajaRequestException('Daraja APIs: '.$e->getMessage(), $e->getCode());

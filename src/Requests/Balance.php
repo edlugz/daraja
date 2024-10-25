@@ -46,7 +46,7 @@ class Balance extends DarajaClient
      *
      * @var ClientCredential
      */
-    public ClientCredential $apiCredential;
+    public ClientCredential $clientCredential;
 
     /**
      * Necessary initializations for Balance transactions from the config file while
@@ -54,11 +54,11 @@ class Balance extends DarajaClient
      *
      * @throws DarajaRequestException
      */
-    public function __construct(ClientCredential $apiCredential, string $resultURL)
+    public function __construct(ClientCredential $clientCredential, string $resultURL)
     {
-        $this->apiCredential = $apiCredential;
+        $this->clientCredential = $clientCredential;
 
-        parent::__construct($apiCredential);
+        parent::__construct($clientCredential);
 
         $this->queueTimeOutURL = DarajaHelper::getTimeoutUrl();
         $this->commandId = 'AccountBalance';
@@ -73,10 +73,10 @@ class Balance extends DarajaClient
     public function check(): void
     {
         $parameters = [
-            'Initiator'          => $this->apiCredential->initiator,
-            'SecurityCredential' => DarajaHelper::setSecurityCredential($this->apiCredential->password),
+            'Initiator'          => $this->clientCredential->initiator,
+            'SecurityCredential' => DarajaHelper::setSecurityCredential($this->clientCredential->password),
             'CommandID'          => $this->commandId,
-            'PartyA'             => $this->apiCredential->shortcode,
+            'PartyA'             => $this->clientCredential->shortcode,
             'IdentifierType'     => '4',
             'Remarks'            => 'Account balance',
             'QueueTimeOutURL'    => $this->queueTimeOutURL,
