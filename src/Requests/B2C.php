@@ -46,17 +46,17 @@ class B2C extends DarajaClient
      * Necessary initializations for B2C transactions from the config file.
      *
      * @param ClientCredential $clientCredential
-     *
+     * @param null $resultURL
      * @throws DarajaRequestException
      */
-    public function __construct(ClientCredential $clientCredential)
+    public function __construct(ClientCredential $clientCredential, $resultURL = null)
     {
         $this->clientCredential = $clientCredential;
 
         parent::__construct($clientCredential);
 
         $this->queueTimeOutURL = DarajaHelper::getTimeoutUrl();
-        $this->resultURL = DarajaHelper::getMobileResultUrl();
+        $this->resultURL = $resultURL ?? DarajaHelper::getMobileResultUrl();
         $this->commandId = 'SalaryPayment';
     }
 
