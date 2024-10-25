@@ -211,7 +211,7 @@ class DarajaHelper
         // Decode the JSON payload from the request
         $callback = $request->input('Body.stkCallback');
 
-        $transaction = MpesaTransaction::where('merchant_request_id', $callback['MerchantRequestID'])->first();
+        $transaction = MpesaFunding::where('merchant_request_id', $callback['MerchantRequestID'])->first();
 
         // Extract data from the callback
         $resultCode = $callback['ResultCode'] ?? null;
