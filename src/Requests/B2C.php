@@ -64,14 +64,14 @@ class B2C extends DarajaClient
      * Send transaction details to Safaricom B2C API.
      *
      * @param string $recipient
-     * @param string $amount
-     * @param array  $customFieldsKeyValue
+     * @param int $amount
+     * @param array $customFieldsKeyValue
      *
      * @return MpesaTransaction
      */
     public function pay(
         string $recipient,
-        string $amount,
+        int $amount,
         array $customFieldsKeyValue = []
     ): MpesaTransaction {
         //check balance before sending out transaction

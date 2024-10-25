@@ -41,17 +41,6 @@ class B2B extends DarajaClient
     protected string $queueTimeOutURL;
 
     /**
-     * Where the Safaricom B2B API will post the result of the transaction.
-     *
-     * @var string
-     */
-    protected string $tillResultURL;
-    /**
-     * @var string
-     */
-    protected string $paybillResultURL;
-
-    /**
      * DTO for api credentials
      *
      * @var ClientCredential
@@ -81,7 +70,7 @@ class B2B extends DarajaClient
      *
      * @param string $recipient
      * @param string $requester
-     * @param string $amount
+     * @param int $amount
      * @param array $customFieldsKeyValue
      * @param string|null $resultUrl
      * @return MpesaTransaction
@@ -89,9 +78,9 @@ class B2B extends DarajaClient
     public function till(
         string $recipient,
         string $requester,
-        string $amount,
-        array $customFieldsKeyValue,
+        int $amount,
         string $resultUrl = null,
+        array $customFieldsKeyValue = []
     ): MpesaTransaction {
         //check balance before sending out transaction
 
@@ -180,19 +169,19 @@ class B2B extends DarajaClient
      *
      * @param string $recipient
      * @param string $requester
-     * @param string $amount
+     * @param int $amount
      * @param string $accountReference
-     * @param array  $customFieldsKeyValue
-     *
+     * @param array $customFieldsKeyValue
+     * @param string|null $resultUrl
      * @return MpesaTransaction
      */
     public function paybill(
         string $recipient,
         string $requester,
-        string $amount,
+        int $amount,
         string $accountReference,
-        array $customFieldsKeyValue,
-        string $resultUrl = null
+        string $resultUrl = null,
+        array $customFieldsKeyValue = []
     ): MpesaTransaction {
         //check balance before sending out transaction
 
