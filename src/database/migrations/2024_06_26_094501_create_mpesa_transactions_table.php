@@ -13,14 +13,14 @@ return new class() extends Migration {
     {
         Schema::create('mpesa_transactions', function (Blueprint $table) {
             $table->id();
-            $table->uuid('uuid')->unique();
+            $table->uuid()->unique();
             $table->integer('payment_id');
             $table->string('payment_reference');
             $table->string('short_code');
             $table->string('transaction_type');
             $table->string('account_number');
             $table->bigInteger('amount');
-            $table->integer('bill_reference')->nullable();
+            $table->string('bill_reference')->nullable();
             $table->string('requester_name')->nullable();
             $table->string('requester_mobile')->nullable();
             $table->string('conversation_id')->nullable();

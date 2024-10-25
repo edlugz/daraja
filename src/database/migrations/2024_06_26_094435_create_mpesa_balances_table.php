@@ -13,7 +13,7 @@ return new class() extends Migration {
     {
         Schema::create('mpesa_balances', function (Blueprint $table) {
             $table->id();
-            $table->uuid('uuid');
+            $table->uuid()->unique();
             $table->integer('account_id')->nullable();
             $table->string('short_code');
             $table->bigInteger('utility_account');
