@@ -4,6 +4,7 @@ namespace EdLugz\Daraja\Helpers;
 
 use EdLugz\Daraja\Data\ClientCredential;
 use EdLugz\Daraja\Models\MpesaBalance;
+use EdLugz\Daraja\Models\MpesaFunding;
 use EdLugz\Daraja\Models\MpesaTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -115,20 +116,28 @@ class DarajaHelper
             }
         }
 
+        if($resultCode == 0){
+            $data = [
+                'result_type'                     => $resultType,
+                'result_code'                     => $resultCode,
+                'result_description'              => $resultDesc,
+                'transaction_id'                  => $transactionID,
+                'transaction_completed_date_time' => $TransactionCompletedDateTime == '0' ? date('YmdHis') : date('YmdHis', strtotime($TransactionCompletedDateTime)),
+                'receiver_party_public_name'      => $ReceiverPartyPublicName == '0' ? '0' : $ReceiverPartyPublicName,
+                'utility_account_balance'         => $B2CWorkingAccountAvailableFunds,
+                'working_account_balance'         => $B2CUtilityAccountAvailableFunds,
+                'json_result'                     => json_encode($request->all()),
+            ];
+        } else {
+            $data = [
+                'result_type'                     => $resultType,
+                'result_code'                     => $resultCode,
+                'result_description'              => $resultDesc,
+            ];
+        }
+
         if ($transaction) {
-            $transaction->update(
-                [
-                    'result_type'                     => $resultType,
-                    'result_code'                     => $resultCode,
-                    'result_description'              => $resultDesc,
-                    'transaction_id'                  => $transactionID,
-                    'transaction_completed_date_time' => $TransactionCompletedDateTime == '0' ? date('YmdHis') : date('YmdHis', strtotime($TransactionCompletedDateTime)),
-                    'receiver_party_public_name'      => $ReceiverPartyPublicName == '0' ? '0' : $ReceiverPartyPublicName,
-                    'utility_account_balance'                 => $B2CWorkingAccountAvailableFunds,
-                    'working_account_balance'                 => $B2CUtilityAccountAvailableFunds,
-                    'json_result'                     => json_encode($request->all()),
-                ]
-            );
+            $transaction->update($data);
         }
 
         return $transaction;
@@ -149,11 +158,9 @@ class DarajaHelper
         $resultType = $request['Result']['ResultType'];
         $resultCode = $request['Result']['ResultCode'];
         $resultDesc = $request['Result']['ResultDesc'];
-        $originatorConversationID = $request['Result']['OriginatorConversationID'];
-        $conversationID = $request['Result']['ConversationID'];
         $transactionID = $request['Result']['TransactionID'];
 
-        $TransactionCompletedDateTime = $ReceiverPartyPublicName = '0';
+        $TransCompletedTime = $ReceiverPartyPublicName = '0';
 
         // Accessing ResultParameters
         if ($resultCode == 0) {
@@ -173,23 +180,80 @@ class DarajaHelper
             }
         }
 
+        if($resultCode == 0){
+            $data = [
+                'result_type'                     => $resultType,
+                'result_code'                     => $resultCode,
+                'result_description'              => $resultDesc,
+                'transaction_id'                  => $transactionID,
+                'transaction_completed_date_time' => $TransCompletedTime == '0' ? date('YmdHis') : date('YmdHis', strtotime($TransCompletedTime)),
+                'receiver_party_public_name'      => $ReceiverPartyPublicName == '0' ? '0' : $ReceiverPartyPublicName,
+                'working_account_balance'         => $B2CWorkingAccountAvailableFunds,
+                'utility_account_balance'         => null,
+                'json_result'                     => json_encode($request->all()),
+            ];
+        } else {
+            $data = [
+                'result_type'                     => $resultType,
+                'result_code'                     => $resultCode,
+                'result_description'              => $resultDesc,
+            ];
+        }
+
         if ($transaction) {
-            $transaction->update(
-                [
-                    'result_type'                     => $resultType,
-                    'result_code'                     => $resultCode,
-                    'result_description'              => $resultDesc,
-                    'transaction_id'                  => $transactionID,
-                    'transaction_completed_date_time' => $TransCompletedTime == '0' ? date('YmdHis') : date('YmdHis', strtotime($TransCompletedTime)),
-                    'receiver_party_public_name'      => $ReceiverPartyPublicName == '0' ? '0' : $ReceiverPartyPublicName,
-                    'working_account_balance'         => $B2CWorkingAccountAvailableFunds,
-                    'utility_account_balance'         => null,
-                    'json_result'                     => json_encode($request->all()),
-                ]
-            );
+            $transaction->update($data);
         }
 
         return $transaction;
+    }
+
+    public static function c2b(Request $request) : MpesaFunding
+    {
+
+        // Decode the JSON payload from the request
+        $callback = $request->input('Body.stkCallback');
+
+        $transaction = MpesaTransaction::where('merchant_request_id', $callback['MerchantRequestID'])->first();
+
+        // Extract data from the callback
+        $resultCode = $callback['ResultCode'] ?? null;
+        $resultDesc = $callback['ResultDesc'] ?? null;
+
+        // Extract callback metadata items
+        $items = $callback['CallbackMetadata']['Item'] ?? [];
+        $data = [];
+
+        foreach ($items as $item) {
+            if (isset($item['Name']) && isset($item['Value'])) {
+                $data[$item['Name']] = $item['Value'];
+            }
+        }
+
+        // Extract specific metadata values
+        $mpesaReceiptNumber = $data['MpesaReceiptNumber'] ?? null;
+        $transactionDate = $data['TransactionDate'] ?? null;
+
+        if($resultCode == 0){
+            $data = [
+                'result_code' => $resultCode,
+                'result_desc' => $resultDesc,
+                'mpesa_receipt_number' => $mpesaReceiptNumber,
+                'transaction_date' => date('Y-m-d H:i:s', strtotime($transactionDate)),
+                'json_result' => $request->input()
+            ];
+        } else {
+            $data = [
+                'result_code' => $resultCode,
+                'result_desc' => $resultDesc,
+            ];
+        }
+
+        if ($transaction) {
+            $transaction->update($data);
+        }
+
+        return $transaction;
+
     }
 
     /**
