@@ -7,7 +7,11 @@ use EdLugz\Daraja\Models\MpesaBalance;
 use EdLugz\Daraja\Models\MpesaTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use EdLugz\Daraja\Models\ApiCredential;
 
+/**
+ *
+ */
 class DarajaHelper
 {
     /**
@@ -202,5 +206,21 @@ class DarajaHelper
             ];
         }
         return null;
+    }
+
+    /**
+     * @param ApiCredential $apiCredential
+     * @return ClientCredential
+     */
+    public static function getCredentials(ApiCredential $apiCredential): ClientCredential
+    {
+        return new ClientCredential(
+            consumerKey: $apiCredential->consumer_key,
+            consumerSecret: $apiCredential->consumer_secret,
+            shortcode: $apiCredential->short_code,
+            initiator: $apiCredential->initiator_name,
+            password: $apiCredential->initiator_password,
+            passkey:  $apiCredential->pass_key
+        );
     }
 }
