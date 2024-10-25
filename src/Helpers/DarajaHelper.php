@@ -90,7 +90,7 @@ class DarajaHelper
      *
      * @return MpesaTransaction
      */
-    public static function mobile(Request $request): MpesaTransaction
+    public static function b2c(Request $request): MpesaTransaction
     {
         $transaction = MpesaTransaction::where('originator_conversation_id', $request['Result']['OriginatorConversationID'])->first();
 
@@ -98,8 +98,6 @@ class DarajaHelper
         $resultType = $request['Result']['ResultType'];
         $resultCode = $request['Result']['ResultCode'];
         $resultDesc = $request['Result']['ResultDesc'];
-        $originatorConversationID = $request['Result']['OriginatorConversationID'];
-        $conversationID = $request['Result']['ConversationID'];
         $transactionID = $request['Result']['TransactionID'];
 
         $TransactionCompletedDateTime = $ReceiverPartyPublicName = '0';
@@ -171,7 +169,7 @@ class DarajaHelper
                 foreach ($resultParameters as $parameter) {
                     ${$parameter['Key']} = $parameter['Value'];
                     if ($InitiatorAccountCurrentBalance) {
-                        $parsedBalance = parseBalanceString($InitiatorAccountCurrentBalance);
+                        $parsedBalance = self::parseBalanceString($InitiatorAccountCurrentBalance);
                         if ($parsedBalance) {
                             $B2CWorkingAccountAvailableFunds = $parsedBalance['BasicAmount'];
                         }
@@ -260,7 +258,7 @@ class DarajaHelper
      * @param $balanceString
      * @return array|null
      */
-    protected function parseBalanceString($balanceString): ?array
+    protected static function parseBalanceString($balanceString): ?array
     {
         $pattern = '/CurrencyCode=(.*?), MinimumAmount=(.*?), BasicAmount=(.*?)}/';
         if (preg_match($pattern, $balanceString, $matches)) {
