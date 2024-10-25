@@ -128,17 +128,6 @@ return [
 
     'timeout_url' => env('DARAJA_TIMEOUT_URL', ''),
 
-    /*
-    |--------------------------------------------------------------------------
-    | Balance URL
-    |--------------------------------------------------------------------------
-    |
-    | Here you can set the URLs that will handle the results from each of the
-    | APIs from MPESA
-    |
-    */
-
-    'balance_url' => env('DARAJA_BALANCE_URL', ''),
 
     /*
     |--------------------------------------------------------------------------
