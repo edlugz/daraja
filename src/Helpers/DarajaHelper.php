@@ -223,4 +223,54 @@ class DarajaHelper
             passkey:  $apiCredential->pass_key
         );
     }
+
+    public static function getBalanceResultUrl(): string
+    {
+        return config('config.balance_result_url');
+    }
+
+    public static function getStkResultUrl(): string
+    {
+        return config('config.stk_result_url');
+    }
+
+    public static function getMobileResultUrl(): string
+    {
+        return config('config.mobile_result_url');
+    }
+
+    public static function getTillResultUrl(): string
+    {
+        return config('config.till_result_url');
+    }
+
+    public static function getPaybillResultUrl(): string
+    {
+        return config('config.paybill_result_url');
+    }
+
+    public static function getReversalResultUrl(): string
+    {
+        return config('config.reversal_result_url');
+    }
+
+    public static function getTransactionQueryMobileResultUrl(): string
+    {
+        return config('config.transaction_query_mobile_result_url');
+    }
+
+    public static function getTransactionQueryTillResultUrl(): string
+    {
+        return config('config.transaction_query_till_result_url');
+    }
+
+    public static function getTransactionQueryPaybillResultUrl(): string
+    {
+        return config('config.transaction_query_paybill_result_url');
+    }
+
+    public static function getTimeoutUrl(): string
+    {
+        return config('config.timeout_url');
+    }
 }
