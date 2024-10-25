@@ -70,9 +70,9 @@ class B2B extends DarajaClient
 
         parent::__construct($apiCredential);
 
-        $this->queueTimeOutURL = env('DARAJA_TIMEOUT_URL');
-        $this->tillResultURL = env('DARAJA_TILL_RESULT_URL');
-        $this->paybillResultURL = env('DARAJA_PAYBILL_RESULT_URL');
+        $this->queueTimeOutURL = DarajaHelper::getTimeoutUrl();
+        $this->tillResultURL = DarajaHelper::getTillResultUrl();
+        $this->paybillResultURL = DarajaHelper::getPaybillResultUrl();
         $this->tillCommandId = 'BusinessBuyGoods';
         $this->paybillCommandId = 'BusinessPayBill';
     }
@@ -184,7 +184,7 @@ class B2B extends DarajaClient
      *
      * @return MpesaTransaction
      */
-    protected function paybill(
+    public function paybill(
         string $recipient,
         string $requester,
         string $amount,

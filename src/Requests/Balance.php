@@ -60,7 +60,7 @@ class Balance extends DarajaClient
 
         parent::__construct($apiCredential);
 
-        $this->queueTimeOutURL = env('DARAJA_TIMEOUT_URL');
+        $this->queueTimeOutURL = DarajaHelper::getTimeoutUrl();
         $this->commandId = 'AccountBalance';
         $this->resultURL = $resultURL;
     }

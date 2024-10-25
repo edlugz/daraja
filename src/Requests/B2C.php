@@ -55,8 +55,8 @@ class B2C extends DarajaClient
 
         parent::__construct($apiCredential);
 
-        $this->queueTimeOutURL = env('DARAJA_TIMEOUT_URL');
-        $this->resultURL = env('DARAJA_MOBILE_RESULT_URL');
+        $this->queueTimeOutURL = DarajaHelper::getTimeoutUrl();
+        $this->resultURL = DarajaHelper::getMobileResultUrl();
         $this->commandId = 'SalaryPayment';
     }
 

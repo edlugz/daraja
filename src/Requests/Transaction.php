@@ -54,10 +54,10 @@ class Transaction extends DarajaClient
 
         parent::__construct($apiCredential);
 
-        $this->queueTimeOutURL = env('DARAJA_TIMEOUT_URL');
-        $this->mobileResultURL = env('DARAJA_TRANSACTION_QUERY_MOBILE_RESULT_URL');
-        $this->tillResultURL = env('DARAJA_TRANSACTION_QUERY_TILL_RESULT_URL');
-        $this->paybillResultURL = config('DARAJA_TRANSACTION_QUERY_PAYBILL_RESULT_URL');
+        $this->queueTimeOutURL = DarajaHelper::getTimeoutUrl();
+        $this->mobileResultURL = DarajaHelper::getTransactionQueryMobileResultUrl();
+        $this->tillResultURL = DarajaHelper::getTransactionQueryTillResultUrl();
+        $this->paybillResultURL = DarajaHelper::getTransactionQueryPaybillResultUrl();
         $this->commandId = 'TransactionStatusQuery';
     }
 

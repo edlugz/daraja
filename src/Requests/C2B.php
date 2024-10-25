@@ -94,8 +94,8 @@ class C2B extends DarajaClient
         $this->initiatorName = $this->apiCredential->initiator;
         $this->password = DarajaHelper::setPassword($this->apiCredential->shortcode, $this->apiCredential->passkey, $this->timestamp);
         $this->partyA = $this->apiCredential->shortcode;
-        $this->queueTimeOutURL = env('DARAJA_TIMEOUT_URL');
-        $this->resultURL = env('DARAJA_STK_RESULT_URL');
+        $this->queueTimeOutURL = DarajaHelper::getTimeoutUrl();
+        $this->resultURL = DarajaHelper::getStkResultUrl();
         $this->commandId = 'CustomerPayBillOnline';
     }
 

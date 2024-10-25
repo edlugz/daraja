@@ -56,8 +56,8 @@ class Reversal extends DarajaClient
 
         parent::__construct($apiCredential);
 
-        $this->queueTimeOutURL = config('daraja.timeout_url');
-        $this->resultURL = config('daraja.reversal_result_url');
+        $this->queueTimeOutURL = DarajaHelper::getTimeoutUrl();
+        $this->resultURL = DarajaHelper::getReversalResultUrl();
         $this->commandId = 'TransactionReversal';
     }
 
