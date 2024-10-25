@@ -226,55 +226,55 @@ class DarajaHelper
 
     public static function getDarajaBaseUrl(): string
     {
-        return config('daraja.base_url');
+        return rtrim(config('daraja.base_url'), '/');
     }
     public static function getBalanceResultUrl(): string
     {
-        return rtrim(self::getDarajaBaseUrl(), '/') . '/' . ltrim(config('daraja.balance_result_url'), '/');
+        return self::getDarajaBaseUrl() . '/' . ltrim(config('daraja.balance_result_url'), '/');
     }
 
     public static function getStkResultUrl(): string
     {
-        return config('daraja.stk_result_url');
+        return self::getDarajaBaseUrl() . '/' . ltrim(config('daraja.stk_result_url'), '/');
     }
 
     public static function getMobileResultUrl(): string
     {
-        return config('daraja.mobile_result_url');
+        return self::getDarajaBaseUrl() . '/' . ltrim(config('daraja.mobile_result_url'), '/');
     }
 
     public static function getTillResultUrl(): string
     {
-        return config('daraja.till_result_url');
+        return self::getDarajaBaseUrl() . '/' . ltrim(config('daraja.till_result_url'), '/');
     }
 
     public static function getPaybillResultUrl(): string
     {
-        return config('daraja.paybill_result_url');
+        return self::getDarajaBaseUrl() . '/' . ltrim(config('daraja.paybill_result_url'), '/');
     }
 
     public static function getReversalResultUrl(): string
     {
-        return config('daraja.reversal_result_url');
+        return self::getDarajaBaseUrl() . '/' . ltrim(config('daraja.reversal_result_url'), '/');
     }
 
     public static function getTransactionQueryMobileResultUrl(): string
     {
-        return config('daraja.transaction_query_mobile_result_url');
+        return self::getDarajaBaseUrl() . '/' . ltrim(config('daraja.transaction_query_mobile_result_url'), '/');
     }
 
     public static function getTransactionQueryTillResultUrl(): string
     {
-        return config('daraja.transaction_query_till_result_url');
+        return self::getDarajaBaseUrl() . '/' . ltrim(config('daraja.transaction_query_till_result_url'), '/');
     }
 
     public static function getTransactionQueryPaybillResultUrl(): string
     {
-        return config('daraja.transaction_query_paybill_result_url');
+        return self::getDarajaBaseUrl() . '/' . ltrim(config('daraja.transaction_query_paybill_result_url'), '/');
     }
 
     public static function getTimeoutUrl(): string
     {
-        return config('daraja.timeout_url');
+        return self::getDarajaBaseUrl() . '/' . ltrim(config('daraja.timeout_url'), '/');
     }
 }
