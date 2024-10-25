@@ -13,7 +13,7 @@ return new class() extends Migration {
     {
         Schema::create('api_credentials', function (Blueprint $table) {
             $table->id();
-            $table->uuid('uuid')->unique();
+            $table->uuid()->unique();
             $table->integer('account_id');
             $table->string('short_code')->nullable();
             $table->string('initiator')->nullable();
