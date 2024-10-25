@@ -22,6 +22,7 @@ return new class() extends Migration {
             $table->string('checkout_request_id')->nullable();
             $table->string('response_code')->nullable();
             $table->string('response_description')->nullable();
+            $table->string('customer_message')->nullable();
             $table->string('result_code')->nullable();
             $table->string('result_desc')->nullable();
             $table->string('mpesa_receipt_number')->nullable();
