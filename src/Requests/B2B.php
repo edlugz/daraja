@@ -193,7 +193,7 @@ class B2B extends DarajaClient
             'OriginatorConversationID' => $originatorConversationID,
             'Initiator'                => $this->clientCredential->initiator,
             'SecurityCredential'       => DarajaHelper::setSecurityCredential($this->clientCredential->password),
-            'CommandID'                => $this->tillCommandId,
+            'CommandID'                => $this->paybillCommandId,
             'SenderIdentifierType'     => 4,
             'RecieverIdentifierType'   => 4,
             'Amount'                   => $amount,
