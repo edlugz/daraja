@@ -37,9 +37,7 @@ class Transaction extends DarajaClient
      *
      * @var string
      */
-    protected string $mobileResultURL;
-    protected string $tillResultURL;
-    protected string $paybillResultURL;
+    protected string $resultURL;
 
     public ClientCredential $clientCredential;
 
@@ -48,16 +46,14 @@ class Transaction extends DarajaClient
      *
      * @throws DarajaRequestException
      */
-    public function __construct(ClientCredential $clientCredential)
+    public function __construct(ClientCredential $clientCredential, string $resultUrl = null)
     {
         $this->clientCredential = $clientCredential;
 
         parent::__construct($clientCredential);
 
         $this->queueTimeOutURL = DarajaHelper::getTimeoutUrl();
-        $this->mobileResultURL = DarajaHelper::getTransactionQueryMobileResultUrl();
-        $this->tillResultURL = DarajaHelper::getTransactionQueryTillResultUrl();
-        $this->paybillResultURL = DarajaHelper::getTransactionQueryPaybillResultUrl();
+        $this->resultURL = $resultUrl ?? DarajaHelper::getTransactionResultUrl();
         $this->commandId = 'TransactionStatusQuery';
     }
 
