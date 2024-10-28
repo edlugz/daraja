@@ -205,6 +205,10 @@ class DarajaHelper
         return $transaction;
     }
 
+    /**
+     * @param Request $request
+     * @return MpesaFunding
+     */
     public static function c2b(Request $request) : MpesaFunding
     {
 
@@ -255,6 +259,59 @@ class DarajaHelper
     }
 
     /**
+     * Parse mobile transaction status results
+     * @param Request $request
+     * @return MpesaTransaction|null
+     */
+    public function status(Request $request): ?MpesaTransaction
+    {
+        $transaction = MpesaTransaction::where('originator_conversation_id', $request['Result']['OriginatorConversationID'])->first();
+        if($transaction){
+
+            $resultType = $request['Result']['ResultType'];
+            $resultCode = $request['Result']['ResultCode'];
+            $resultDesc = $request['Result']['ResultDesc'];
+
+            if($resultCode == 0){
+                $resultParameters = $request['Result']['ResultParameters']['ResultParameter'];
+
+                if($resultParameters){
+                    foreach ($resultParameters as $parameter) {
+                        if(array_key_exists('Value', $parameter)){
+                            ${$parameter['Key']} = $parameter['Value'];
+                        }
+                    }
+                }
+
+                $data = [
+                    'result_type'                     => $resultType,
+                    'result_code'                     => $resultCode,
+                    'result_description'              => $resultDesc,
+                    'transaction_id'                  => $ReceiptNo,
+                    'transaction_completed_date_time' => !$FinalisedTime || $FinalisedTime == '0'
+                        ? date('YmdHis')
+                        : date('YmdHis', strtotime($FinalisedTime)),
+                    'receiver_party_public_name'      => $CreditPartyName ?: '0',
+                    'json_result'                     => json_encode($request->all()),
+                ];
+            } else {
+                $data = [
+                    'result_type'                     => $resultType,
+                    'result_code'                     => $resultCode,
+                    'result_description'              => $resultDesc,
+                ];
+            }
+
+            $transaction->update($data);
+
+            return $transaction;
+
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * @param $balanceString
      * @return array|null
      */
@@ -288,55 +345,75 @@ class DarajaHelper
         );
     }
 
+    /**
+     * @return string
+     */
     public static function getDarajaBaseUrl(): string
     {
         return rtrim(config('daraja.base_url'), '/');
     }
+
+    /**
+     * @return string
+     */
     public static function getBalanceResultUrl(): string
     {
         return self::getDarajaBaseUrl() . '/' . ltrim(config('daraja.balance_result_url'), '/');
     }
 
+    /**
+     * @return string
+     */
     public static function getStkResultUrl(): string
     {
         return self::getDarajaBaseUrl() . '/' . ltrim(config('daraja.stk_result_url'), '/');
     }
 
+    /**
+     * @return string
+     */
     public static function getMobileResultUrl(): string
     {
         return self::getDarajaBaseUrl() . '/' . ltrim(config('daraja.mobile_result_url'), '/');
     }
 
+    /**
+     * @return string
+     */
     public static function getTillResultUrl(): string
     {
         return self::getDarajaBaseUrl() . '/' . ltrim(config('daraja.till_result_url'), '/');
     }
 
+    /**
+     * @return string
+     */
     public static function getPaybillResultUrl(): string
     {
         return self::getDarajaBaseUrl() . '/' . ltrim(config('daraja.paybill_result_url'), '/');
     }
 
+    /**
+     * @return string
+     */
     public static function getReversalResultUrl(): string
     {
         return self::getDarajaBaseUrl() . '/' . ltrim(config('daraja.reversal_result_url'), '/');
     }
 
-    public static function getTransactionQueryMobileResultUrl(): string
+    /**
+     * @return string
+     */
+    public static function getTransactionResultUrl(): string
     {
-        return self::getDarajaBaseUrl() . '/' . ltrim(config('daraja.transaction_query_mobile_result_url'), '/');
+        return self::getDarajaBaseUrl() . '/' . ltrim(config('daraja.transaction_query_result_url'), '/');
     }
 
-    public static function getTransactionQueryTillResultUrl(): string
-    {
-        return self::getDarajaBaseUrl() . '/' . ltrim(config('daraja.transaction_query_till_result_url'), '/');
-    }
 
-    public static function getTransactionQueryPaybillResultUrl(): string
-    {
-        return self::getDarajaBaseUrl() . '/' . ltrim(config('daraja.transaction_query_paybill_result_url'), '/');
-    }
 
+    /**
+     * @return string
+     */
     public static function getTimeoutUrl(): string
     {
         return self::getDarajaBaseUrl() . '/' . ltrim(config('daraja.timeout_url'), '/');
