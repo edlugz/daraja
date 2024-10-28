@@ -138,9 +138,7 @@ class DarajaHelper
             ];
         }
 
-        if ($transaction) {
-            $transaction->update($data);
-        }
+        $transaction->update($data);
 
         return $transaction;
     }
