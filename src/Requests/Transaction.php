@@ -69,16 +69,6 @@ class Transaction extends DarajaClient
     ): MpesaTransaction {
         $check = MpesaTransaction::where('payment_id', $paymentId)->first();
 
-        if ($check->transaction_type == 'SendMoney') {
-            $resultUrl = $this->mobileResultURL;
-        } elseif ($check->transaction_type == 'BuyGoods') {
-            $resultUrl = $this->tillResultURL;
-        } elseif ($check->transaction_type == 'PayBill') {
-            $resultUrl = $this->paybillResultURL;
-        } else {
-            $resultUrl = $this->mobileResultURL;
-        }
-
         $parameters = [
             'Initiator'                => $this->clientCredential->initiator,
             'SecurityCredential'       => DarajaHelper::setSecurityCredential($this->clientCredential->password),
@@ -87,7 +77,7 @@ class Transaction extends DarajaClient
             'OriginatorConversationID' => $check->originator_conversation_id,
             'PartyA'                   => $this->clientCredential->shortcode,
             'IdentifierType'           => '4',
-            'ResultURL'                => $resultUrl,
+            'ResultURL'                => $this->resultUrl,
             'QueueTimeOutURL'          => $this->queueTimeOutURL,
             'Remarks'                  => 'OK',
             'Occasion'                 => 'OK',
