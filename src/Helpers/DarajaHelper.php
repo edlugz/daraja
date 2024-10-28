@@ -263,7 +263,7 @@ class DarajaHelper
      * @param Request $request
      * @return MpesaTransaction|null
      */
-    public function status(Request $request): ?MpesaTransaction
+    public static function status(Request $request): ?MpesaTransaction
     {
         $transaction = MpesaTransaction::where('originator_conversation_id', $request['Result']['OriginatorConversationID'])->first();
         if($transaction){
