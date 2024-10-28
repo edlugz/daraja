@@ -266,6 +266,7 @@ class DarajaHelper
     public static function status(Request $request): ?MpesaTransaction
     {
         $transaction = MpesaTransaction::where('originator_conversation_id', $request['Result']['OriginatorConversationID'])->first();
+
         if($transaction){
 
             $resultType = $request['Result']['ResultType'];

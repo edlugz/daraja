@@ -78,7 +78,7 @@ class Transaction extends DarajaClient
                     'BuyGoods'
                 ]
             )
-            ->latest();
+            ->latest()->first();
 
         if(!$check){
             return null;
