@@ -404,7 +404,7 @@ class DarajaHelper
     /**
      * @return string
      */
-    public static function getTransactionResultUrl(): string
+    public static function getTransactionQueryResultUrl(): string
     {
         return self::getDarajaBaseUrl() . '/' . ltrim(config('daraja.transaction_query_result_url'), '/');
     }

@@ -53,7 +53,7 @@ class Transaction extends DarajaClient
         parent::__construct($clientCredential);
 
         $this->queueTimeOutURL = DarajaHelper::getTimeoutUrl();
-        $this->resultUrl = $resultUrl ?? DarajaHelper::getTransactionResultUrl();
+        $this->resultUrl = $resultUrl ?? DarajaHelper::getTransactionQueryResultUrl();
         $this->commandId = 'TransactionStatusQuery';
     }
 
