@@ -112,7 +112,7 @@ return [
     'till_result_url'                      => env('DARAJA_TILL_RESULT_URL', ''),
     'paybill_result_url'                   => env('DARAJA_PAYBILL_RESULT_URL', ''),
     'reversal_result_url'                  => env('DARAJA_REVERSAL_RESULT_URL', ''),
-    'transaction_query_result_url'  => env('DARAJA_TRANSACTION_QUERY_MOBILE_RESULT_URL', ''),
+    'transaction_query_result_url'         => env('DARAJA_TRANSACTION_QUERY_RESULT_URL', ''),
 
     /*
     |--------------------------------------------------------------------------
