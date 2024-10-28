@@ -37,7 +37,7 @@ class Transaction extends DarajaClient
      *
      * @var string
      */
-    protected string $resultURL;
+    protected string $resultUrl;
 
     public ClientCredential $clientCredential;
 
@@ -53,7 +53,7 @@ class Transaction extends DarajaClient
         parent::__construct($clientCredential);
 
         $this->queueTimeOutURL = DarajaHelper::getTimeoutUrl();
-        $this->resultURL = $resultUrl ?? DarajaHelper::getTransactionResultUrl();
+        $this->resultUrl = $resultUrl ?? DarajaHelper::getTransactionResultUrl();
         $this->commandId = 'TransactionStatusQuery';
     }
 
@@ -62,13 +62,16 @@ class Transaction extends DarajaClient
      *
      * @param string $paymentId
      *
-     * @return MpesaTransaction
+     * @return MpesaTransaction|null
      */
     public function status(
         string $paymentId
-    ): MpesaTransaction {
-        $check = MpesaTransaction::where('payment_id', $paymentId)->first();
+    ): ?MpesaTransaction {
 
+        $check = MpesaTransaction::where('payment_id', $paymentId)->first();
+        if(!$check){
+            return null;
+        }
         $parameters = [
             'Initiator'                => $this->clientCredential->initiator,
             'SecurityCredential'       => DarajaHelper::setSecurityCredential($this->clientCredential->password),
