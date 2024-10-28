@@ -88,11 +88,15 @@ class DarajaHelper
      *
      * @param Request $request
      *
-     * @return MpesaTransaction
+     * @return MpesaTransaction|null
      */
-    public static function b2c(Request $request): MpesaTransaction
+    public static function b2c(Request $request): ?MpesaTransaction
     {
         $transaction = MpesaTransaction::where('originator_conversation_id', $request['Result']['OriginatorConversationID'])->first();
+
+        if(!$transaction){
+            return null;
+        }
 
         // Accessing different elements of the array and assigning them to separate variables
         $resultType = $request['Result']['ResultType'];
@@ -146,11 +150,15 @@ class DarajaHelper
      *
      * @param Request $request
      *
-     * @return MpesaTransaction
+     * @return MpesaTransaction|null
      */
-    public static function b2b(Request $request): MpesaTransaction
+    public static function b2b(Request $request): ?MpesaTransaction
     {
         $transaction = MpesaTransaction::where('originator_conversation_id', $request['Result']['OriginatorConversationID'])->first();
+
+        if(!$transaction) {
+            return null;
+        }
 
         // Accessing different elements of the array and assigning them to separate variables
         $resultType = $request['Result']['ResultType'];
