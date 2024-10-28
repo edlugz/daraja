@@ -176,11 +176,11 @@ class DarajaHelper
             if ($resultParameters) {
                 foreach ($resultParameters as $parameter) {
                     ${$parameter['Key']} = $parameter['Value'];
-                    if ($InitiatorAccountCurrentBalance) {
-                        $parsedBalance = self::parseBalanceString($InitiatorAccountCurrentBalance);
-                        if ($parsedBalance) {
-                            $B2CWorkingAccountAvailableFunds = $parsedBalance['BasicAmount'];
-                        }
+                }
+                if ($InitiatorAccountCurrentBalance) {
+                    $parsedBalance = self::parseBalanceString($InitiatorAccountCurrentBalance);
+                    if ($parsedBalance) {
+                        $B2CWorkingAccountAvailableFunds = $parsedBalance['BasicAmount'];
                     }
                 }
             }
