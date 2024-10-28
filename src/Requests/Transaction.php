@@ -61,17 +61,29 @@ class Transaction extends DarajaClient
      * Send transaction details to Safaricom C2B API.
      *
      * @param string $paymentId
+     * @param array  $customFieldsKeyValue
      *
      * @return MpesaTransaction|null
      */
     public function status(
-        string $paymentId
+        string $paymentId,
+        array $customFieldsKeyValue = []
     ): ?MpesaTransaction {
 
-        $check = MpesaTransaction::where('payment_id', $paymentId)->first();
+        $check = MpesaTransaction::where('payment_id', $paymentId)
+            ->whereIn('transaction_type',
+                [
+                    'SendMoney',
+                    'PayBill',
+                    'BuyGoods'
+                ]
+            )
+            ->latest();
+
         if(!$check){
             return null;
         }
+
         $parameters = [
             'Initiator'                => $this->clientCredential->initiator,
             'SecurityCredential'       => DarajaHelper::setSecurityCredential($this->clientCredential->password),
@@ -87,7 +99,7 @@ class Transaction extends DarajaClient
         ];
 
         /** @var MpesaTransaction $transaction */
-        $transaction = MpesaTransaction::create([
+        $transaction = MpesaTransaction::create(array_merge([
             'payment_id'        => $check->payment_id,
             'payment_reference' => $check->originator_conversation_id,
             'short_code'        => $this->clientCredential->shortcode,
@@ -95,7 +107,7 @@ class Transaction extends DarajaClient
             'account_number'    => $check->account_number,
             'amount'            => $check->amount,
             'json_request'      => json_encode($parameters),
-        ]);
+        ], $customFieldsKeyValue));
 
         try {
             $response = $this->call($this->endPoint, ['json' => $parameters]);
