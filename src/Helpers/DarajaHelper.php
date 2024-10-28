@@ -113,7 +113,7 @@ class DarajaHelper
             // Loop through ResultParameters and assign them to separate variables
             if ($resultParameters) {
                 foreach ($resultParameters as $parameter) {
-                    ${$parameter['Key']} = $parameter['Value'] ?? null;
+                    ${$parameter['Key']} = array_key_exists('Value', $parameter) ? $parameter['Value'] : null;
                 }
             }
         }
@@ -173,7 +173,7 @@ class DarajaHelper
             // Loop through ResultParameters and assign them to separate variables
             if ($resultParameters) {
                 foreach ($resultParameters as $parameter) {
-                    ${$parameter['Key']} = $parameter['Value'] ?? null;
+                    ${$parameter['Key']} = array_key_exists('Value', $parameter) ? $parameter['Value'] : null;
                 }
                 if ($InitiatorAccountCurrentBalance) {
                     $parsedBalance = self::parseBalanceString($InitiatorAccountCurrentBalance);
@@ -282,7 +282,7 @@ class DarajaHelper
 
                 if($resultParameters){
                     foreach ($resultParameters as $parameter) {
-                        ${$parameter['Key']} = $parameter['Value'] ?? null;
+                        ${$parameter['Key']} = array_key_exists('Value', $parameter) ? $parameter['Value'] : null;
                     }
                 }
 
