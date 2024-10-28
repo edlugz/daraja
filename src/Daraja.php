@@ -77,14 +77,13 @@ class Daraja
      * Initialize a customer to business transaction.
      *
      * @param ClientCredential $apiCredential
-     *
-     * @throws DarajaRequestException
-     *
+     * @param string $resultUrl
      * @return C2B
+     * @throws DarajaRequestException
      */
-    public function c2b(ClientCredential $apiCredential): C2B
+    public function c2b(ClientCredential $apiCredential, string $resultUrl): C2B
     {
-        return new C2B($apiCredential);
+        return new C2B($apiCredential, $resultUrl);
     }
 
     /**
@@ -105,13 +104,12 @@ class Daraja
      * Initiate a transaction status check.
      *
      * @param ClientCredential $apiCredential
-     *
-     * @throws DarajaRequestException
-     *
+     * @param string $resultUrl
      * @return Transaction
+     * @throws DarajaRequestException
      */
-    public function transaction(ClientCredential $apiCredential): Transaction
+    public function transaction(ClientCredential $apiCredential, string $resultUrl): Transaction
     {
-        return new Transaction($apiCredential);
+        return new Transaction($apiCredential, $resultUrl);
     }
 }
