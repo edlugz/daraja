@@ -412,13 +412,19 @@ class DarajaHelper
         return self::getDarajaBaseUrl() . '/' . ltrim(config('daraja.transaction_query_result_url'), '/');
     }
 
-
-
     /**
      * @return string
      */
     public static function getTimeoutUrl(): string
     {
         return self::getDarajaBaseUrl() . '/' . ltrim(config('daraja.timeout_url'), '/');
+    }
+
+    /**
+     * @return string
+     */
+    public static function getReversalQueryResultUrl(): string
+    {
+        return self::getDarajaBaseUrl() . '/' . ltrim(config('daraja.reversal_query_result_url'), '/');
     }
 }
