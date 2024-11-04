@@ -70,7 +70,7 @@ class Reversal extends DarajaClient
      *
      * @return MpesaTransaction
      */
-    public function request(
+    public function query(
         string $transactionId,
         string $amount,
         array $customFieldsKeyValue = []
