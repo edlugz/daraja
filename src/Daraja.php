@@ -9,7 +9,7 @@ use EdLugz\Daraja\Requests\B2C;
 use EdLugz\Daraja\Requests\Balance;
 use EdLugz\Daraja\Requests\C2B;
 use EdLugz\Daraja\Requests\Reversal;
-use EdLugz\Daraja\Requests\Transaction;
+use EdLugz\Daraja\Requests\TransactionStatus;
 
 /**
  *
@@ -108,8 +108,8 @@ class Daraja
      * @return Transaction
      * @throws DarajaRequestException
      */
-    public function transaction(ClientCredential $apiCredential, string $resultUrl): Transaction
+    public function transactionStatus(ClientCredential $apiCredential, string $resultUrl): TransactionStatus
     {
-        return new Transaction($apiCredential, $resultUrl);
+        return new TransactionStatus($apiCredential, $resultUrl);
     }
 }
