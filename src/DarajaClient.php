@@ -147,6 +147,10 @@ class DarajaClient
             $stream->rewind();
             $content = $stream->getContents();
 
+            if (empty($content)) {
+                throw new DarajaRequestException('Daraja APIs: Empty response from server', 204);
+            }
+
             return json_decode($content);
         } catch (ServerException $e) {
             $response = json_decode($e->getResponse()->getBody()->getContents());
