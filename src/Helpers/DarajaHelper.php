@@ -315,6 +315,59 @@ class DarajaHelper
     }
 
     /**
+     * Parse reversal transaction results
+     * @param Request $request
+     * @return MpesaTransaction|null
+     */
+    public static function reversal(Request $request): ?MpesaTransaction
+    {
+        $transaction = MpesaTransaction::where('originator_conversation_id', $request['Result']['OriginatorConversationID'])->first();
+
+        if($transaction){
+
+            $resultType = $data['Result']['ResultType'] ?? null;
+            $resultCode = $data['Result']['ResultCode'] ?? null;
+            $resultDesc = $data['Result']['ResultDesc'] ?? null;
+            $transactionID = $data['Result']['TransactionID'] ?? null;
+
+            if($resultCode == 0){
+                $resultParameters = $data['Result']['ResultParameters']['ResultParameter'] ?? [];
+
+                if($resultParameters){
+                    foreach ($resultParameters as $parameter) {
+                        ${$parameter['Key']} = array_key_exists('Value', $parameter) ? $parameter['Value'] : null;
+                    }
+                }
+
+                $data = [
+                    'result_type'                     => $resultType,
+                    'result_code'                     => $resultCode,
+                    'result_description'              => $resultDesc,
+                    'transaction_id'                  => $transactionID,
+                    'transaction_completed_date_time' => !$TransCompletedTime || $TransCompletedTime == '0'
+                        ? date('YmdHis')
+                        : date('YmdHis', strtotime($TransCompletedTime)),
+                    'receiver_party_public_name'      => $CreditPartyPublicName ?: '0',
+                    'json_result'                     => json_encode($request->all()),
+                ];
+            } else {
+                $data = [
+                    'result_type'                     => $resultType,
+                    'result_code'                     => $resultCode,
+                    'result_description'              => $resultDesc,
+                ];
+            }
+
+            $transaction->update($data);
+
+            return $transaction;
+
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * @param $balanceString
      * @return array|null
      */
