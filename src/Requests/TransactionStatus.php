@@ -9,7 +9,7 @@ use EdLugz\Daraja\Helpers\DarajaHelper;
 use EdLugz\Daraja\Models\MpesaTransaction;
 use Illuminate\Support\Facades\Log;
 
-class Transaction extends DarajaClient
+class TransactionStatus extends DarajaClient
 {
     /**
      * Safaricom APIs C2B endpoint.
@@ -65,7 +65,7 @@ class Transaction extends DarajaClient
      *
      * @return MpesaTransaction|null
      */
-    public function status(
+    public function query(
         string $paymentId,
         array $customFieldsKeyValue = []
     ): ?MpesaTransaction {
