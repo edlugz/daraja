@@ -20,6 +20,13 @@ class B2C extends DarajaClient
     protected string $endPoint = 'mpesa/b2c/v3/paymentrequest';
 
     /**
+     * Safaricom APIs B2C With Validation endpoint.
+     *
+     * @var string
+     */
+    protected string $validationEndPoint = 'mpesa/b2cvalidate/v2/paymentrequest';
+
+    /**
      * Safaricom APIs B2C command id.
      *
      * @var string
@@ -58,6 +65,100 @@ class B2C extends DarajaClient
         $this->queueTimeOutURL = DarajaHelper::getTimeoutUrl();
         $this->resultURL = $resultURL ?? DarajaHelper::getMobileResultUrl();
         $this->commandId = 'SalaryPayment';
+    }
+
+    /**
+     * Send transaction details to Safaricom B2C API.
+     *
+     * @param string $recipient
+     * @param string $nationalId
+     * @param int $amount
+     * @param array $customFieldsKeyValue
+     *
+     * @return MpesaTransaction
+     */
+    public function payWithId(
+        string $recipient,
+        string $nationalId,
+        int $amount,
+        array $customFieldsKeyValue = []
+    ): MpesaTransaction {
+        //check balance before sending out transaction
+        $originatorConversationID = (string) Str::uuid();
+
+        $parameters = [
+            'OriginatorConversationID' => $originatorConversationID,
+            'InitiatorName'            => $this->clientCredential->initiator,
+            'SecurityCredential'       => DarajaHelper::setSecurityCredential($this->clientCredential->password),
+            'CommandID'                => $this->commandId,
+            'Amount'                   => $amount,
+            'PartyA'                   => $this->clientCredential->shortcode,
+            'PartyB'                   => $recipient,
+            'IDType'                   => substr($nationalId, 0, 2),
+            'IDNumber'                 => substr($nationalId, 2),
+            'Remarks'                  => 'send to mobile',
+            'QueueTimeOutURL'          => $this->queueTimeOutURL,
+            'ResultURL'                => $this->resultURL,
+            'Occasion'                 => 'send to mobile',
+        ];
+
+        /** @var MpesaTransaction $transaction */
+        $transaction = MpesaTransaction::create(array_merge([
+            'payment_reference' => $originatorConversationID,
+            'short_code'        => $this->clientCredential->shortcode,
+            'transaction_type'  => 'SendMoney',
+            'account_number'    => $recipient,
+            'amount'            => $amount,
+            'json_request'      => json_encode($parameters),
+        ], $customFieldsKeyValue));
+
+        try {
+            $response = $this->call($this->validationEndPoint, ['json' => $parameters]);
+
+            Log::info('Daraja B2C Mobile Response', (array) $response);
+
+            $transaction->update(
+                [
+                    'json_response' => json_encode($response),
+                ]
+            );
+        } catch (DarajaRequestException $e) {
+            $response = [
+                'ResponseCode'        => $e->getCode(),
+                'ResponseDescription' => $e->getMessage(),
+            ];
+
+            $response = (object) $response;
+        }
+
+        if (array_key_exists('errorCode', (array) $response)) {
+            $response = [
+                'ResponseCode'        => $response->errorCode,
+                'ResponseDescription' => $response->errorMessage,
+            ];
+
+            $response = (object) $response;
+        }
+
+        $data = [
+            'response_code'          => $response->ResponseCode,
+            'response_description'   => $response->ResponseDescription,
+        ];
+
+        if (array_key_exists('ResponseCode', (array) $response)) {
+            if ($response->ResponseCode == '0') {
+                $data = array_merge($data, [
+                    'conversation_id'               => $response->ConversationID,
+                    'originator_conversation_id'    => $response->OriginatorConversationID,
+                    'response_code'                 => $response->ResponseCode,
+                    'response_description'          => $response->ResponseDescription,
+                ]);
+            }
+        }
+
+        $transaction->update($data);
+
+        return $transaction;
     }
 
     /**
