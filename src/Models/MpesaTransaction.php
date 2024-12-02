@@ -27,6 +27,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null result_code
  * @property string|null result_description
  * @property string|null transaction_id
+ * @property string|null transaction_status
  * @property \Illuminate\Support\Carbon|null transaction_completed_date_time
  * @property string|null receiver_party_public_name
  * @property float|null utility_account_balance
