@@ -291,6 +291,7 @@ class DarajaHelper
                     'result_code'                     => $resultCode,
                     'result_description'              => $resultDesc,
                     'transaction_id'                  => $ReceiptNo,
+                    'transaction_status'              => $TransactionStatus,
                     'transaction_completed_date_time' => !$FinalisedTime || $FinalisedTime == '0'
                         ? date('YmdHis')
                         : date('YmdHis', strtotime($FinalisedTime)),
