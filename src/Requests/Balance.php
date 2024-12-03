@@ -84,9 +84,7 @@ class Balance extends DarajaClient
         ];
 
         try {
-            $response = $this->call($this->endPoint, ['json' => $parameters]);
-
-            Log::info('Daraja Balance Response: ', (array) $response);
+            $this->call($this->endPoint, ['json' => $parameters]);
         } catch (DarajaRequestException $e) {
             Log::error($e);
         }
