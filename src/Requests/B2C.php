@@ -115,14 +115,13 @@ class B2C extends DarajaClient
         try {
             $response = $this->call($this->validationEndPoint, ['json' => $parameters]);
 
-            Log::info('Daraja B2C Mobile Response', (array) $response);
-
             $transaction->update(
                 [
                     'json_response' => json_encode($response),
                 ]
             );
         } catch (DarajaRequestException $e) {
+            Log::error($e);
             $response = [
                 'ResponseCode'        => $e->getCode(),
                 'ResponseDescription' => $e->getMessage(),
@@ -205,14 +204,13 @@ class B2C extends DarajaClient
         try {
             $response = $this->call($this->endPoint, ['json' => $parameters]);
 
-            Log::info('Daraja B2C Mobile Response', (array) $response);
-
             $transaction->update(
                 [
                     'json_response' => json_encode($response),
                 ]
             );
         } catch (DarajaRequestException $e) {
+            Log::error($e);
             $response = [
                 'ResponseCode'        => $e->getCode(),
                 'ResponseDescription' => $e->getMessage(),

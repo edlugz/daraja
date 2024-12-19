@@ -140,14 +140,13 @@ class C2B extends DarajaClient
         try {
             $response = $this->call($this->endPoint, ['json' => $parameters]);
 
-            Log::info('Daraja C2B Response', (array) $response);
-
             $transaction->update(
                 [
                     'json_response' => json_encode($response),
                 ]
             );
         } catch (DarajaRequestException $e) {
+            Log::error($e);
             $response = [
                 'ResponseCode'        => $e->getCode(),
                 'ResponseDescription' => $e->getMessage(),

@@ -7,8 +7,8 @@ use EdLugz\Daraja\Data\ClientCredential;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
 use EdLugz\Daraja\Models\MpesaTransaction;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 /**
  *
@@ -118,14 +118,13 @@ class B2B extends DarajaClient
         try {
             $response = $this->call($this->endPoint, ['json' => $parameters]);
 
-            Log::info('B2B Till Response', (array) $response);
-
             $transaction->update(
                 [
                     'json_response' => json_encode($response),
                 ]
             );
         } catch (DarajaRequestException $e) {
+            Log::error($e);
             $response = [
                 'ResponseCode'        => $e->getCode(),
                 'ResponseDescription' => $e->getMessage(),
@@ -221,14 +220,13 @@ class B2B extends DarajaClient
         try {
             $response = $this->call($this->endPoint, ['json' => $parameters]);
 
-            Log::info('B2B Paybill Response', (array) $response);
-
             $transaction->update(
                 [
                     'json_response' => json_encode($response),
                 ]
             );
         } catch (DarajaRequestException $e) {
+            Log::error($e);
             $response = [
                 'ResponseCode'        => $e->getCode(),
                 'ResponseDescription' => $e->getMessage(),
