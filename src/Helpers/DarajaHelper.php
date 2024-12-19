@@ -45,6 +45,27 @@ class DarajaHelper
         return base64_encode($shortcode.$passkey.$timestamp);
     }
 
+    public static function formatMobileNumber(string $number): string
+    {
+        // Remove non-numeric characters
+        $number = preg_replace('/\D/', '', $number);
+
+        // If the number already starts with "254", return it as is
+        if (str_starts_with($number, '254')) {
+            return $number;
+        }
+
+        // Remove leading "+" or "0"
+        if (str_starts_with($number, '0')) {
+            $number = substr($number, 1);
+        } elseif (str_starts_with($number, '+254')) {
+            $number = substr($number, 4);
+        }
+
+        // Return the formatted number
+        return '254' . $number;
+    }
+
     /**
      * Process balance results.
      *
