@@ -89,7 +89,7 @@ class TransactionStatus extends DarajaClient
             'SecurityCredential'       => DarajaHelper::setSecurityCredential($this->clientCredential->password),
             'CommandID'                => $this->commandId,
             'TransactionID'            => '',
-            'OriginalConversationID'   => $check->originator_conversation_id,
+            'OriginalConversationID'   => $check->payment_reference,
             'PartyA'                   => $this->clientCredential->shortcode,
             'IdentifierType'           => '4',
             'ResultURL'                => $this->resultUrl,
