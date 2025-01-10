@@ -90,7 +90,7 @@ class DarajaHelper
             // Explode each account information into an array of details
             $accountDetails = explode('|', $account);
             //get balances
-            $accountBalances[] = $accountDetails[2];
+            $accountBalances[] = $accountDetails[3];
         }
 
         return MpesaBalance::create([
