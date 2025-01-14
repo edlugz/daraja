@@ -121,6 +121,8 @@ class B2B extends DarajaClient
             $transaction->update(
                 [
                     'json_response' => json_encode($response),
+                    'originator_conversation_id' => $response->OriginatorConversationID,
+                    'payment_reference' => $response->OriginatorConversationID,
                 ]
             );
         } catch (DarajaRequestException $e) {
@@ -152,6 +154,7 @@ class B2B extends DarajaClient
                 $data = array_merge($data, [
                     'conversation_id'               => $response->ConversationID,
                     'originator_conversation_id'    => $response->OriginatorConversationID,
+                    'payment_reference'             => $response->OriginatorConversationID,
                     'response_code'                 => $response->ResponseCode,
                     'response_description'          => $response->ResponseDescription,
                 ]);
@@ -222,6 +225,8 @@ class B2B extends DarajaClient
 
             $transaction->update(
                 [
+                    'originator_conversation_id' => $response->OriginatorConversationID,
+                    'payment_reference' => $response->OriginatorConversationID,
                     'json_response' => json_encode($response),
                 ]
             );
@@ -254,6 +259,7 @@ class B2B extends DarajaClient
                 $data = array_merge($data, [
                     'conversation_id'               => $response->ConversationID,
                     'originator_conversation_id'    => $response->OriginatorConversationID,
+                    'payment_reference'             => $response->OriginatorConversationID,
                     'response_code'                 => $response->ResponseCode,
                     'response_description'          => $response->ResponseDescription,
                 ]);
