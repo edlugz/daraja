@@ -6,6 +6,7 @@ use EdLugz\Daraja\DarajaClient;
 use EdLugz\Daraja\Data\ClientCredential;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
+use EdLugz\Daraja\Models\MpesaBalance;
 use EdLugz\Daraja\Models\MpesaTransaction;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -76,6 +77,7 @@ class B2C extends DarajaClient
      * @param array $customFieldsKeyValue
      *
      * @return MpesaTransaction
+     * @throws DarajaRequestException
      */
     public function payWithId(
         string $recipient,
@@ -83,7 +85,15 @@ class B2C extends DarajaClient
         int $amount,
         array $customFieldsKeyValue = []
     ): MpesaTransaction {
-        //check balance before sending out transaction
+
+        $balance = MpesaBalance::where('short_code', $this->clientCredential->shortcode)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if (!$balance || $balance->amount < $amount) {
+            throw new DarajaRequestException('Insufficient balance to process this transaction.');
+        }
+
         $originatorConversationID = (string) Str::uuid();
 
         $parameters = [

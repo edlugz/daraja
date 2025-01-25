@@ -6,6 +6,7 @@ use EdLugz\Daraja\DarajaClient;
 use EdLugz\Daraja\Data\ClientCredential;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
+use EdLugz\Daraja\Models\MpesaBalance;
 use EdLugz\Daraja\Models\MpesaTransaction;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
@@ -74,6 +75,7 @@ class B2B extends DarajaClient
      * @param array $customFieldsKeyValue
      * @param string|null $resultUrl
      * @return MpesaTransaction
+     * @throws DarajaRequestException
      */
     public function till(
         string $recipient,
@@ -82,7 +84,14 @@ class B2B extends DarajaClient
         string $resultUrl = null,
         array $customFieldsKeyValue = []
     ): MpesaTransaction {
-        //check balance before sending out transaction
+
+        $balance = MpesaBalance::where('short_code', $this->clientCredential->shortcode)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if (!$balance || $balance->amount < $amount) {
+            throw new DarajaRequestException('Insufficient balance to process this transaction.');
+        }
 
         $resultUrl = $resultUrl ?? DarajaHelper::getStkResultUrl();
 
@@ -176,6 +185,7 @@ class B2B extends DarajaClient
      * @param array $customFieldsKeyValue
      * @param string|null $resultUrl
      * @return MpesaTransaction
+     * @throws DarajaRequestException
      */
     public function paybill(
         string $recipient,
@@ -185,7 +195,14 @@ class B2B extends DarajaClient
         string $resultUrl = null,
         array $customFieldsKeyValue = []
     ): MpesaTransaction {
-        //check balance before sending out transaction
+
+        $balance = MpesaBalance::where('short_code', $this->clientCredential->shortcode)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if (!$balance || $balance->amount < $amount) {
+            throw new DarajaRequestException('Insufficient balance to process this transaction.');
+        }
 
         $resultUrl = $resultUrl ?? DarajaHelper::getPaybillResultUrl();
 
