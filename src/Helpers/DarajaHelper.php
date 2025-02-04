@@ -450,6 +450,13 @@ class DarajaHelper
     /**
      * @return string
      */
+    public static function getFundsTransferResultUrl(): string
+    {
+        return self::getDarajaBaseUrl() . '/' . ltrim(config('daraja.funds_transfer_result_url'), '/');
+    }
+/**
+     * @return string
+     */
     public static function getMobileResultUrl(): string
     {
         return self::getDarajaBaseUrl() . '/' . ltrim(config('daraja.mobile_result_url'), '/');
