@@ -74,7 +74,7 @@ class B2B extends DarajaClient
      * @param int $amount
      * @param array $customFieldsKeyValue
      * @param string|null $resultUrl
-     * @return MpesaTransaction
+     * @return MpesaTransaction|null
      * @throws DarajaRequestException
      */
     public function till(
@@ -83,14 +83,19 @@ class B2B extends DarajaClient
         int $amount,
         string $resultUrl = null,
         array $customFieldsKeyValue = []
-    ): MpesaTransaction {
+    ): MpesaTransaction|null {
 
         $balance = MpesaBalance::where('short_code', $this->clientCredential->shortcode)
             ->orderBy('created_at', 'desc')
             ->first();
 
-        if (!$balance || $balance->amount < $amount) {
-            throw new DarajaRequestException('Insufficient balance to process this transaction.');
+        if (($balance->amount ?? 0) < $amount) {
+            Log::error('Insufficient balance to process this transaction.', [
+                'short_code' => $this->clientCredential->shortcode,
+                'balance' => $balance?->amount ?? null,
+                'required_amount' => $amount,
+            ]);
+            return null;
         }
 
         $resultUrl = $resultUrl ?? DarajaHelper::getStkResultUrl();
@@ -184,7 +189,7 @@ class B2B extends DarajaClient
      * @param string $accountReference
      * @param array $customFieldsKeyValue
      * @param string|null $resultUrl
-     * @return MpesaTransaction
+     * @return MpesaTransaction |  null
      * @throws DarajaRequestException
      */
     public function paybill(
@@ -194,14 +199,19 @@ class B2B extends DarajaClient
         string $accountReference,
         string $resultUrl = null,
         array $customFieldsKeyValue = []
-    ): MpesaTransaction {
+    ): MpesaTransaction|null {
 
         $balance = MpesaBalance::where('short_code', $this->clientCredential->shortcode)
             ->orderBy('created_at', 'desc')
             ->first();
 
         if (!$balance || $balance->amount < $amount) {
-            throw new DarajaRequestException('Insufficient balance to process this transaction.');
+            Log::error('Insufficient balance to process this transaction.', [
+                'short_code' => $this->clientCredential->shortcode,
+                'balance' => $balance?->amount ?? null,
+                'required_amount' => $amount,
+            ]);
+            return null;
         }
 
         $resultUrl = $resultUrl ?? DarajaHelper::getPaybillResultUrl();

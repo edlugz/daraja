@@ -75,8 +75,7 @@ class B2C extends DarajaClient
      * @param string $nationalId
      * @param int $amount
      * @param array $customFieldsKeyValue
-     *
-     * @return MpesaTransaction
+     * @return MpesaTransaction | null
      * @throws DarajaRequestException
      */
     public function payWithId(
@@ -84,14 +83,19 @@ class B2C extends DarajaClient
         string $nationalId,
         int $amount,
         array $customFieldsKeyValue = []
-    ): MpesaTransaction {
+    ): MpesaTransaction|null {
 
         $balance = MpesaBalance::where('short_code', $this->clientCredential->shortcode)
             ->orderBy('created_at', 'desc')
             ->first();
 
-        if (!$balance || $balance->amount < $amount) {
-            throw new DarajaRequestException('Insufficient balance to process this transaction.');
+        if (($balance->amount ?? 0) < $amount) {
+            Log::error('Insufficient balance to process this transaction.', [
+                'short_code' => $this->clientCredential->shortcode,
+                'balance' => $balance?->amount ?? null,
+                'required_amount' => $amount,
+            ]);
+            return null;
         }
 
         $originatorConversationID = (string) Str::uuid();
@@ -177,14 +181,27 @@ class B2C extends DarajaClient
      * @param int $amount
      * @param array $customFieldsKeyValue
      *
-     * @return MpesaTransaction
+     * @return MpesaTransaction|null
      */
     public function pay(
         string $recipient,
         int $amount,
         array $customFieldsKeyValue = []
-    ): MpesaTransaction {
-        //check balance before sending out transaction
+    ): MpesaTransaction|null {
+
+        $balance = MpesaBalance::where('short_code', $this->clientCredential->shortcode)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if (($balance->amount ?? 0) < $amount) {
+            Log::error('Insufficient balance to process this transaction.', [
+                'short_code' => $this->clientCredential->shortcode,
+                'balance' => $balance?->amount ?? null,
+                'required_amount' => $amount,
+            ]);
+            return null;
+        }
+
         $originatorConversationID = (string) Str::uuid();
 
         $parameters = [
