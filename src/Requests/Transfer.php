@@ -6,7 +6,6 @@ use EdLugz\Daraja\DarajaClient;
 use EdLugz\Daraja\Data\ClientCredential;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
-use EdLugz\Daraja\Models\MpesaBalance;
 use EdLugz\Daraja\Models\MpesaTransaction;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
