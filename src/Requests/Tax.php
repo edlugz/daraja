@@ -26,6 +26,14 @@ class Tax extends DarajaClient
      * @var string
      */
     protected string $commandId;
+
+    /**
+     * tax remittance result URL.
+     *
+     * @var string
+     */
+    protected string $resultURL ;
+
     /**
      * @var string
      */
@@ -49,7 +57,7 @@ class Tax extends DarajaClient
         $this->clientCredential = $clientCredential;
 
         parent::__construct($clientCredential);
-
+        $this->resultURL = $resultURL ?? DarajaHelper::getPaybillResultUrl();
         $this->queueTimeOutURL = DarajaHelper::getTimeoutUrl();
         $this->commandId = 'PayTaxToKRA';
     }
