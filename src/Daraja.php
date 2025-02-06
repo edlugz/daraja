@@ -10,6 +10,8 @@ use EdLugz\Daraja\Requests\Balance;
 use EdLugz\Daraja\Requests\C2B;
 use EdLugz\Daraja\Requests\Reversal;
 use EdLugz\Daraja\Requests\TransactionStatus;
+use EdLugz\Daraja\Requests\Transfer;
+use EdLugz\Daraja\Requests\Tax;
 
 /**
  *
@@ -105,11 +107,37 @@ class Daraja
      *
      * @param ClientCredential $apiCredential
      * @param string $resultUrl
-     * @return Transaction
+     * @return TransactionStatus
      * @throws DarajaRequestException
      */
     public function transactionStatus(ClientCredential $apiCredential, string $resultUrl): TransactionStatus
     {
         return new TransactionStatus($apiCredential, $resultUrl);
+    }
+
+    /**
+     * Initiate a funds transfer.
+     *
+     * @param ClientCredential $apiCredential
+     * @param string $resultUrl
+     * @return Transfer
+     * @throws DarajaRequestException
+     */
+    public function transfer(ClientCredential $apiCredential, string $resultUrl): Transfer
+    {
+        return new Transfer($apiCredential, $resultUrl);
+    }
+
+    /**
+     * Initiate a tax transaction.
+     *
+     * @param ClientCredential $apiCredential
+     * @param string $resultUrl
+     * @return Tax
+     * @throws DarajaRequestException
+     */
+    public function tax(ClientCredential $apiCredential, string $resultUrl): Tax
+    {
+        return new Tax($apiCredential, $resultUrl);
     }
 }
