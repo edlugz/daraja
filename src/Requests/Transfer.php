@@ -89,14 +89,14 @@ class Transfer extends DarajaClient
         ];
 
         /** @var MpesaTransaction $transaction */
-        $transaction = MpesaTransaction::create(array_merge([
+        $transaction = MpesaTransaction::create([
             'payment_reference' => $originatorConversationID,
             'short_code'        => $this->clientCredential->shortcode,
             'transaction_type'  => 'FundsTransfer',
             'account_number'    => $this->clientCredential->shortcode,
             'amount'            => $amount,
             'json_request'      => json_encode($parameters),
-        ], $customFieldsKeyValue));
+        ]);
 
         try {
             $response = $this->call($this->endPoint, ['json' => $parameters]);
@@ -170,13 +170,13 @@ class Transfer extends DarajaClient
         ];
 
         /** @var MpesaTransaction $transaction */
-        $transaction = MpesaTransaction::create(array_merge([
+        $transaction = MpesaTransaction::create([
             'payment_reference' => $originatorConversationID,
             'short_code'        => $this->clientCredential->shortcode,
             'transaction_type'  => 'FundsTransfer',
             'account_number'    => $this->clientCredential->shortcode,
             'json_request'      => json_encode($parameters),
-        ], $customFieldsKeyValue));
+        ]);
 
         try {
             $response = $this->call($this->endPoint, ['json' => $parameters]);
