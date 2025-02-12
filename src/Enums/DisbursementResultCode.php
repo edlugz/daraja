@@ -9,7 +9,6 @@ enum DisbursementResultCode: string
     case EXTERNAL_VALIDATION_FAILED = '2007';
     case PRODUCT_ASSIGNMENT_ERROR = '2028';
     case UNRESOLVED_REASON = '2029';
-    case RECEIPT_NOT_FOUND = '2033';
     case CREDIT_PARTY_UNSUPPORTED = '2040';
     case ORGANIZATION_NOT_CHILD = '2043';
     case ACCOUNT_NUMBER_INVALID = '2202';
