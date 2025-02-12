@@ -89,7 +89,7 @@ class B2C extends DarajaClient
             ->orderBy('created_at', 'desc')
             ->first();
 
-        if (($balance->amount ?? 0) < $amount) {
+        if (($balance->utility_account ?? 0) < $amount) {
             Log::error('Insufficient balance to process this transaction.', [
                 'short_code' => $this->clientCredential->shortcode,
                 'balance' => $balance?->amount ?? null,
@@ -193,7 +193,7 @@ class B2C extends DarajaClient
             ->orderBy('created_at', 'desc')
             ->first();
 
-        if (($balance->amount ?? 0) < $amount) {
+        if (($balance->utility_account ?? 0) < $amount) {
             Log::error('Insufficient balance to process this transaction.', [
                 'short_code' => $this->clientCredential->shortcode,
                 'balance' => $balance?->amount ?? null,
