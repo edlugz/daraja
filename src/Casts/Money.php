@@ -2,7 +2,7 @@
 
 namespace EdLugz\Daraja\Casts;
 
-use App\Traits\HasMoneyConversion;
+use EdLugz\Daraja\Traits\HasMoneyConversion;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Database\Eloquent\Model;
 
