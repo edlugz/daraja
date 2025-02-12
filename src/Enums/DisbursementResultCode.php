@@ -1,66 +1,34 @@
 <?php
 
 namespace EdLugz\Daraja\Enums;
-enum DisbursementResultCode
+enum DisbursementResultCode: string
 {
-    case SUCCESS;
-    case INSUFFICIENT_BALANCE;
-    case SYSTEM_ERROR;
-    case EXTERNAL_VALIDATION_FAILED;
-    case PRODUCT_ASSIGNMENT_ERROR;
-    case UNRESOLVED_REASON;
-    case RECEIPT_NOT_FOUND;
-    case CREDIT_PARTY_UNSUPPORTED;
-    case ORGANIZATION_NOT_CHILD;
-    case ACCOUNT_NUMBER_INVALID;
-    case OPERATOR_NOT_EXIST;
-    case LIMIT_RULE_MINIMUM;
-    case LIMIT_RULE_MAXIMUM;
-    case RECEIVER_INVALID;
-    case LIMIT_RULE_BALANCE;
-    case DEBIT_PARTY_INVALID;
-    case CREDIT_PARTY_INVALID;
-    case INITIATOR_NOT_ALLOWED;
-    case ACCOUNT_REFERENCE_INVALID;
-    case INITIATOR_INVALID;
-    case ACCOUNT_RULE_DECLINED;
-    case INVALID_AMOUNT_FORMAT;
-    case MSISDN_INVALID;
-    case SECURITY_CREDENTIAL_LOCKED;
-    case ID_TYPE_NOT_FOUND;
-    case ID_NUMBER_MISMATCH;
-
-    public function getCode(): string|int
-    {
-        return match ($this) {
-            self::SUCCESS => 0,
-            self::INSUFFICIENT_BALANCE => 1,
-            self::SYSTEM_ERROR => 17,
-            self::EXTERNAL_VALIDATION_FAILED => 2007,
-            self::PRODUCT_ASSIGNMENT_ERROR => 2028,
-            self::UNRESOLVED_REASON => 2029,
-            self::RECEIPT_NOT_FOUND => 2033,
-            self::CREDIT_PARTY_UNSUPPORTED => 2040,
-            self::ORGANIZATION_NOT_CHILD => 2043,
-            self::ACCOUNT_NUMBER_INVALID => 2202,
-            self::OPERATOR_NOT_EXIST => 'SFC_IC0003',
-            self::LIMIT_RULE_MINIMUM => 2,
-            self::LIMIT_RULE_MAXIMUM => 3,
-            self::RECEIVER_INVALID => 7,
-            self::LIMIT_RULE_BALANCE => 8,
-            self::DEBIT_PARTY_INVALID => 11,
-            self::CREDIT_PARTY_INVALID => 14,
-            self::INITIATOR_NOT_ALLOWED => 21,
-            self::ACCOUNT_REFERENCE_INVALID => 1005,
-            self::INITIATOR_INVALID => 2001,
-            self::ACCOUNT_RULE_DECLINED => 2006,
-            self::INVALID_AMOUNT_FORMAT => 2020,
-            self::MSISDN_INVALID => 2051,
-            self::SECURITY_CREDENTIAL_LOCKED => 8006,
-            self::ID_TYPE_NOT_FOUND => 'R002',
-            self::ID_NUMBER_MISMATCH => 'R003',
-        };
-    }
+    case SUCCESS = '0';
+    case INSUFFICIENT_BALANCE = '1';
+    case SYSTEM_ERROR = '17';
+    case EXTERNAL_VALIDATION_FAILED = '2007';
+    case PRODUCT_ASSIGNMENT_ERROR = '2028';
+    case UNRESOLVED_REASON = '2029';
+    case RECEIPT_NOT_FOUND = '2033';
+    case CREDIT_PARTY_UNSUPPORTED = '2040';
+    case ORGANIZATION_NOT_CHILD = '2043';
+    case ACCOUNT_NUMBER_INVALID = '2202';
+    case OPERATOR_NOT_EXIST = 'SFC_IC0003';
+    case LIMIT_RULE_MINIMUM = '2';
+    case LIMIT_RULE_MAXIMUM = '3';
+    case RECEIVER_INVALID = '7';
+    case LIMIT_RULE_BALANCE = '8';
+    case DEBIT_PARTY_INVALID = '11';
+    case CREDIT_PARTY_INVALID = '14';
+    case INITIATOR_NOT_ALLOWED = '21';
+    case ACCOUNT_REFERENCE_INVALID = '1005';
+    case INITIATOR_INVALID = '2001';
+    case ACCOUNT_RULE_DECLINED = '2006';
+    case INVALID_AMOUNT_FORMAT = '2020';
+    case MSISDN_INVALID = '2051';
+    case SECURITY_CREDENTIAL_LOCKED = '8006';
+    case ID_TYPE_NOT_FOUND = 'R002';
+    case ID_NUMBER_MISMATCH = 'R003';
 
     public function getCustomerMessage(): string
     {
@@ -89,7 +57,7 @@ enum DisbursementResultCode
             self::MSISDN_INVALID => "Invalid phone number format.",
             self::SECURITY_CREDENTIAL_LOCKED => "Your authentication credentials are locked. Contact support.",
             self::ID_TYPE_NOT_FOUND => "ID type not found for the customer.",
-            self::ID_NUMBER_MISMATCH => "ID number does not match our records.",
+            self::ID_NUMBER_MISMATCH => "Invalid ID number provided.",
         };
     }
 
@@ -97,8 +65,7 @@ enum DisbursementResultCode
     {
         return match ($this) {
             self::SYSTEM_ERROR,
-            self::UNRESOLVED_REASON,
-            self::RECEIPT_NOT_FOUND => true, // Temporary issues, retry is possible
+            self::UNRESOLVED_REASON => true, // Temporary issues, retry is possible
             default => false, // Permanent errors, no retry recommended
         };
     }
