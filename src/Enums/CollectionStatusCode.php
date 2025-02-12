@@ -38,7 +38,6 @@ enum CollectionStatusCode: string
             self::SUCCESS => "Request is processed successfully.",
             self::INSUFFICIENT_BALANCE => "The balance is insufficient for the transaction.",
             self::DAILY_LIMIT_EXCEEDED => "Transaction would exceed the daily transfer limit.",
-            self::DUPLICATE_ORIGINATOR_CONVERSATION_ID => "Duplicate OriginatorConversationID.",
             self::SYSTEM_BUSY => "System busy. The service request is rejected.",
             self::TRANSACTION_IN_PROGRESS => "Unable to lock subscriber, a transaction is already in process for the current subscriber.",
             self::TRANSACTION_EXPIRED => "Transaction has expired.",
@@ -55,6 +54,7 @@ enum CollectionStatusCode: string
             self::INVALID_PROMPT_MESSAGE_PREFIX,
             self::INVALID_AUTHENTICATION_MESSAGE,
             self::INITIATOR_NOT_ALLOWED,
+            self::DUPLICATE_ORIGINATOR_CONVERSATION_ID,
             self::STORAGE_OBJECT_SAVE_FAILURE => "Transaction failed. Unable to complete request due to a system error.",
             self::INTERNAL_ERROR => "An error occurred while executing the transaction.",
         };
