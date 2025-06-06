@@ -64,11 +64,12 @@ class Transfer extends DarajaClient
     /**
      * Transfer funds from working(mmf) to utility account via Safaricom B2B API.
      * @param int $amount
+     * @param array $customFieldsKeyValue
      * @return MpesaTransaction
-     * @throws DarajaRequestException
      */
     public function workingToUtility(
-        int $amount
+        int $amount,
+        array $customFieldsKeyValue = []
     ): MpesaTransaction {
 
         $originatorConversationID = (string) Str::uuid();
@@ -89,20 +90,22 @@ class Transfer extends DarajaClient
         ];
 
         /** @var MpesaTransaction $transaction */
-        $transaction = MpesaTransaction::create([
+        $transaction = MpesaTransaction::create(array_merge([
             'payment_reference' => $originatorConversationID,
             'short_code'        => $this->clientCredential->shortcode,
             'transaction_type'  => 'FundsTransfer',
             'account_number'    => $this->clientCredential->shortcode,
             'amount'            => $amount,
             'json_request'      => json_encode($parameters),
-        ]);
+        ], $customFieldsKeyValue));
 
         try {
             $response = $this->call($this->endPoint, ['json' => $parameters]);
 
             $transaction->update(
                 [
+                    'originator_conversation_id' => $response->OriginatorConversationID,
+                    'payment_reference' => $response->OriginatorConversationID,
                     'json_response' => json_encode($response),
                 ]
             );
@@ -148,10 +151,10 @@ class Transfer extends DarajaClient
 
     /**
      * STransfer funds from utility to working(mmf) account via  Safaricom B2B API.
+     * @param array $customFieldsKeyValue
      * @return MpesaTransaction
-     * @throws DarajaRequestException
      */
-    public function utilityToWorking(): MpesaTransaction {
+    public function utilityToWorking(array $customFieldsKeyValue = []): MpesaTransaction {
 
         $originatorConversationID = (string) Str::uuid();
 
@@ -170,19 +173,21 @@ class Transfer extends DarajaClient
         ];
 
         /** @var MpesaTransaction $transaction */
-        $transaction = MpesaTransaction::create([
+        $transaction = MpesaTransaction::create(array_merge([
             'payment_reference' => $originatorConversationID,
             'short_code'        => $this->clientCredential->shortcode,
             'transaction_type'  => 'FundsTransfer',
             'account_number'    => $this->clientCredential->shortcode,
             'json_request'      => json_encode($parameters),
-        ]);
+        ], $customFieldsKeyValue));
 
         try {
             $response = $this->call($this->endPoint, ['json' => $parameters]);
 
             $transaction->update(
                 [
+                    'originator_conversation_id' => $response->OriginatorConversationID,
+                    'payment_reference' => $response->OriginatorConversationID,
                     'json_response' => json_encode($response),
                 ]
             );
