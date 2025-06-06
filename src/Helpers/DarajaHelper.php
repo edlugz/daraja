@@ -45,6 +45,10 @@ class DarajaHelper
         return base64_encode($shortcode.$passkey.$timestamp);
     }
 
+    /**
+     * @param string $number
+     * @return string
+     */
     public static function formatMobileNumber(string $number): string
     {
         // Remove non-numeric characters
@@ -377,6 +381,61 @@ class DarajaHelper
                     'result_type'                     => $resultType,
                     'result_code'                     => $resultCode,
                     'result_description'              => $resultDesc,
+                ];
+            }
+
+            $transaction->update($data);
+
+            return $transaction;
+
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @return MpesaTransaction|null
+     */
+    public function funds(Request $request): ?MpesaTransaction
+    {
+        $transaction = MpesaTransaction::where('originator_conversation_id', $request['OriginatorConversationID'])->first();
+
+        if($transaction) {
+
+            $resultType = $result['ResultType'] ?? null;
+            $resultCode = $result['ResultCode'] ?? null;
+            $resultDesc = $result['ResultDesc'] ?? null;
+            $transactionId = $result['TransactionID'] ?? null;
+
+            if ($resultCode == 0) {
+                $resultParameters = $result['ResultParameters']['ResultParameter'] ?? [];
+
+                if (!empty($resultParameters)) {
+                    foreach ($resultParameters as $parameter) {
+                        ${$parameter['Key']} = $parameter['Value'] ?? null;
+                    }
+                }
+
+                $transCompletedTimeFormatted = !empty($TransCompletedTime) && $TransCompletedTime != '0'
+                    ? \DateTime::createFromFormat('YmdHis', $TransCompletedTime)->format('Y-m-d H:i:s')
+                    : now()->format('Y-m-d H:i:s');
+
+                $data = [
+                    'result_type'               => $resultType,
+                    'result_code'               => $resultCode,
+                    'result_description'        => $resultDesc,
+                    'transaction_id'            => $transactionId,
+                    'transaction_completed_date_time' => $transCompletedTimeFormatted,
+                    'json_result'               => json_encode($request->all()),
+                ];
+            } else {
+                $data = [
+                    'transaction_id'            => $transactionId,
+                    'result_type'               => $resultType,
+                    'result_code'               => $resultCode,
+                    'result_description'        => $resultDesc,
+                    'json_result'               => json_encode($request->all()),
                 ];
             }
 
