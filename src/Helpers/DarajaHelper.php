@@ -397,7 +397,7 @@ class DarajaHelper
      * @param Request $request
      * @return MpesaTransaction|null
      */
-    public function funds(Request $request): ?MpesaTransaction
+    public static function fundsTransfer(Request $request): ?MpesaTransaction
     {
         $transaction = MpesaTransaction::where('originator_conversation_id', $request['OriginatorConversationID'])->first();
 
