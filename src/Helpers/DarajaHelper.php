@@ -394,22 +394,22 @@ class DarajaHelper
     }
 
     /**
-     * @param Request $request
+     * @param Request $result
      * @return MpesaTransaction|null
      */
-    public function funds(Request $request): ?MpesaTransaction
+    public static function funds(Request $result): ?MpesaTransaction
     {
-        $transaction = MpesaTransaction::where('originator_conversation_id', $request['OriginatorConversationID'])->first();
+        $transaction = MpesaTransaction::where('originator_conversation_id', $result['Result']['OriginatorConversationID'])->first();
 
         if($transaction) {
 
-            $resultType = $result['ResultType'] ?? null;
-            $resultCode = $result['ResultCode'] ?? null;
-            $resultDesc = $result['ResultDesc'] ?? null;
-            $transactionId = $result['TransactionID'] ?? null;
+            $resultType = $result['Result']['ResultType'] ?? null;
+            $resultCode = $result['Result']['ResultCode'] ?? null;
+            $resultDesc = $result['Result']['ResultDesc'] ?? null;
+            $transactionId = $result['Result']['TransactionID'] ?? null;
 
             if ($resultCode == 0) {
-                $resultParameters = $result['ResultParameters']['ResultParameter'] ?? [];
+                $resultParameters = $result['Result']['ResultParameters']['ResultParameter'] ?? [];
 
                 if (!empty($resultParameters)) {
                     foreach ($resultParameters as $parameter) {
