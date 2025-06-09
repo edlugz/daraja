@@ -24,7 +24,7 @@ class DarajaHelper
      */
     public static function setSecurityCredential(string $password): string
     {
-        $publicKey = File::get(__DIR__.'/cert/production.cer');
+        $publicKey = File::get(__DIR__ . '/cert/production.cer');
 
         openssl_public_encrypt($password, $output, $publicKey, OPENSSL_PKCS1_PADDING);
 
@@ -42,7 +42,7 @@ class DarajaHelper
      */
     public static function setPassword(string $shortcode, string $passkey, string $timestamp): string
     {
-        return base64_encode($shortcode.$passkey.$timestamp);
+        return base64_encode($shortcode . $passkey . $timestamp);
     }
 
     /**
@@ -98,12 +98,12 @@ class DarajaHelper
         }
 
         return MpesaBalance::create([
-            'account_id'        => $clientCredential->accountId,
-            'short_code'        => $clientCredential->shortcode,
-            'utility_account'   => $accountBalances[1],
-            'working_account'   => $accountBalances[0],
+            'account_id' => $clientCredential->accountId,
+            'short_code' => $clientCredential->shortcode,
+            'utility_account' => $accountBalances[1],
+            'working_account' => $accountBalances[0],
             'uncleared_balance' => $accountBalances[2],
-            'json_result'       => json_encode($request->all()),
+            'json_result' => json_encode($request->all()),
         ]);
 
     }
@@ -119,7 +119,7 @@ class DarajaHelper
     {
         $transaction = MpesaTransaction::where('originator_conversation_id', $request['Result']['OriginatorConversationID'])->first();
 
-        if(!$transaction){
+        if (!$transaction) {
             return null;
         }
 
@@ -143,23 +143,23 @@ class DarajaHelper
             }
         }
 
-        if($resultCode == 0){
+        if ($resultCode == 0) {
             $data = [
-                'result_type'                     => $resultType,
-                'result_code'                     => $resultCode,
-                'result_description'              => $resultDesc,
-                'transaction_id'                  => $transactionID,
+                'result_type' => $resultType,
+                'result_code' => $resultCode,
+                'result_description' => $resultDesc,
+                'transaction_id' => $transactionID,
                 'transaction_completed_date_time' => $TransactionCompletedDateTime == '0' ? date('YmdHis') : date('YmdHis', strtotime($TransactionCompletedDateTime)),
-                'receiver_party_public_name'      => $ReceiverPartyPublicName == '0' ? '0' : $ReceiverPartyPublicName,
-                'utility_account_balance'         => $B2CWorkingAccountAvailableFunds,
-                'working_account_balance'         => $B2CUtilityAccountAvailableFunds,
-                'json_result'                     => json_encode($request->all()),
+                'receiver_party_public_name' => $ReceiverPartyPublicName == '0' ? '0' : $ReceiverPartyPublicName,
+                'utility_account_balance' => $B2CWorkingAccountAvailableFunds,
+                'working_account_balance' => $B2CUtilityAccountAvailableFunds,
+                'json_result' => json_encode($request->all()),
             ];
         } else {
             $data = [
-                'result_type'                     => $resultType,
-                'result_code'                     => $resultCode,
-                'result_description'              => $resultDesc,
+                'result_type' => $resultType,
+                'result_code' => $resultCode,
+                'result_description' => $resultDesc,
             ];
         }
 
@@ -179,7 +179,7 @@ class DarajaHelper
     {
         $transaction = MpesaTransaction::where('originator_conversation_id', $request['Result']['OriginatorConversationID'])->first();
 
-        if(!$transaction) {
+        if (!$transaction) {
             return null;
         }
 
@@ -209,23 +209,23 @@ class DarajaHelper
             }
         }
 
-        if($resultCode == 0){
+        if ($resultCode == 0) {
             $data = [
-                'result_type'                     => $resultType,
-                'result_code'                     => $resultCode,
-                'result_description'              => $resultDesc,
-                'transaction_id'                  => $transactionID,
+                'result_type' => $resultType,
+                'result_code' => $resultCode,
+                'result_description' => $resultDesc,
+                'transaction_id' => $transactionID,
                 'transaction_completed_date_time' => $TransCompletedTime == '0' ? date('YmdHis') : date('YmdHis', strtotime($TransCompletedTime)),
-                'receiver_party_public_name'      => $ReceiverPartyPublicName == '0' ? '0' : $ReceiverPartyPublicName,
-                'working_account_balance'         => $B2CWorkingAccountAvailableFunds,
-                'utility_account_balance'         => null,
-                'json_result'                     => json_encode($request->all()),
+                'receiver_party_public_name' => $ReceiverPartyPublicName == '0' ? '0' : $ReceiverPartyPublicName,
+                'working_account_balance' => $B2CWorkingAccountAvailableFunds,
+                'utility_account_balance' => null,
+                'json_result' => json_encode($request->all()),
             ];
         } else {
             $data = [
-                'result_type'                     => $resultType,
-                'result_code'                     => $resultCode,
-                'result_description'              => $resultDesc,
+                'result_type' => $resultType,
+                'result_code' => $resultCode,
+                'result_description' => $resultDesc,
             ];
         }
 
@@ -238,7 +238,7 @@ class DarajaHelper
      * @param Request $request
      * @return MpesaFunding
      */
-    public static function c2b(Request $request) : MpesaFunding
+    public static function c2b(Request $request): MpesaFunding
     {
 
         // Decode the JSON payload from the request
@@ -264,7 +264,7 @@ class DarajaHelper
         $mpesaReceiptNumber = $data['MpesaReceiptNumber'] ?? null;
         $transactionDate = $data['TransactionDate'] ?? null;
 
-        if($resultCode == 0){
+        if ($resultCode == 0) {
             $data = [
                 'result_code' => $resultCode,
                 'result_desc' => $resultDesc,
@@ -296,38 +296,38 @@ class DarajaHelper
     {
         $transaction = MpesaTransaction::where('originator_conversation_id', $request['Result']['OriginatorConversationID'])->first();
 
-        if($transaction){
+        if ($transaction) {
 
             $resultType = $request['Result']['ResultType'];
             $resultCode = $request['Result']['ResultCode'];
             $resultDesc = $request['Result']['ResultDesc'];
 
-            if($resultCode == 0){
+            if ($resultCode == 0) {
                 $resultParameters = $request['Result']['ResultParameters']['ResultParameter'];
 
-                if($resultParameters){
+                if ($resultParameters) {
                     foreach ($resultParameters as $parameter) {
                         ${$parameter['Key']} = array_key_exists('Value', $parameter) ? $parameter['Value'] : null;
                     }
                 }
 
                 $data = [
-                    'result_type'                     => $resultType,
-                    'result_code'                     => $resultCode,
-                    'result_description'              => $resultDesc,
-                    'transaction_id'                  => $ReceiptNo,
-                    'transaction_status'              => $TransactionStatus,
+                    'result_type' => $resultType,
+                    'result_code' => $resultCode,
+                    'result_description' => $resultDesc,
+                    'transaction_id' => $ReceiptNo,
+                    'transaction_status' => $TransactionStatus,
                     'transaction_completed_date_time' => !$FinalisedTime || $FinalisedTime == '0'
                         ? date('YmdHis')
                         : date('YmdHis', strtotime($FinalisedTime)),
-                    'receiver_party_public_name'      => $CreditPartyName ?: '0',
-                    'json_result'                     => json_encode($request->all()),
+                    'receiver_party_public_name' => $CreditPartyName ?: '0',
+                    'json_result' => json_encode($request->all()),
                 ];
             } else {
                 $data = [
-                    'result_type'                     => $resultType,
-                    'result_code'                     => $resultCode,
-                    'result_description'              => $resultDesc,
+                    'result_type' => $resultType,
+                    'result_code' => $resultCode,
+                    'result_description' => $resultDesc,
                 ];
             }
 
@@ -349,38 +349,38 @@ class DarajaHelper
     {
         $transaction = MpesaTransaction::where('originator_conversation_id', $request['Result']['OriginatorConversationID'])->first();
 
-        if($transaction){
+        if ($transaction) {
 
             $resultType = $data['Result']['ResultType'] ?? null;
             $resultCode = $data['Result']['ResultCode'] ?? null;
             $resultDesc = $data['Result']['ResultDesc'] ?? null;
             $transactionID = $data['Result']['TransactionID'] ?? null;
 
-            if($resultCode == 0){
+            if ($resultCode == 0) {
                 $resultParameters = $data['Result']['ResultParameters']['ResultParameter'] ?? [];
 
-                if($resultParameters){
+                if ($resultParameters) {
                     foreach ($resultParameters as $parameter) {
                         ${$parameter['Key']} = array_key_exists('Value', $parameter) ? $parameter['Value'] : null;
                     }
                 }
 
                 $data = [
-                    'result_type'                     => $resultType,
-                    'result_code'                     => $resultCode,
-                    'result_description'              => $resultDesc,
-                    'transaction_id'                  => $transactionID,
+                    'result_type' => $resultType,
+                    'result_code' => $resultCode,
+                    'result_description' => $resultDesc,
+                    'transaction_id' => $transactionID,
                     'transaction_completed_date_time' => !$TransCompletedTime || $TransCompletedTime == '0'
                         ? date('YmdHis')
                         : date('YmdHis', strtotime($TransCompletedTime)),
-                    'receiver_party_public_name'      => $CreditPartyPublicName ?: '0',
-                    'json_result'                     => json_encode($request->all()),
+                    'receiver_party_public_name' => $CreditPartyPublicName ?: '0',
+                    'json_result' => json_encode($request->all()),
                 ];
             } else {
                 $data = [
-                    'result_type'                     => $resultType,
-                    'result_code'                     => $resultCode,
-                    'result_description'              => $resultDesc,
+                    'result_type' => $resultType,
+                    'result_code' => $resultCode,
+                    'result_description' => $resultDesc,
                 ];
             }
 
@@ -397,55 +397,53 @@ class DarajaHelper
      * @param Request $request
      * @return MpesaTransaction|null
      */
-    public static function funds(Request $result): ?MpesaTransaction
+    public static function fundsTransfer(Request $request): ?MpesaTransaction
     {
         $transaction = MpesaTransaction::where('originator_conversation_id', $request['Result']['OriginatorConversationID'])->first();
 
-        if($transaction) {
-
-            $resultType = $result['Result']['ResultType'] ?? null;
-            $resultCode = $result['Result']['ResultCode'] ?? null;
-            $resultDesc = $result['Result']['ResultDesc'] ?? null;
-            $transactionId = $result['Result']['TransactionID'] ?? null;
-
-            if ($resultCode == 0) {
-                $resultParameters = $result['Result']['ResultParameters']['ResultParameter'] ?? [];
-
-                if (!empty($resultParameters)) {
-                    foreach ($resultParameters as $parameter) {
-                        ${$parameter['Key']} = $parameter['Value'] ?? null;
-                    }
-                }
-
-                $transCompletedTimeFormatted = !empty($TransCompletedTime) && $TransCompletedTime != '0'
-                    ? \DateTime::createFromFormat('YmdHis', $TransCompletedTime)->format('Y-m-d H:i:s')
-                    : now()->format('Y-m-d H:i:s');
-
-                $data = [
-                    'result_type'               => $resultType,
-                    'result_code'               => $resultCode,
-                    'result_description'        => $resultDesc,
-                    'transaction_id'            => $transactionId,
-                    'transaction_completed_date_time' => $transCompletedTimeFormatted,
-                    'json_result'               => json_encode($request->all()),
-                ];
-            } else {
-                $data = [
-                    'transaction_id'            => $transactionId,
-                    'result_type'               => $resultType,
-                    'result_code'               => $resultCode,
-                    'result_description'        => $resultDesc,
-                    'json_result'               => json_encode($request->all()),
-                ];
-            }
-
-            $transaction->update($data);
-
-            return $transaction;
-
-        } else {
+        if (is_null($transaction)) {
             return null;
         }
+
+        $resultType = $request['Result']['ResultType'] ?? null;
+        $resultCode = $request['Result']['ResultCode'] ?? null;
+        $resultDesc = $request['Result']['ResultDesc'] ?? null;
+        $transactionId = $request['Result']['TransactionID'] ?? null;
+
+        if ($resultCode == 0) {
+            $resultParameters = $request['Result']['ResultParameters']['ResultParameter'] ?? [];
+
+            if (!empty($resultParameters)) {
+                foreach ($resultParameters as $parameter) {
+                    ${$parameter['Key']} = $parameter['Value'] ?? null;
+                }
+            }
+
+            $transCompletedTimeFormatted = !empty($TransCompletedTime) && $TransCompletedTime != '0'
+                ? \DateTime::createFromFormat('YmdHis', $TransCompletedTime)->format('Y-m-d H:i:s')
+                : now()->format('Y-m-d H:i:s');
+
+            $data = [
+                'result_type' => $resultType,
+                'result_code' => $resultCode,
+                'result_description' => $resultDesc,
+                'transaction_id' => $transactionId,
+                'transaction_completed_date_time' => $transCompletedTimeFormatted,
+                'json_result' => json_encode($request->all()),
+            ];
+        } else {
+            $data = [
+                'transaction_id' => $transactionId,
+                'result_type' => $resultType,
+                'result_code' => $resultCode,
+                'result_description' => $resultDesc,
+                'json_result' => json_encode($request->all()),
+            ];
+        }
+
+        $transaction->update($data);
+
+        return $transaction;
     }
 
     /**
@@ -478,7 +476,7 @@ class DarajaHelper
             shortcode: $apiCredential->short_code,
             initiator: $apiCredential->initiator,
             password: $apiCredential->initiator_password,
-            passkey:  $apiCredential->pass_key
+            passkey: $apiCredential->pass_key
         );
     }
 
@@ -513,7 +511,8 @@ class DarajaHelper
     {
         return self::getDarajaBaseUrl() . '/' . ltrim(config('daraja.funds_transfer_result_url'), '/');
     }
-/**
+
+    /**
      * @return string
      */
     public static function getMobileResultUrl(): string
