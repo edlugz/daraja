@@ -8,6 +8,7 @@ use EdLugz\Daraja\Requests\B2B;
 use EdLugz\Daraja\Requests\B2C;
 use EdLugz\Daraja\Requests\Balance;
 use EdLugz\Daraja\Requests\C2B;
+use EdLugz\Daraja\Requests\MNOLookUp;
 use EdLugz\Daraja\Requests\Reversal;
 use EdLugz\Daraja\Requests\TransactionStatus;
 use EdLugz\Daraja\Requests\Transfer;
@@ -139,5 +140,10 @@ class Daraja
     public function tax(ClientCredential $apiCredential, string $resultUrl): Tax
     {
         return new Tax($apiCredential, $resultUrl);
+    }
+
+    public function mnoLookup(ClientCredential $apiCredential): MnoLookup
+    {
+        return new MnoLookup($apiCredential);
     }
 }
