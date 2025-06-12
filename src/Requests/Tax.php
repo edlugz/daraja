@@ -50,9 +50,11 @@ class Tax extends DarajaClient
      * Necessary initializations for B2B transactions from the config file while
      * also initialize parent constructor.
      *
+     * @param ClientCredential $clientCredential
+     * @param string|null $resultURL
      * @throws DarajaRequestException
      */
-    public function __construct(ClientCredential $clientCredential)
+    public function __construct(ClientCredential $clientCredential, string $resultURL = null)
     {
         $this->clientCredential = $clientCredential;
 
