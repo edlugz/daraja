@@ -2,11 +2,12 @@
 
 namespace EdLugz\Daraja\Requests;
 
+use EdLugz\Daraja\DarajaClient;
 use EdLugz\Daraja\Data\ClientCredential;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use Illuminate\Support\Facades\Log;
 
-class MNOLookUp
+class MNOLookUp extends DarajaClient
 {
     /**
      * Safaricom APIs query org info endpoint.
@@ -22,6 +23,7 @@ class MNOLookUp
 
     /**
      * @param ClientCredential $clientCredential
+     * @throws DarajaRequestException
      */
     public function __construct(ClientCredential $clientCredential)
     {
