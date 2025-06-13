@@ -11,6 +11,7 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\ServerException;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 class DarajaClient
 {
@@ -160,13 +161,29 @@ class DarajaClient
                 throw new DarajaRequestException($message, $e->getCode());
             }
 
-            throw new DarajaRequestException('Daraja APIs: '.$response->errorMessage, $e->getCode());
+            if(Str::contains($e->getRequest()->getUri()->getPath(), '/sfcverify/v1/query/info')){
+                if(property_exists($response, 'ResponseMessage')){
+                    $message = 'Daraja APIs (ServerException): '.$response->ResponseMessage;
+                } else {
+                    $message = 'Daraja APIs (ServerException): '.$e->getMessage();
+                }
+                throw new DarajaRequestException($message, $e->getCode());
+            }
+            throw new DarajaRequestException(
+                message: 'Daraja APIs (ServerException): '.property_exists($response, 'errorMessage') ? $response->errorMessage : $e->getMessage(),
+                code: $e->getCode()
+            );
         } catch (ClientException $e) {
             $response = json_decode($e->getResponse()->getBody()->getContents());
-
-            throw new DarajaRequestException('Daraja APIs: '.$response->errorMessage, $e->getCode());
+            throw new DarajaRequestException(
+                message: 'Daraja APIs (ClientException): '. property_exists($response, 'errorMessage') ? $response->errorMessage : $e->getMessage(),
+                code: $e->getCode()
+            );
         } catch (GuzzleException $e) {
-            throw new DarajaRequestException('Daraja APIs: '.$e->getMessage(), $e->getCode());
+            throw new DarajaRequestException(
+                message: 'Daraja APIs (GuzzleException): '.$e->getMessage(),
+                code: $e->getCode()
+            );
         }
     }
 }
