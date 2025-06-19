@@ -106,7 +106,7 @@ class DarajaClient
     protected function getAccessToken(string $shortcode): void
     {
         //check if access token exists and not expired
-        if (!Cache::get($shortcode)) {
+        if (!Cache::get('daraja_'. $shortcode)) {
             // Set the auth option and fetch new token
             $options = [
                 'auth' => [
@@ -118,10 +118,10 @@ class DarajaClient
             $accessTokenDetails = $this->call('oauth/v1/generate?grant_type=client_credentials', $options, 'GET');
 
             //add to Cache
-            Cache::add($shortcode, $accessTokenDetails->access_token, now()->addMinutes(58));
+            Cache::add('daraja_'. $shortcode, $accessTokenDetails->access_token, now()->addMinutes(58));
         }
 
-        $this->accessToken = Cache::get($shortcode);
+        $this->accessToken = Cache::get('daraja_'. $shortcode);
     }
 
     /**
