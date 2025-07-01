@@ -12,6 +12,7 @@ readonly class ClientCredential
      * @param string $initiator
      * @param string $password
      * @param string $passkey
+     * @param string $use_b2c_validation
      */
     public function __construct(
         public string $accountId,
@@ -21,6 +22,7 @@ readonly class ClientCredential
         public string $initiator,
         public string $password,
         public string $passkey,
+        public string $use_b2c_validation,
     ) {
     }
 }

@@ -84,7 +84,12 @@ class B2C extends DarajaClient
         int $amount,
         array $customFieldsKeyValue = []
     ): MpesaTransaction|null {
-
+        if(!$this->clientCredential->use_b2c_validation){
+            Log::error('B2C with validation is not active', [
+                'short_code' => $this->clientCredential->shortcode
+            ]);
+            return null;
+        }
         $balance = MpesaBalance::where('short_code', $this->clientCredential->shortcode)
             ->orderBy('created_at', 'desc')
             ->first();
