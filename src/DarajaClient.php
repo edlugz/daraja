@@ -154,25 +154,42 @@ class DarajaClient
 
             return json_decode($content);
         } catch (ServerException $e) {
-            $response = json_decode($e->getResponse()->getBody()->getContents());
-            if (isset($response->Envelope)) {
-                $message = 'Daraja APIs: '.$response->Envelope->Body->Fault->faultstring;
+            $responseBody = $e->getResponse()->getBody()->getContents();
+            $response = json_decode($responseBody);
 
-                throw new DarajaRequestException($message, $e->getCode());
+            $message = 'Daraja APIs (ServerException): ' . $e->getMessage();
+
+            if (is_object($response) && isset($response->Envelope->Body->Fault->faultstring)) {
+                $message = 'Daraja APIs (SOAP Fault): ' . $response->Envelope->Body->Fault->faultstring;
             }
 
-            if(Str::contains($e->getRequest()->getUri()->getPath(), '/sfcverify/v1/query/info')){
-                if(property_exists($response, 'ResponseMessage')){
-                    $message = 'Daraja APIs (ServerException): '.$response->ResponseMessage;
-                } else {
-                    $message = 'Daraja APIs (ServerException): '.$e->getMessage();
+            elseif (is_object($response) && isset($response->fault->faultstring)) {
+                $message = 'Daraja APIs (REST Fault): ' . $response->fault->faultstring;
+
+                if (isset($response->fault->detail->errorcode)) {
+                    $message .= ' [' . $response->fault->detail->errorcode . ']';
                 }
-                throw new DarajaRequestException($message, $e->getCode());
             }
-            throw new DarajaRequestException(
-                message: 'Daraja APIs (ServerException): '.property_exists($response, 'errorMessage') ? $response->errorMessage : $e->getMessage(),
-                code: $e->getCode()
-            );
+
+            elseif (
+                Str::contains($e->getRequest()->getUri()->getPath(), '/sfcverify/v1/query/info') &&
+                is_object($response) &&
+                property_exists($response, 'ResponseMessage')
+            ) {
+                $message = 'Daraja APIs (ServerException): ' . $response->ResponseMessage;
+            }
+
+            if (!isset($response->fault) && !isset($response->Envelope) && !property_exists($response ?? new \stdClass, 'ResponseMessage')) {
+                Log::warning('Unexpected Daraja API error response structure', [
+                    'uri' => (string) $e->getRequest()->getUri(),
+                    'raw_body' => $responseBody,
+                    'decoded_response' => $response,
+                    'exception_message' => $e->getMessage(),
+                ]);
+            }
+
+            throw new DarajaRequestException($message, $e->getCode());
+
         } catch (ClientException $e) {
             $response = json_decode($e->getResponse()->getBody()->getContents());
             throw new DarajaRequestException(
