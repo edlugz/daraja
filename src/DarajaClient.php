@@ -11,6 +11,7 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\ServerException;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log as LaravelLog;
 use Illuminate\Support\Str;
 
 class DarajaClient
@@ -180,7 +181,7 @@ class DarajaClient
             }
 
             if (!isset($response->fault) && !isset($response->Envelope) && !property_exists($response ?? new \stdClass, 'ResponseMessage')) {
-                Log::warning('Unexpected Daraja API error response structure', [
+                LaravelLog::warning('Unexpected Daraja API error response structure', [
                     'uri' => (string) $e->getRequest()->getUri(),
                     'raw_body' => $responseBody,
                     'decoded_response' => $response,
