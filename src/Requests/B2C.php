@@ -4,6 +4,7 @@ namespace EdLugz\Daraja\Requests;
 
 use EdLugz\Daraja\DarajaClient;
 use EdLugz\Daraja\Data\ClientCredential;
+use EdLugz\Daraja\Enums\IdentificationType;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
 use EdLugz\Daraja\Models\MpesaBalance;
@@ -73,6 +74,7 @@ class B2C extends DarajaClient
      *
      * @param string $recipient
      * @param string $nationalId
+     * @param string $idType
      * @param int $amount
      * @param array $customFieldsKeyValue
      * @return MpesaTransaction | null
@@ -80,6 +82,7 @@ class B2C extends DarajaClient
      */
     public function payWithId(
         string $recipient,
+        string $idType,
         string $nationalId,
         int $amount,
         array $customFieldsKeyValue = []
@@ -103,6 +106,8 @@ class B2C extends DarajaClient
             return null;
         }
 
+        $idType = IdentificationType::fromName($idType);
+
         $originatorConversationID = (string) Str::uuid();
 
         $parameters = [
@@ -113,7 +118,7 @@ class B2C extends DarajaClient
             'Amount'                   => $amount,
             'PartyA'                   => $this->clientCredential->shortcode,
             'PartyB'                   => $recipient,
-            'IDType'                   => '01',
+            'IDType'                   => $idType?->value(),
             'IDNumber'                 => $nationalId,
             'Remarks'                  => 'send to mobile',
             'QueueTimeOutURL'          => $this->queueTimeOutURL,
