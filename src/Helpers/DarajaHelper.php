@@ -476,7 +476,8 @@ class DarajaHelper
             shortcode: $apiCredential->short_code,
             initiator: $apiCredential->initiator,
             password: $apiCredential->initiator_password,
-            passkey: $apiCredential->pass_key
+            passkey: $apiCredential->pass_key,
+            use_b2c_validation:  $apiCredential->use_b2c_validation,
         );
     }
 
