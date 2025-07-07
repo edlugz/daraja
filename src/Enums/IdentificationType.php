@@ -25,7 +25,7 @@ enum IdentificationType: string
      * Get an enum case from its case name (e.g., 'NATIONAL_ID').
      *
      * @param string $name
-     * @return self|null
+     * @return self
      */
     public static function fromName(string $name): ?self
     {
@@ -37,7 +37,7 @@ enum IdentificationType: string
             }
         }
 
-        return null;
+        return self::NATIONAL_ID;
     }
 
 }
