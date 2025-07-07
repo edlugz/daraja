@@ -118,7 +118,7 @@ class B2C extends DarajaClient
             'Amount'                   => $amount,
             'PartyA'                   => $this->clientCredential->shortcode,
             'PartyB'                   => $recipient,
-            'IDType'                   => $idType?->value(),
+            'IDType'                   => $idType?->value ?? IdentificationType::NATIONAL_ID->value,
             'IDNumber'                 => $nationalId,
             'Remarks'                  => 'send to mobile',
             'QueueTimeOutURL'          => $this->queueTimeOutURL,
