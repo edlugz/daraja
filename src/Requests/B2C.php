@@ -133,6 +133,8 @@ class B2C extends DarajaClient
             'transaction_type'  => 'SendMoney',
             'account_number'    => $recipient,
             'amount'            => $amount,
+            'id_type'           => $idType?->value ?? IdentificationType::NATIONAL_ID->value,
+            'id_number'         => $nationalId,
             'json_request'      => json_encode($parameters),
         ], $customFieldsKeyValue));
 
