@@ -1,57 +1,66 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EdLugz\Daraja;
 
 use Illuminate\Support\ServiceProvider;
+use EdLugz\Daraja\Data\ClientCredential;
+use GuzzleHttp\Client as Guzzle;
 
-class DarajaServiceProvider extends ServiceProvider
+final class DarajaServiceProvider extends ServiceProvider
 {
     /**
-     * Package path to config.
+     * Package paths.
      */
-    const CONFIG_PATH = __DIR__.'/../config/daraja.php';
+    private const string CONFIG_PATH     = __DIR__ . '/../config/daraja.php';
+    private const string MIGRATIONS_PATH = __DIR__ . '/../database/migrations';
 
     /**
-     * Perform post-registration booting of services.
-     *
-     * @return void
+     * Register any application services.
+     */
+    public function register(): void
+    {
+        // Merge package config so users get sensible defaults without publishing.
+        $this->mergeConfigFrom(self::CONFIG_PATH, 'daraja');
+
+        $this->app->bind(Daraja::class, function ($app, array $params) {
+            /** @var ClientCredential|null $cred */
+            $cred = $params['credentials'] ?? ($params[0] ?? null);
+            if (!$cred instanceof ClientCredential) {
+                throw new InvalidArgumentException('ClientCredential required to build Daraja.');
+            }
+
+            return new Daraja($cred);
+        });
+
+        // Keeps your Facade name available, but see note below
+        $this->app->alias(Daraja::class, 'daraja');
+    }
+
+    /**
+     * Bootstrap any application services.
      */
     public function boot(): void
     {
-        $this->publishes([
-            self::CONFIG_PATH => config_path('daraja.php'),
-        ], 'config');
-
-        $this->publishes([
-            __DIR__.'/database/migrations/' => database_path('migrations'),
-        ], 'migrations');
-
-        // Publishing is only necessary when using the CLI.
-        if ($this->app->runningInConsole()) {
-            $this->bootForConsole();
+        // Auto-load migrations so the package works out of the box.
+        if (is_dir(self::MIGRATIONS_PATH)) {
+            $this->loadMigrationsFrom(self::MIGRATIONS_PATH);
         }
-    }
 
-    /**
-     * Get the services provided by the provider.
-     *
-     * @return array
-     */
-    public function provides()
-    {
-        return ['daraja'];
-    }
+        // Only define publish groups when running in the console.
+        if ($this->app->runningInConsole()) {
+            // Config
+            $this->publishes([
+                self::CONFIG_PATH => config_path('daraja.php'),
+            ], 'daraja-config');
 
-    /**
-     * Console-specific booting.
-     *
-     * @return void
-     */
-    protected function bootForConsole(): void
-    {
-        // Publishing the configuration file.
-        $this->publishes([
-            __DIR__.'/../config/daraja.php' => config_path('daraja.php'),
-        ], 'daraja.config');
+            // Migrations (optional—users can publish if they want to edit them)
+            if (is_dir(self::MIGRATIONS_PATH)) {
+                $this->publishes([
+                    self::MIGRATIONS_PATH => database_path('migrations'),
+                ], 'daraja-migrations');
+            }
+        }
     }
 }

@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EdLugz\Daraja\Models;
 
 use EdLugz\Daraja\Casts\Money;
+use EdLugz\Daraja\Enums\IdentificationType;
 use EdLugz\Daraja\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -14,6 +17,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string payment_reference
  * @property string short_code
  * @property string transaction_type
+ * @property string id_type
+ * @property string id_number
  * @property string account_number
  * @property float amount
  * @property string|null bill_reference
@@ -50,6 +55,7 @@ class MpesaTransaction extends Model
         'amount' => Money::class,
         'utility_account_balance' => Money::class,
         'working_account_balance' => Money::class,
+        'id_type' => IdentificationType::class,
     ];
 
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EdLugz\Daraja\Enums;
 enum DisbursementResultCode: string
 {

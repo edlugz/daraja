@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EdLugz\Daraja\Requests;
 
 use EdLugz\Daraja\DarajaClient;
@@ -40,8 +42,6 @@ class Transfer extends DarajaClient
      */
     protected string $resultURL;
 
-    public ClientCredential $clientCredential;
-
     /**
      * Necessary initializations for B2C transactions from the config file.
      *
@@ -49,10 +49,8 @@ class Transfer extends DarajaClient
      * @param string|null $resultURL
      * @throws DarajaRequestException
      */
-    public function __construct(ClientCredential $clientCredential, string $resultURL = null)
+    public function __construct(ClientCredential $clientCredential, ?string $resultURL = null)
     {
-        $this->clientCredential = $clientCredential;
-
         parent::__construct($clientCredential);
 
         $this->queueTimeOutURL = DarajaHelper::getTimeoutUrl();
@@ -104,9 +102,7 @@ class Transfer extends DarajaClient
 
             $transaction->update(
                 [
-                    'originator_conversation_id' => $response->OriginatorConversationID,
-                    'payment_reference' => $response->OriginatorConversationID,
-                    'json_response' => json_encode($response),
+                    'json_response' => json_encode($response, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
                 ]
             );
         } catch (DarajaRequestException $e) {
@@ -129,17 +125,16 @@ class Transfer extends DarajaClient
         }
 
         $data = [
-            'response_code'          => $response->ResponseCode,
-            'response_description'   => $response->ResponseDescription,
+            'response_code'          => $response->ResponseCode ?? null,
+            'response_description'   => $response->ResponseDescription ?? null,
         ];
 
         if (array_key_exists('ResponseCode', (array) $response)) {
             if ($response->ResponseCode == '0') {
                 $data = array_merge($data, [
-                    'conversation_id'               => $response->ConversationID,
-                    'originator_conversation_id'    => $response->OriginatorConversationID,
-                    'response_code'                 => $response->ResponseCode,
-                    'response_description'          => $response->ResponseDescription,
+                    'conversation_id'               => $response->ConversationID ?? null,
+                    'originator_conversation_id'    => $response->OriginatorConversationID ?? null,
+                    'payment_reference'             => $response->OriginatorConversationID ?? null,
                 ]);
             }
         }
@@ -211,19 +206,15 @@ class Transfer extends DarajaClient
         }
 
         $data = [
-            'response_code'          => $response->ResponseCode,
-            'response_description'   => $response->ResponseDescription,
+            'response_code'          => $response->ResponseCode ??  null,
+            'response_description'   => $response->ResponseDescription ?? null,
         ];
 
-        if (array_key_exists('ResponseCode', (array) $response)) {
-            if ($response->ResponseCode == '0') {
-                $data = array_merge($data, [
-                    'conversation_id'               => $response->ConversationID,
-                    'originator_conversation_id'    => $response->OriginatorConversationID,
-                    'response_code'                 => $response->ResponseCode,
-                    'response_description'          => $response->ResponseDescription,
-                ]);
-            }
+        if (($response->ResponseCode ?? null) === '0' || (string)($response->ResponseCode ?? '') === '0') {
+            $data += [
+                'conversation_id'               => $response->ConversationID ?? null,
+                'originator_conversation_id'    => $response->OriginatorConversationID ?? null,
+            ];
         }
 
         $transaction->update($data);

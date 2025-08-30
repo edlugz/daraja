@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EdLugz\Daraja\Requests;
 
 use EdLugz\Daraja\DarajaClient;
@@ -42,13 +44,6 @@ class B2B extends DarajaClient
     protected string $queueTimeOutURL;
 
     /**
-     * DTO for api credentials
-     *
-     * @var ClientCredential
-     */
-    public ClientCredential $clientCredential;
-
-    /**
      * Necessary initializations for B2B transactions from the config file while
      * also initialize parent constructor.
      *
@@ -56,8 +51,6 @@ class B2B extends DarajaClient
      */
     public function __construct(ClientCredential $clientCredential)
     {
-        $this->clientCredential = $clientCredential;
-
         parent::__construct($clientCredential);
 
         $this->queueTimeOutURL = DarajaHelper::getTimeoutUrl();
@@ -72,33 +65,35 @@ class B2B extends DarajaClient
      * @param string $recipient
      * @param string $requester
      * @param int $amount
-     * @param array $customFieldsKeyValue
      * @param string|null $resultUrl
+     * @param array $customFieldsKeyValue
      * @return MpesaTransaction|null
      * @throws DarajaRequestException
      */
     public function till(
-        string $recipient,
-        string $requester,
-        int $amount,
-        string $resultUrl = null,
-        array $customFieldsKeyValue = []
+        string  $recipient,
+        string  $requester,
+        int     $amount,
+        ?string $resultUrl = null,
+        array   $customFieldsKeyValue = []
     ): MpesaTransaction|null {
 
         $balance = MpesaBalance::where('short_code', $this->clientCredential->shortcode)
             ->orderBy('created_at', 'desc')
             ->first();
 
-        if (($balance->working_account ?? 0) < $amount) {
-            Log::error('Insufficient balance to process this transaction.', [
+        $working = (int) ($balance->working_account ?? 0);
+
+        if ($working < $amount) {
+            Log::error('Insufficient balance...', [
                 'short_code' => $this->clientCredential->shortcode,
-                'balance' => $balance?->amount ?? null,
+                'balance'    => $working,
                 'required_amount' => $amount,
             ]);
             return null;
         }
 
-        $resultUrl = $resultUrl ?? DarajaHelper::getStkResultUrl();
+        $resultUrl = $resultUrl ?? DarajaHelper::getTillResultUrl();
 
         $originatorConversationID = (string) Str::uuid();
 
@@ -132,13 +127,11 @@ class B2B extends DarajaClient
         try {
             $response = $this->call($this->endPoint, ['json' => $parameters]);
 
-            $transaction->update(
-                [
-                    'json_response' => json_encode($response),
-                    'originator_conversation_id' => $response->OriginatorConversationID,
-                    'payment_reference' => $response->OriginatorConversationID,
-                ]
-            );
+            $transaction->update([
+                'json_response'              => json_encode($response, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+                'originator_conversation_id' => $response->OriginatorConversationID ?? $transaction->originator_conversation_id,
+                'payment_reference'          => $response->OriginatorConversationID ?? $transaction->payment_reference,
+            ]);
         } catch (DarajaRequestException $e) {
             Log::error($e);
             $response = [
@@ -159,20 +152,16 @@ class B2B extends DarajaClient
         }
 
         $data = [
-            'response_code'          => $response->ResponseCode,
-            'response_description'   => $response->ResponseDescription,
+            'response_code'          => $response->ResponseCode ?? null,
+            'response_description'   => $response->ResponseDescription ?? null,
         ];
 
-        if (array_key_exists('ResponseCode', (array) $response)) {
-            if ($response->ResponseCode == '0') {
-                $data = array_merge($data, [
-                    'conversation_id'               => $response->ConversationID,
-                    'originator_conversation_id'    => $response->OriginatorConversationID,
-                    'payment_reference'             => $response->OriginatorConversationID,
-                    'response_code'                 => $response->ResponseCode,
-                    'response_description'          => $response->ResponseDescription,
-                ]);
-            }
+        if (($response->ResponseCode ?? null) === '0' || (string)($response->ResponseCode ?? '') === '0') {
+            $data += [
+                'conversation_id'               => $response->ConversationID ?? null,
+                'originator_conversation_id'    => $response->OriginatorConversationID ?? null,
+                'payment_reference'             => $response->OriginatorConversationID ?? null,
+            ];
         }
 
         $transaction->update($data);
@@ -187,8 +176,8 @@ class B2B extends DarajaClient
      * @param string $requester
      * @param int $amount
      * @param string $accountReference
-     * @param array $customFieldsKeyValue
      * @param string|null $resultUrl
+     * @param array $customFieldsKeyValue
      * @return MpesaTransaction |  null
      * @throws DarajaRequestException
      */
@@ -197,7 +186,7 @@ class B2B extends DarajaClient
         string $requester,
         int $amount,
         string $accountReference,
-        string $resultUrl = null,
+        ?string $resultUrl = null,
         array $customFieldsKeyValue = []
     ): MpesaTransaction|null {
 
@@ -205,10 +194,12 @@ class B2B extends DarajaClient
             ->orderBy('created_at', 'desc')
             ->first();
 
-        if (($balance->working_account ?? 0) < $amount) {
-            Log::error('Insufficient balance to process this transaction.', [
+        $working = (int) ($balance->working_account ?? 0);
+
+        if ($working < $amount) {
+            Log::error('Insufficient balance...', [
                 'short_code' => $this->clientCredential->shortcode,
-                'balance' => $balance?->amount ?? null,
+                'balance'    => $working,
                 'required_amount' => $amount,
             ]);
             return null;
@@ -250,13 +241,11 @@ class B2B extends DarajaClient
         try {
             $response = $this->call($this->endPoint, ['json' => $parameters]);
 
-            $transaction->update(
-                [
-                    'originator_conversation_id' => $response->OriginatorConversationID,
-                    'payment_reference' => $response->OriginatorConversationID,
-                    'json_response' => json_encode($response),
-                ]
-            );
+            $transaction->update([
+                'json_response'              => json_encode($response, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+                'originator_conversation_id' => $response->OriginatorConversationID ?? $transaction->originator_conversation_id,
+                'payment_reference'          => $response->OriginatorConversationID ?? $transaction->payment_reference,
+            ]);
         } catch (DarajaRequestException $e) {
             Log::error($e);
             $response = [
@@ -277,20 +266,16 @@ class B2B extends DarajaClient
         }
 
         $data = [
-            'response_code'          => $response->ResponseCode,
-            'response_description'   => $response->ResponseDescription,
+            'response_code'          => $response->ResponseCode ?? null,
+            'response_description'   => $response->ResponseDescription ?? null,
         ];
 
-        if (array_key_exists('ResponseCode', (array) $response)) {
-            if ($response->ResponseCode == '0') {
-                $data = array_merge($data, [
-                    'conversation_id'               => $response->ConversationID,
-                    'originator_conversation_id'    => $response->OriginatorConversationID,
-                    'payment_reference'             => $response->OriginatorConversationID,
-                    'response_code'                 => $response->ResponseCode,
-                    'response_description'          => $response->ResponseDescription,
-                ]);
-            }
+        if (($response->ResponseCode ?? null) === '0' || (string)($response->ResponseCode ?? '') === '0') {
+            $data += [
+                'conversation_id'               => $response->ConversationID ?? null,
+                'originator_conversation_id'    => $response->OriginatorConversationID ?? null,
+                'payment_reference'             => $response->OriginatorConversationID ?? null,
+            ];
         }
 
         $transaction->update($data);

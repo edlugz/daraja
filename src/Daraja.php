@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EdLugz\Daraja;
 
 use EdLugz\Daraja\Data\ClientCredential;
@@ -8,7 +10,7 @@ use EdLugz\Daraja\Requests\B2B;
 use EdLugz\Daraja\Requests\B2C;
 use EdLugz\Daraja\Requests\Balance;
 use EdLugz\Daraja\Requests\C2B;
-use EdLugz\Daraja\Requests\MNOLookUp;
+use EdLugz\Daraja\Requests\MnoLookUp;
 use EdLugz\Daraja\Requests\Reversal;
 use EdLugz\Daraja\Requests\TransactionStatus;
 use EdLugz\Daraja\Requests\Transfer;
@@ -17,7 +19,7 @@ use EdLugz\Daraja\Requests\Tax;
 /**
  *
  */
-class Daraja
+final class Daraja
 {
     /**
      * @var ClientCredential
@@ -64,14 +66,12 @@ class Daraja
      *
      * @param ClientCredential $apiCredential
      * @param string $resultUrl
-     * @return Balance
      * @throws DarajaRequestException
      *
      * @return Balance
      */
 
     public function balance(ClientCredential $apiCredential, string $resultUrl) : Balance
-
     {
         return new Balance($apiCredential, $resultUrl);
     }
@@ -117,7 +117,7 @@ class Daraja
     }
 
     /**
-     * Initiate a funds transfer.
+     * Initiate a fund transfer.
      *
      * @param ClientCredential $apiCredential
      * @param string $resultUrl
@@ -142,8 +142,15 @@ class Daraja
         return new Tax($apiCredential, $resultUrl);
     }
 
-    public function mnoLookup(ClientCredential $apiCredential): MnoLookup
+    /**
+     * Initiate a tax transaction.
+     *
+     * @param ClientCredential $apiCredential
+     * @return MnoLookUp
+     * @throws DarajaRequestException
+     */
+    public function mnoLookup(ClientCredential $apiCredential): MnoLookUp
     {
-        return new MnoLookup($apiCredential);
+        return new MnoLookUp($apiCredential);
     }
 }

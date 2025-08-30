@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EdLugz\Daraja\Helpers;
 
 use EdLugz\Daraja\Data\ClientCredential;
@@ -24,9 +26,27 @@ class DarajaHelper
      */
     public static function setSecurityCredential(string $password): string
     {
-        $publicKey = File::get(__DIR__ . '/cert/production.cer');
+        $certPath = config('daraja.mode') === 'sandbox'
+            ? __DIR__ . '/cert/sandbox.cer'
+            : __DIR__ . '/cert/production.cer';
 
-        openssl_public_encrypt($password, $output, $publicKey, OPENSSL_PKCS1_PADDING);
+        if (!File::exists($certPath)) {
+            throw new \RuntimeException("Daraja cert not found at {$certPath}");
+        }
+
+        $publicKey = File::get($certPath);
+
+        $key = openssl_pkey_get_public($publicKey);
+
+        if ($key === false) {
+            throw new \RuntimeException('Invalid public key contents.');
+        }
+
+        $ok = openssl_public_encrypt($password, $output, $key, OPENSSL_PKCS1_PADDING);
+
+        if (!$ok) {
+            throw new \RuntimeException('openssl_public_encrypt failed.');
+        }
 
         return base64_encode($output);
     }
@@ -51,24 +71,24 @@ class DarajaHelper
      */
     public static function formatMobileNumber(string $number): string
     {
-        // Remove non-numeric characters
-        $number = preg_replace('/\D/', '', $number);
+        // keep leading '+' for E.164 check
+        $raw = str_starts_with($number, '+') ? '+' . preg_replace('/\D/', '', substr($number, 1)) : preg_replace('/\D/', '', $number);
 
-        // If the number already starts with "254", return it as is
-        if (str_starts_with($number, '254')) {
-            return $number;
+        // Already E.164 Kenya
+        if (str_starts_with($raw, '+254')) {
+            return substr($raw, 1); // return without '+', e.g. '2547...'
         }
 
-        // Remove leading "+" or "0"
-        if (str_starts_with($number, '0')) {
-            $number = substr($number, 1);
-        } elseif (str_starts_with($number, '+254')) {
-            $number = substr($number, 4);
+        // Already national 254...
+        if (str_starts_with($raw, '254')) {
+            return $raw;
         }
 
-        // Return the formatted number
-        return '254' . $number;
+        // '07...' or '7...' -> normalize to 2547...
+        $raw = ltrim($raw, '0');
+        return '254' . $raw;
     }
+
 
     /**
      * Process balance results.
@@ -144,15 +164,18 @@ class DarajaHelper
         }
 
         if ($resultCode == 0) {
+            $completed = ($TransactionCompletedDateTime ?? '0') !== '0'
+                ? \DateTimeImmutable::createFromFormat('YmdHis', preg_replace('/\D/','',$TransCompletedTime)) ?: new \DateTimeImmutable()
+                : new \DateTimeImmutable();
             $data = [
                 'result_type' => $resultType,
                 'result_code' => $resultCode,
                 'result_description' => $resultDesc,
                 'transaction_id' => $transactionID,
-                'transaction_completed_date_time' => $TransactionCompletedDateTime == '0' ? date('YmdHis') : date('YmdHis', strtotime($TransactionCompletedDateTime)),
-                'receiver_party_public_name' => $ReceiverPartyPublicName == '0' ? '0' : $ReceiverPartyPublicName,
-                'utility_account_balance' => $B2CWorkingAccountAvailableFunds,
-                'working_account_balance' => $B2CUtilityAccountAvailableFunds,
+                'transaction_completed_date_time' =>  $completed->format('YmdHis'),
+                'receiver_party_public_name' => $ReceiverPartyPublicName ?? 0,
+                'utility_account_balance' => $B2CWorkingAccountAvailableFunds ?? 0,
+                'working_account_balance' => $B2CUtilityAccountAvailableFunds ?? 0,
                 'json_result' => json_encode($request->all()),
             ];
         } else {
@@ -210,13 +233,17 @@ class DarajaHelper
         }
 
         if ($resultCode == 0) {
+            $completed = ($TransCompletedTime ?? '0') !== '0'
+                ? \DateTimeImmutable::createFromFormat('YmdHis', preg_replace('/\D/','',$TransCompletedTime)) ?: new \DateTimeImmutable()
+                : new \DateTimeImmutable();
+
             $data = [
                 'result_type' => $resultType,
                 'result_code' => $resultCode,
                 'result_description' => $resultDesc,
                 'transaction_id' => $transactionID,
-                'transaction_completed_date_time' => $TransCompletedTime == '0' ? date('YmdHis') : date('YmdHis', strtotime($TransCompletedTime)),
-                'receiver_party_public_name' => $ReceiverPartyPublicName == '0' ? '0' : $ReceiverPartyPublicName,
+                'transaction_completed_date_time' => $completed->format('YmdHis'),
+                'receiver_party_public_name' => $ReceiverPartyPublicName ?? 0,
                 'working_account_balance' => $B2CWorkingAccountAvailableFunds,
                 'utility_account_balance' => null,
                 'json_result' => json_encode($request->all()),
@@ -236,9 +263,10 @@ class DarajaHelper
 
     /**
      * @param Request $request
-     * @return MpesaFunding
+     * @return MpesaFunding|null
      */
-    public static function c2b(Request $request): MpesaFunding
+    // change signature
+    public static function c2b(Request $request): ?MpesaFunding
     {
 
         // Decode the JSON payload from the request
@@ -315,12 +343,12 @@ class DarajaHelper
                     'result_type' => $resultType,
                     'result_code' => $resultCode,
                     'result_description' => $resultDesc,
-                    'transaction_id' => $ReceiptNo,
-                    'transaction_status' => $TransactionStatus,
+                    'transaction_id' => $ReceiptNo ?? 0,
+                    'transaction_status' => $TransactionStatus ?? null,
                     'transaction_completed_date_time' => !$FinalisedTime || $FinalisedTime == '0'
                         ? date('YmdHis')
                         : date('YmdHis', strtotime($FinalisedTime)),
-                    'receiver_party_public_name' => $CreditPartyName ?: '0',
+                    'receiver_party_public_name' =>  $CreditPartyName ?? $ReceiverPartyPublicName ?? '0',
                     'json_result' => json_encode($request->all()),
                 ];
             } else {
@@ -351,13 +379,13 @@ class DarajaHelper
 
         if ($transaction) {
 
-            $resultType = $data['Result']['ResultType'] ?? null;
-            $resultCode = $data['Result']['ResultCode'] ?? null;
-            $resultDesc = $data['Result']['ResultDesc'] ?? null;
-            $transactionID = $data['Result']['TransactionID'] ?? null;
+            $resultType = $request['Result']['ResultType'] ?? null;
+            $resultCode = $request['Result']['ResultCode'] ?? null;
+            $resultDesc = $request['Result']['ResultDesc'] ?? null;
+            $transactionID = $request['Result']['TransactionID'] ?? null;
 
             if ($resultCode == 0) {
-                $resultParameters = $data['Result']['ResultParameters']['ResultParameter'] ?? [];
+                $resultParameters = $request['Result']['ResultParameters']['ResultParameter'] ?? [];
 
                 if ($resultParameters) {
                     foreach ($resultParameters as $parameter) {

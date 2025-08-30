@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EdLugz\Daraja\Requests;
 
 use EdLugz\Daraja\DarajaClient;
@@ -36,20 +38,6 @@ class C2B extends DarajaClient
     protected string $initiatorName;
 
     /**
-     * Safaricom APIs stk password.
-     *
-     * @var string
-     */
-    protected string $password;
-
-    /**
-     * current timestamp.
-     *
-     * @var string
-     */
-    protected string $timestamp;
-
-    /**
      * Safaricom APIs C2B initiator short code.
      *
      * @var string
@@ -71,28 +59,17 @@ class C2B extends DarajaClient
     protected string $resultURL;
 
     /**
-     * DTO for api credentials
-     *
-     * @var ClientCredential
-     */
-    public ClientCredential $clientCredential;
-
-    /**
      * Necessary initializations for C2B transactions from the config file.
      *
      * @param ClientCredential $clientCredential
      * @param string|null $resultURL
      * @throws DarajaRequestException
      */
-    public function __construct(ClientCredential $clientCredential, string $resultURL = null)
+    public function __construct(ClientCredential $clientCredential, ?string $resultURL = null)
     {
-        $this->clientCredential = $clientCredential;
-
         parent::__construct($clientCredential);
 
-        $this->timestamp = date('YmdHis');
         $this->initiatorName = $this->clientCredential->initiator;
-        $this->password = DarajaHelper::setPassword($this->clientCredential->shortcode, $this->clientCredential->passkey, $this->timestamp);
         $this->partyA = $this->clientCredential->shortcode;
         $this->queueTimeOutURL = DarajaHelper::getTimeoutUrl();
         $this->commandId = 'CustomerPayBillOnline';
@@ -115,13 +92,20 @@ class C2B extends DarajaClient
         string $accountReference,
         array $customFieldsKeyValue = []
     ): MpesaFunding {
+        $timestamp = date('YmdHis');
+        $password  = DarajaHelper::setPassword(
+            $this->clientCredential->shortcode,
+            $this->clientCredential->passkey,
+            $timestamp
+        );
+
         $parameters = [
             'BusinessShortCode' => $this->partyA,
-            'Password'          => $this->password,
-            'Timestamp'         => $this->timestamp,
+            'Password'          => $password,
+            'Timestamp'         => $timestamp,
             'TransactionType'   => $this->commandId,
             'Amount'            => $amount,
-            'PartyA'            => $recipient,
+            'PartyA'            => DarajaHelper::formatMobileNumber($recipient),
             'PartyB'            => $this->partyA,
             'PhoneNumber'       => $recipient,
             'CallBackURL'       => $this->resultURL,
@@ -142,7 +126,7 @@ class C2B extends DarajaClient
 
             $transaction->update(
                 [
-                    'json_response' => json_encode($response),
+                    'json_response' => json_encode($response,   JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
                 ]
             );
         } catch (DarajaRequestException $e) {
@@ -156,17 +140,15 @@ class C2B extends DarajaClient
         }
 
         $data = [
-            'response_code'          => $response->ResponseCode,
-            'response_description'   => $response->ResponseDescription,
+            'response_code'          => $response->ResponseCode ?? null,
+            'response_description'   => $response->ResponseDescription ?? null,
         ];
 
-        if ($response->ResponseCode == 0) {
-            $data = array_merge($data, [
-                'merchant_request_id'    => $response->MerchantRequestID,
-                'checkout_request_id'    => $response->CheckoutRequestID,
-                'response_code'          => $response->ResponseCode,
-                'response_description'   => $response->ResponseDescription,
-            ]);
+        if ((string)($response->ResponseCode ?? '') === '0') {
+            $data += [
+                'merchant_request_id'    => $response->MerchantRequestID ?? null,
+                'checkout_request_id'    => $response->CheckoutRequestID ?? null,
+            ];
         }
 
         $transaction->update($data);

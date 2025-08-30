@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EdLugz\Daraja\Traits;
 
 trait HasMoneyConversion
@@ -12,9 +14,9 @@ trait HasMoneyConversion
      * floating points
      *
      * @param float $value
-     * @return int
+     * @return float
      */
-    private function toCents(float $value): int
+    private function toCents(float $value): float
     {
         return ($value * 100);
     }

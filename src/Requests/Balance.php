@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EdLugz\Daraja\Requests;
 
 use EdLugz\Daraja\DarajaClient;
@@ -42,27 +44,18 @@ class Balance extends DarajaClient
     public string $resultURL;
 
     /**
-     *  DTO for api credentials
-     *
-     * @var ClientCredential
-     */
-    public ClientCredential $clientCredential;
-
-    /**
      * Necessary initializations for Balance transactions from the config file while
      * also initialize parent constructor.
      *
      * @throws DarajaRequestException
      */
-    public function __construct(ClientCredential $clientCredential, string $resultURL)
+    public function __construct(ClientCredential $clientCredential, ?string $resultURL = null)
     {
-        $this->clientCredential = $clientCredential;
-
         parent::__construct($clientCredential);
 
         $this->queueTimeOutURL = DarajaHelper::getTimeoutUrl();
         $this->commandId = 'AccountBalance';
-        $this->resultURL = $resultURL;
+        $this->resultURL = $resultURL ?? DarajaHelper::getBalanceResultUrl();
     }
 
     /**

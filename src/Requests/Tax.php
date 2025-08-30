@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EdLugz\Daraja\Requests;
 
 use EdLugz\Daraja\DarajaClient;
@@ -40,13 +42,6 @@ class Tax extends DarajaClient
     protected string $queueTimeOutURL;
 
     /**
-     * DTO for api credentials
-     *
-     * @var ClientCredential
-     */
-    public ClientCredential $clientCredential;
-
-    /**
      * Necessary initializations for B2B transactions from the config file while
      * also initialize parent constructor.
      *
@@ -56,8 +51,6 @@ class Tax extends DarajaClient
      */
     public function __construct(ClientCredential $clientCredential, string $resultURL = null)
     {
-        $this->clientCredential = $clientCredential;
-
         parent::__construct($clientCredential);
         $this->resultURL = $resultURL ?? DarajaHelper::getPaybillResultUrl();
         $this->queueTimeOutURL = DarajaHelper::getTimeoutUrl();
@@ -77,7 +70,7 @@ class Tax extends DarajaClient
     public function remit(
         int $amount,
         string $accountReference,
-        string $resultUrl = null,
+        ?string $resultUrl = null,
         array $customFieldsKeyValue = []
     ): MpesaTransaction|null {
 
@@ -85,10 +78,10 @@ class Tax extends DarajaClient
             ->orderBy('created_at', 'desc')
             ->first();
 
-        if (($balance->working_account ?? 0) < $amount) {
+        if ((int)($balance->working_account ?? 0) < $amount) {
             Log::error('Insufficient balance to process this transaction.', [
                 'short_code' => $this->clientCredential->shortcode,
-                'balance' => $balance?->amount ?? null,
+                'balance' => $balance?->working_account ?? null,
                 'required_amount' => $amount,
             ]);
             return null;
@@ -130,9 +123,7 @@ class Tax extends DarajaClient
 
             $transaction->update(
                 [
-                    'originator_conversation_id' => $response->OriginatorConversationID,
-                    'payment_reference' => $response->OriginatorConversationID,
-                    'json_response' => json_encode($response),
+                    'json_response' => json_encode($response, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
                 ]
             );
         } catch (DarajaRequestException $e) {
@@ -155,20 +146,16 @@ class Tax extends DarajaClient
         }
 
         $data = [
-            'response_code'          => $response->ResponseCode,
-            'response_description'   => $response->ResponseDescription,
+            'response_code'          => $response->ResponseCode ?? null,
+            'response_description'   => $response->ResponseDescription ?? null,
         ];
 
-        if (array_key_exists('ResponseCode', (array) $response)) {
-            if ($response->ResponseCode == '0') {
-                $data = array_merge($data, [
-                    'conversation_id'               => $response->ConversationID,
-                    'originator_conversation_id'    => $response->OriginatorConversationID,
-                    'payment_reference'             => $response->OriginatorConversationID,
-                    'response_code'                 => $response->ResponseCode,
-                    'response_description'          => $response->ResponseDescription,
-                ]);
-            }
+        if (($response->ResponseCode ?? null) === '0' || (string)($response->ResponseCode ?? '') === '0') {
+            $data += [
+                'conversation_id'               => $response->ConversationID,
+                'originator_conversation_id'    => $response->OriginatorConversationID,
+                'payment_reference'             => $response->OriginatorConversationID,
+            ];
         }
 
         $transaction->update($data);

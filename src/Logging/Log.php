@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EdLugz\Daraja\Logging;
 
 use Exception;
@@ -17,7 +19,7 @@ class Log
      *
      * @var array
      */
-    protected static $levels = [
+    protected static array $levels = [
         'DEBUG'     => Level::Debug,
         'INFO'      => Level::Info,
         'NOTICE'    => Level::Notice,
@@ -39,16 +41,30 @@ class Log
      */
     public static function enable($options) : array
     {
+        if (!config('daraja.logs.enabled', true)) {
+            return is_array($options) ? $options : [];
+        }
+
         $level = self::getLogLevel();
 
-        $handler = new Logger(
-            'Daraja',
-            [
-                new RotatingFileHandler(storage_path('logs/daraja/daraja.log'), 30, $level),
-            ]
-        );
+        $dir = storage_path('logs/daraja');
 
-        $stack = HandlerStack::create();
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+
+        $handler = new Logger('Daraja', [
+            new RotatingFileHandler($dir . '/daraja.log', 30, $level),
+        ]);
+
+        $stack = $options['handler'] ?? null;
+
+        if (! $stack instanceof HandlerStack) {
+            $stack = is_callable($stack)
+                ? HandlerStack::create($stack)   // user-provided handler callable
+                : HandlerStack::create();        // default handler
+        }
+
         $stack->push(
             Middleware::log(
                 $handler,
@@ -64,18 +80,15 @@ class Log
     /**
      * Determine the log level specified in the configurations.
      *
-     * @throws Exception
+     * @return Level
      *
-     * @return mixed
      */
-    protected static function getLogLevel()
+    protected static function getLogLevel(): Level
     {
-        $level = strtoupper(config('daraja.logs.level'));
+        $raw = (string) config('daraja.logs.level', 'DEBUG');
 
-        if (array_key_exists($level, self::$levels)) {
-            return self::$levels[$level];
-        }
+        $level = strtoupper($raw);
 
-        throw new Exception('Debug level not recognized');
+        return self::$levels[$level] ?? Level::Debug;
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EdLugz\Daraja;
 
 use EdLugz\Daraja\Data\ClientCredential;
@@ -13,6 +15,8 @@ use GuzzleHttp\Exception\ServerException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log as LaravelLog;
 use Illuminate\Support\Str;
+use stdClass;
+use Throwable;
 
 class DarajaClient
 {
@@ -50,8 +54,8 @@ class DarajaClient
      */
     protected string $accessToken;
 
-    const MODE_LIVE = 'live';
-    const MODE_UAT = 'uat';
+    const string MODE_LIVE = 'live';
+    const string MODE_UAT = 'uat';
 
     /**
      * Base URL end points for the Daraja APIs.
@@ -59,7 +63,7 @@ class DarajaClient
      * @var array
      */
     protected array $base_url = [
-        self::MODE_UAT  => 'https://sandbox.safaricom.co.ke/',
+        self::MODE_UAT  => 'https://sandbox.safaricom.co.ke',
         self::MODE_LIVE => 'https://api.safaricom.co.ke',
     ];
 
@@ -75,11 +79,14 @@ class DarajaClient
     public function __construct(public ClientCredential $clientCredential)
     {
         try {
-            $mode = self::MODE_LIVE;
+            $mode = (string) (config('daraja.mode') ?? self::MODE_LIVE);
 
             $options = [
                 'base_uri' => $this->base_url[$mode],
-                'verify'   => $mode !== 'uat',
+                'verify'   => $mode !== self::MODE_UAT,
+                'timeout'  => 30,
+                'connect_timeout' => 10,
+                'http_errors' => true,
             ];
 
             $options = Log::enable($options);
@@ -97,32 +104,36 @@ class DarajaClient
 
     /**
      * Get access token from Daraja APIs.
-     *
      * @param string $shortcode
-     *
-     * @throws DarajaRequestException
-     *
      * @return void
      */
     protected function getAccessToken(string $shortcode): void
     {
+        $mode = (string) (config('daraja.mode') ?? self::MODE_LIVE);
+
+        $key = sprintf(
+            'daraja:%s:%s:%s',
+            $mode,
+            substr(sha1($this->consumerKey), 0, 12),
+            $shortcode
+        );
+
         //check if access token exists and not expired
-        if (!Cache::get('daraja_'. $shortcode)) {
-            // Set the auth option and fetch new token
-            $options = [
-                'auth' => [
-                    $this->consumerKey,
-                    $this->consumerSecret,
-                ],
-            ];
+        $token = Cache::remember($key, now()->addMinutes(58), function () use ($options) {
+            $response = $this->call('oauth/v1/generate?grant_type=client_credentials', [
+                'auth' => [$this->consumerKey, $this->consumerSecret],
+                'headers' => ['Accept' => 'application/json'],
+            ], 'GET');
 
-            $accessTokenDetails = $this->call('oauth/v1/generate?grant_type=client_credentials', $options, 'GET');
+            if (!is_object($response) || !isset($response->access_token)) {
+                throw new DarajaRequestException('Daraja APIs: Missing access_token in response');
+            }
 
-            //add to Cache
-            Cache::add('daraja_'. $shortcode, $accessTokenDetails->access_token, now()->addMinutes(58));
-        }
+            return (string) $response->access_token;
+        });
 
-        $this->accessToken = Cache::get('daraja_'. $shortcode);
+        $this->accessToken = $token;
+
     }
 
     /**
@@ -155,32 +166,31 @@ class DarajaClient
 
             return json_decode($content);
         } catch (ServerException $e) {
-            $responseBody = $e->getResponse()->getBody()->getContents();
-            $response = json_decode($responseBody);
+            $responseBody = (string) $e->getResponse()->getBody();
+
+            $response = null;
+
+            try { $response = json_decode($responseBody, false, 512, JSON_THROW_ON_ERROR); } catch (Throwable) {}
 
             $message = 'Daraja APIs (ServerException): ' . $e->getMessage();
 
             if (is_object($response) && isset($response->Envelope->Body->Fault->faultstring)) {
                 $message = 'Daraja APIs (SOAP Fault): ' . $response->Envelope->Body->Fault->faultstring;
-            }
-
-            elseif (is_object($response) && isset($response->fault->faultstring)) {
+            } elseif (is_object($response) && isset($response->fault->faultstring)) {
                 $message = 'Daraja APIs (REST Fault): ' . $response->fault->faultstring;
-
                 if (isset($response->fault->detail->errorcode)) {
                     $message .= ' [' . $response->fault->detail->errorcode . ']';
                 }
-            }
-
-            elseif (
+            } elseif (
                 Str::contains($e->getRequest()->getUri()->getPath(), '/sfcverify/v1/query/info') &&
                 is_object($response) &&
                 property_exists($response, 'ResponseMessage')
             ) {
-                $message = 'Daraja APIs (ServerException): ' . $response->ResponseMessage;
+                $message = 'Daraja APIs (ServerException): ' . (string) $response->ResponseMessage;
             }
 
-            if (!isset($response->fault) && !isset($response->Envelope) && !property_exists($response ?? new \stdClass, 'ResponseMessage')) {
+
+            if (!isset($response->fault) && !isset($response->Envelope) && !property_exists($response ?? new stdClass, 'ResponseMessage')) {
                 LaravelLog::warning('Unexpected Daraja API error response structure', [
                     'uri' => (string) $e->getRequest()->getUri(),
                     'raw_body' => $responseBody,
@@ -194,7 +204,11 @@ class DarajaClient
         } catch (ClientException $e) {
             $response = json_decode($e->getResponse()->getBody()->getContents());
             throw new DarajaRequestException(
-                message: 'Daraja APIs (ClientException): '. property_exists($response, 'errorMessage') ? $response->errorMessage : $e->getMessage(),
+                message: 'Daraja APIs (ClientException): ' . (
+                is_object($response) && property_exists($response, 'errorMessage')
+                    ? (string) $response->errorMessage
+                    : $e->getMessage()
+                ),
                 code: $e->getCode()
             );
         } catch (GuzzleException $e) {

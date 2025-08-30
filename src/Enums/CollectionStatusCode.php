@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EdLugz\Daraja\Enums;
 
 enum CollectionStatusCode: string
@@ -43,8 +45,8 @@ enum CollectionStatusCode: string
             self::TRANSACTION_EXPIRED => "Transaction has expired.",
             self::PUSH_REQUEST_ERROR => "Error Occurred while sending push request.",
             self::REQUEST_CANCELLED_BY_USER => "Request cancelled by user.",
-            self::SMSC_ACK_TIMEOUT,
-            self::DS_TIMEOUT_USER_UNREACHABLE => "Transaction failed. Session timed out, user cannot be reached.",
+            self::SMSC_ACK_TIMEOUT, self::DS_TIMEOUT_USER_UNREACHABLE
+            => "Transaction failed. Session timed out, user cannot be reached.",
             self::INVALID_INITIATOR_INFO => "The initiator information is invalid.",
             self::AUTHENTICATION_FAILED => "Authentication Failed.",
             self::CHANNEL_SESSION_EXPIRED => "Transaction failed, session has expired.",

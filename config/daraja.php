@@ -54,8 +54,8 @@ return [
     | Pass Key
     |--------------------------------------------------------------------------
     |
-    | This value is the initiator password provided for your shortcode.
-    | The package needs this to make requests to the MPESA APIs.
+    | This value is the pass key provided for your shortcode.
+    | The package needs this to make requests to the C2B MPESA APIs.
     |
     */
 
@@ -83,7 +83,7 @@ return [
     |
     */
 
-    'mode' => 'live',
+    'mode' => env('DARAJA_MODE', 'sandbox'),
 
     /*
     |--------------------------------------------------------------------------
@@ -94,7 +94,10 @@ return [
     |
     */
 
-    'base_url' => env('DARAJA_BASE_URL', ''),
+    'base_url' => env('DARAJA_BASE_URL', function_exists('app') && app()->environment('production')
+        ? 'https://api.safaricom.co.ke'
+        : 'https://sandbox.safaricom.co.ke'),
+
 
     /*
     |--------------------------------------------------------------------------
@@ -142,8 +145,8 @@ return [
     */
 
     'logs' => [
-        'enabled' => true,
-        'level'   => 'DEBUG',
+        'enabled' => env('DARAJA_LOG_ENABLED', true),
+        'level'   => env('DARAJA_LOG_LEVEL', 'DEBUG'),
     ],
 
 ];

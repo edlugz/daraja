@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EdLugz\Daraja\Traits;
 
 use Illuminate\Database\Eloquent\Model;

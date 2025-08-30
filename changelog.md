@@ -6,3 +6,6 @@ All notable changes to `Daraja` will be documented in this file.
 
 ### Added
 - Everything
+
+## Version 2.0
+- Updated to PHP 8.4
