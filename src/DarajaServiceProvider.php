@@ -13,7 +13,7 @@ final class DarajaServiceProvider extends ServiceProvider
     /**
      * Package paths.
      */
-    private const string CONFIG_PATH     = __DIR__ . '/../config/daraja.php';
+    private const string CONFIG_PATH = __DIR__ . '/../config/daraja.php';
     private const string MIGRATIONS_PATH = __DIR__ . '/../database/migrations';
 
     /**
@@ -21,7 +21,6 @@ final class DarajaServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // Merge package config so users get sensible defaults without publishing.
         $this->mergeConfigFrom(self::CONFIG_PATH, 'daraja');
 
         $this->app->bind(Daraja::class, function ($app, array $params) {
@@ -34,7 +33,6 @@ final class DarajaServiceProvider extends ServiceProvider
             return new Daraja($cred);
         });
 
-        // Keeps your Facade name available, but see note below
         $this->app->alias(Daraja::class, 'daraja');
     }
 
