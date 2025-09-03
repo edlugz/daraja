@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace EdLugz\Daraja;
 
-use Illuminate\Support\ServiceProvider;
+use EdLugz\Daraja\Console\InstallCommand;
 use EdLugz\Daraja\Data\ClientCredential;
-use GuzzleHttp\Client as Guzzle;
+use Illuminate\Support\ServiceProvider;
 
 final class DarajaServiceProvider extends ServiceProvider
 {
@@ -60,5 +60,9 @@ final class DarajaServiceProvider extends ServiceProvider
                 ], 'daraja-migrations');
             }
         }
+
+        $this->commands([
+            InstallCommand::class,
+        ]);
     }
 }
