@@ -54,6 +54,7 @@ final class Money implements CastsAttributes
             if ($value === '') {
                 return null; // treat empty as null
             }
+            $value = floatval($value);
         }
 
         return $this->toCents($value);
