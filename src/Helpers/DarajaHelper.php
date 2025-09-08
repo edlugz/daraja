@@ -165,7 +165,7 @@ class DarajaHelper
 
         if ($resultCode == 0) {
             $completed = ($TransactionCompletedDateTime ?? '0') !== '0'
-                ? \DateTimeImmutable::createFromFormat('YmdHis', preg_replace('/\D/','',$TransCompletedTime)) ?: new \DateTimeImmutable()
+                ? \DateTimeImmutable::createFromFormat('YmdHis', preg_replace('/\D/','', $TransactionCompletedDateTime)) ?: new \DateTimeImmutable()
                 : new \DateTimeImmutable();
             $data = [
                 'result_type' => $resultType,
