@@ -233,9 +233,14 @@ class DarajaHelper
         }
 
         if ($resultCode == 0) {
-            $completed = ($TransCompletedTime ?? '0') !== '0'
-                ? \DateTimeImmutable::createFromFormat('YmdHis', preg_replace('/\D/','',$TransCompletedTime)) ?: new \DateTimeImmutable()
-                : new \DateTimeImmutable();
+            
+            $raw = (string) ($TransCompletedTime ?? '');
+            if ($raw === '' || $raw === '0') {
+                $completed = new \DateTimeImmutable();
+            } else {
+                $digits = preg_replace('/\D+/', '', $raw) ?? '';
+                $completed = \DateTimeImmutable::createFromFormat('YmdHis', $digits) ?: new \DateTimeImmutable();
+            }
 
             $data = [
                 'result_type' => $resultType,
