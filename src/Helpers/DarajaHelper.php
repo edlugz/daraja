@@ -233,7 +233,7 @@ class DarajaHelper
         }
 
         if ($resultCode == 0) {
-            
+
             $raw = (string) ($TransCompletedTime ?? '');
             if ($raw === '' || $raw === '0') {
                 $completed = new \DateTimeImmutable();
