@@ -164,9 +164,25 @@ class DarajaHelper
         }
 
         if ($resultCode == 0) {
-            $completed = ($TransactionCompletedDateTime ?? '0') !== '0'
-                ? \DateTimeImmutable::createFromFormat('YmdHis', preg_replace('/\D/','', $TransactionCompletedDateTime)) ?: new \DateTimeImmutable()
-                : new \DateTimeImmutable();
+            $raw = (string) ($TransactionCompletedDateTime ?? '');
+            $completed = new \DateTimeImmutable();
+
+            if ($raw !== '' && $raw !== '0') {
+                $digits = preg_replace('/\D+/', '', $raw) ?? '';
+                $digits14 = substr($digits, 0, 14);
+
+                $completed =
+                    \DateTimeImmutable::createFromFormat('d.m.Y H:i:s', $raw)
+                        ?: \DateTimeImmutable::createFromFormat('Y.m.d H:i:s', $raw)
+                        ?: \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $raw)
+                            ?: \DateTimeImmutable::createFromFormat('d-m-Y H:i:s', $raw)
+                                ?: \DateTimeImmutable::createFromFormat('YmdHis', $digits14)
+                                    ?: \DateTimeImmutable::createFromFormat('dmYHis', $digits14)
+                                        ?: \DateTimeImmutable::createFromFormat('mdYHis', $digits14)
+                                            // fallback
+                                            ?: new \DateTimeImmutable();
+            }
+
             $data = [
                 'result_type' => $resultType,
                 'result_code' => $resultCode,
@@ -235,11 +251,24 @@ class DarajaHelper
         if ($resultCode == 0) {
 
             $raw = (string) ($TransCompletedTime ?? '');
-            if ($raw === '' || $raw === '0') {
-                $completed = new \DateTimeImmutable();
-            } else {
+            $completed = new \DateTimeImmutable();
+
+            if ($raw !== '' && $raw !== '0') {
                 $digits = preg_replace('/\D+/', '', $raw) ?? '';
-                $completed = \DateTimeImmutable::createFromFormat('YmdHis', $digits) ?: new \DateTimeImmutable();
+                $digits14 = substr($digits, 0, 14);
+
+                $completed =
+                    // 1) exact separated formats (handles '08.09.2025 16:44:10')
+                    \DateTimeImmutable::createFromFormat('d.m.Y H:i:s', $raw)
+                        ?: \DateTimeImmutable::createFromFormat('Y.m.d H:i:s', $raw)
+                        ?: \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $raw)
+                            ?: \DateTimeImmutable::createFromFormat('d-m-Y H:i:s', $raw)
+                                // 2) compact digit variants
+                                ?: \DateTimeImmutable::createFromFormat('YmdHis', $digits14)
+                                    ?: \DateTimeImmutable::createFromFormat('dmYHis', $digits14)
+                                        ?: \DateTimeImmutable::createFromFormat('mdYHis', $digits14)
+                                            // 3) fallback
+                                            ?: new \DateTimeImmutable();
             }
 
             $data = [
