@@ -14,7 +14,7 @@ final class DarajaServiceProvider extends ServiceProvider
      * Package paths.
      */
     private const string CONFIG_PATH = __DIR__ . '/../config/daraja.php';
-    private const string MIGRATIONS_PATH = __DIR__ . '/../database/migrations';
+    private const string MIGRATIONS_PATH = __DIR__ . '/database/migrations';
 
     /**
      * Register any application services.
