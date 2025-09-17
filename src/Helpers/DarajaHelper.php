@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace EdLugz\Daraja\Helpers;
 
+use DateTimeImmutable;
+use DateTimeInterface;
 use EdLugz\Daraja\Data\ClientCredential;
 use EdLugz\Daraja\Models\MpesaBalance;
 use EdLugz\Daraja\Models\MpesaFunding;
@@ -11,6 +13,8 @@ use EdLugz\Daraja\Models\MpesaTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use EdLugz\Daraja\Models\ApiCredential;
+use RuntimeException;
+use Throwable;
 
 /**
  *
@@ -31,7 +35,7 @@ class DarajaHelper
             : __DIR__ . '/cert/production.cer';
 
         if (!File::exists($certPath)) {
-            throw new \RuntimeException("Daraja cert not found at {$certPath}");
+            throw new RuntimeException("Daraja cert not found at $certPath");
         }
 
         $publicKey = File::get($certPath);
@@ -39,13 +43,13 @@ class DarajaHelper
         $key = openssl_pkey_get_public($publicKey);
 
         if ($key === false) {
-            throw new \RuntimeException('Invalid public key contents.');
+            throw new RuntimeException('Invalid public key contents.');
         }
 
-        $ok = openssl_public_encrypt($password, $output, $key, OPENSSL_PKCS1_PADDING);
+        $ok = openssl_public_encrypt($password, $output, $key);
 
         if (!$ok) {
-            throw new \RuntimeException('openssl_public_encrypt failed.');
+            throw new RuntimeException('openssl_public_encrypt failed.');
         }
 
         return base64_encode($output);
@@ -129,6 +133,50 @@ class DarajaHelper
     }
 
     /**
+     * Parse any timestamp-ish value to 'YmdHis'.
+     * Accepts int, strings and ISO-8601 DateTime values
+     * Falls back to now().
+     *
+     * @param mixed $value
+     * @return string
+     */
+    public static function darajaDateTime(mixed $value): string {
+        $now = new DateTimeImmutable();
+
+        // Treat empty/zero as "now"
+        if ($value === null || $value === '' || $value === '0' || $value === 0) {
+            return $now->format('YmdHis');
+        }
+
+        $raw    = trim((string) $value);
+        $digits = preg_replace('/\D+/', '', $raw) ?? '';
+
+        // 1) Exact 14-digit YYYYMMDDHHIISS
+        if (strlen($digits) === 14) {
+            $dt = DateTimeImmutable::createFromFormat('!YmdHis', $digits);
+            if ($dt !== false) {
+                return $dt->format('YmdHis');
+            }
+        }
+
+        // 2) Common human/ISO formats
+        foreach (['!d.m.Y H:i:s', '!Y.m.d H:i:s', '!Y-m-d H:i:s', '!d-m-Y H:i:s', DateTimeInterface::ATOM, DateTimeInterface::RFC3339_EXTENDED] as $fmt) {
+            $dt = DateTimeImmutable::createFromFormat($fmt, $raw);
+            if ($dt !== false) {
+                return $dt->format('YmdHis');
+            }
+        }
+
+        // 3) Last-ditch: let PHP try; if it fails, use now()
+        try {
+            return new DateTimeImmutable($raw)->format('YmdHis');
+        } catch (Throwable) {
+            return $now->format('YmdHis');
+        }
+    }
+
+
+    /**
      * Process b2c results.
      *
      * @param Request $request
@@ -164,32 +212,15 @@ class DarajaHelper
         }
 
         if ($resultCode == 0) {
-            $raw = (string) ($TransactionCompletedDateTime ?? '');
-            $completed = new \DateTimeImmutable();
-
-            if ($raw !== '' && $raw !== '0') {
-                $digits = preg_replace('/\D+/', '', $raw) ?? '';
-                $digits14 = substr($digits, 0, 14);
-
-                $completed =
-                    \DateTimeImmutable::createFromFormat('d.m.Y H:i:s', $raw)
-                        ?: \DateTimeImmutable::createFromFormat('Y.m.d H:i:s', $raw)
-                        ?: \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $raw)
-                            ?: \DateTimeImmutable::createFromFormat('d-m-Y H:i:s', $raw)
-                                ?: \DateTimeImmutable::createFromFormat('YmdHis', $digits14)
-                                    ?: \DateTimeImmutable::createFromFormat('dmYHis', $digits14)
-                                        ?: \DateTimeImmutable::createFromFormat('mdYHis', $digits14)
-                                            // fallback
-                                            ?: new \DateTimeImmutable();
-            }
+            $completed = self::darajaDateTime($TransactionCompletedDateTime);
 
             $data = [
                 'result_type' => $resultType,
                 'result_code' => $resultCode,
                 'result_description' => $resultDesc,
                 'transaction_id' => $transactionID,
-                'transaction_completed_date_time' =>  $completed->format('YmdHis'),
-                'receiver_party_public_name' => $ReceiverPartyPublicName ?? 0,
+                'transaction_completed_date_time' =>  $completed,
+                'receiver_party_public_name' => $ReceiverPartyPublicName,
                 'utility_account_balance' => $B2CWorkingAccountAvailableFunds ?? 0,
                 'working_account_balance' => $B2CUtilityAccountAvailableFunds ?? 0,
                 'json_result' => json_encode($request->all()),
@@ -250,34 +281,15 @@ class DarajaHelper
 
         if ($resultCode == 0) {
 
-            $raw = (string) ($TransCompletedTime ?? '');
-            $completed = new \DateTimeImmutable();
-
-            if ($raw !== '' && $raw !== '0') {
-                $digits = preg_replace('/\D+/', '', $raw) ?? '';
-                $digits14 = substr($digits, 0, 14);
-
-                $completed =
-                    // 1) exact separated formats (handles '08.09.2025 16:44:10')
-                    \DateTimeImmutable::createFromFormat('d.m.Y H:i:s', $raw)
-                        ?: \DateTimeImmutable::createFromFormat('Y.m.d H:i:s', $raw)
-                        ?: \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $raw)
-                            ?: \DateTimeImmutable::createFromFormat('d-m-Y H:i:s', $raw)
-                                // 2) compact digit variants
-                                ?: \DateTimeImmutable::createFromFormat('YmdHis', $digits14)
-                                    ?: \DateTimeImmutable::createFromFormat('dmYHis', $digits14)
-                                        ?: \DateTimeImmutable::createFromFormat('mdYHis', $digits14)
-                                            // 3) fallback
-                                            ?: new \DateTimeImmutable();
-            }
+            $completed = darajaDateTime($TransCompletedTime);
 
             $data = [
                 'result_type' => $resultType,
                 'result_code' => $resultCode,
                 'result_description' => $resultDesc,
                 'transaction_id' => $transactionID,
-                'transaction_completed_date_time' => $completed->format('YmdHis'),
-                'receiver_party_public_name' => $ReceiverPartyPublicName ?? 0,
+                'transaction_completed_date_time' => $completed,
+                'receiver_party_public_name' => $ReceiverPartyPublicName,
                 'working_account_balance' => $B2CWorkingAccountAvailableFunds,
                 'utility_account_balance' => null,
                 'json_result' => json_encode($request->all()),
@@ -373,15 +385,15 @@ class DarajaHelper
                     }
                 }
 
+                $completed = self::darajaDateTime($FinalisedTime);
+
                 $data = [
                     'result_type' => $resultType,
                     'result_code' => $resultCode,
                     'result_description' => $resultDesc,
                     'transaction_id' => $ReceiptNo ?? 0,
                     'transaction_status' => $TransactionStatus ?? null,
-                    'transaction_completed_date_time' => !$FinalisedTime || $FinalisedTime == '0'
-                        ? date('YmdHis')
-                        : date('YmdHis', strtotime($FinalisedTime)),
+                    'transaction_completed_date_time' => $completed,
                     'receiver_party_public_name' =>  $CreditPartyName ?? $ReceiverPartyPublicName ?? '0',
                     'json_result' => json_encode($request->all()),
                 ];
@@ -481,16 +493,14 @@ class DarajaHelper
                 }
             }
 
-            $transCompletedTimeFormatted = !empty($TransCompletedTime) && $TransCompletedTime != '0'
-                ? \DateTime::createFromFormat('YmdHis', $TransCompletedTime)->format('Y-m-d H:i:s')
-                : now()->format('Y-m-d H:i:s');
+            $completed = self::darajaDateTime($TransCompletedTime);
 
             $data = [
                 'result_type' => $resultType,
                 'result_code' => $resultCode,
                 'result_description' => $resultDesc,
                 'transaction_id' => $transactionId,
-                'transaction_completed_date_time' => $transCompletedTimeFormatted,
+                'transaction_completed_date_time' => $completed,
                 'json_result' => json_encode($request->all()),
             ];
         } else {
