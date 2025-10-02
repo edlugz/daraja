@@ -150,32 +150,44 @@ class DarajaHelper
             return $now->format('YmdHis');
         }
 
-        $raw    = trim((string) $value);
-        $digits = preg_replace('/\D+/', '', $raw) ?? '';
+        $raw = trim((string) $value);
 
-        // 1) Exact 14-digit YYYYMMDDHHIISS
-        if (strlen($digits) === 14) {
-            $dt = DateTimeImmutable::createFromFormat('!YmdHis', $digits);
+        // If the raw input is exactly 14 digits (unambiguous YmdHis), accept it.
+        if (ctype_digit($raw) && strlen($raw) === 14) {
+            $dt = DateTimeImmutable::createFromFormat('!YmdHis', $raw);
             if ($dt !== false) {
                 return $dt->format('YmdHis');
             }
         }
 
-        // 2) Common human/ISO formats
-        foreach (['!d.m.Y H:i:s', '!Y.m.d H:i:s', '!Y-m-d H:i:s', '!d-m-Y H:i:s', DateTimeInterface::ATOM, DateTimeInterface::RFC3339_EXTENDED] as $fmt) {
+        // Try a set of explicit human / ISO formats (d.m.Y etc).
+        $formats = [
+            '!d.m.Y H:i:s',
+            '!d.m.Y H:i',       // optional seconds
+            '!Y-m-d H:i:s',
+            '!Y-m-d H:i',
+            '!d-m-Y H:i:s',
+            '!Y.m.d H:i:s',
+            DateTimeInterface::ATOM,
+            DateTimeInterface::RFC3339_EXTENDED,
+        ];
+
+        foreach ($formats as $fmt) {
             $dt = DateTimeImmutable::createFromFormat($fmt, $raw);
             if ($dt !== false) {
                 return $dt->format('YmdHis');
             }
         }
 
-        // 3) Last-ditch: let PHP try; if it fails, use now()
+        // As a last attempt, let PHP's parser try.
         try {
-            return new DateTimeImmutable($raw)->format('YmdHis');
+            $dt = new DateTimeImmutable($raw);
+            return $dt->format('YmdHis');
         } catch (Throwable) {
             return $now->format('YmdHis');
         }
     }
+
 
 
     /**
