@@ -10,6 +10,7 @@ use EdLugz\Daraja\Data\ClientCredential;
 use EdLugz\Daraja\Models\MpesaBalance;
 use EdLugz\Daraja\Models\MpesaFunding;
 use EdLugz\Daraja\Models\MpesaTransaction;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use EdLugz\Daraja\Models\ApiCredential;
@@ -27,6 +28,7 @@ class DarajaHelper
      * @param string $password
      *
      * @return string
+     * @throws FileNotFoundException
      */
     public static function setSecurityCredential(string $password): string
     {
@@ -293,7 +295,7 @@ class DarajaHelper
 
         if ($resultCode == 0) {
 
-            $completed = darajaDateTime($TransCompletedTime);
+            $completed = self::darajaDateTime($TransCompletedTime);
 
             $data = [
                 'result_type' => $resultType,
