@@ -345,7 +345,7 @@ class DarajaHelper
                 'result_code' => $resultCode,
                 'result_desc' => $resultDesc,
                 'mpesa_receipt_number' => $mpesaReceiptNumber,
-                'transaction_date' => date('Y-m-d H:i:s', strtotime($transactionDate)),
+                'transaction_date' => date('Y-m-d H:i:s', strtotime(''.$transactionDate)),
                 'json_result' => $request->input()
             ];
         } else {
@@ -448,7 +448,7 @@ class DarajaHelper
                     'transaction_id' => $transactionID,
                     'transaction_completed_date_time' => !$TransCompletedTime || $TransCompletedTime == '0'
                         ? date('YmdHis')
-                        : date('YmdHis', strtotime($TransCompletedTime)),
+                        : date('YmdHis', strtotime(''.$TransCompletedTime)),
                     'receiver_party_public_name' => $CreditPartyPublicName ?: '0',
                     'json_result' => json_encode($request->all()),
                 ];
