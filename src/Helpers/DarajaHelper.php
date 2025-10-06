@@ -499,22 +499,12 @@ class DarajaHelper
         $transactionId = $request['Result']['TransactionID'] ?? null;
 
         if ($resultCode == 0) {
-            $resultParameters = $request['Result']['ResultParameters']['ResultParameter'] ?? [];
-
-            if (!empty($resultParameters)) {
-                foreach ($resultParameters as $parameter) {
-                    ${$parameter['Key']} = $parameter['Value'] ?? null;
-                }
-            }
-
-            $completed = self::darajaDateTime($TransCompletedTime);
-
             $data = [
                 'result_type' => $resultType,
                 'result_code' => $resultCode,
                 'result_description' => $resultDesc,
                 'transaction_id' => $transactionId,
-                'transaction_completed_date_time' => $completed,
+                'transaction_completed_date_time' => date('YmdHis'),
                 'json_result' => json_encode($request->all()),
             ];
         } else {
