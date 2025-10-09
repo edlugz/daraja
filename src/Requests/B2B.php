@@ -10,6 +10,7 @@ use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
 use EdLugz\Daraja\Models\MpesaBalance;
 use EdLugz\Daraja\Models\MpesaTransaction;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 
@@ -35,6 +36,10 @@ class B2B extends DarajaClient
      * @var string
      */
     protected string $paybillCommandId;
+    /**
+     * @var string
+     */
+    protected string $pochiCommandId;
 
     /**
      * Safaricom APIs queue timeout URI.
@@ -56,6 +61,7 @@ class B2B extends DarajaClient
         $this->queueTimeOutURL = DarajaHelper::getTimeoutUrl();
         $this->tillCommandId = 'BusinessBuyGoods';
         $this->paybillCommandId = 'BusinessPayBill';
+        $this->pochiCommandId = 'BusinessPayToPochi';
     }
 
     /**
@@ -179,7 +185,7 @@ class B2B extends DarajaClient
      * @param string|null $resultUrl
      * @param array $customFieldsKeyValue
      * @return MpesaTransaction |  null
-     * @throws DarajaRequestException
+     * @throws DarajaRequestException|FileNotFoundException
      */
     public function paybill(
         string $recipient,
@@ -234,6 +240,113 @@ class B2B extends DarajaClient
             'account_number'    => $recipient,
             'requester_mobile'  => $requester,
             'bill_reference'    => $accountReference,
+            'amount'            => $amount,
+            'json_request'      => json_encode($parameters),
+        ], $customFieldsKeyValue));
+
+        try {
+            $response = $this->call($this->endPoint, ['json' => $parameters]);
+
+            $transaction->update([
+                'json_response'              => json_encode($response, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+                'originator_conversation_id' => $response->OriginatorConversationID ?? $transaction->originator_conversation_id,
+                'payment_reference'          => $response->OriginatorConversationID ?? $transaction->payment_reference,
+            ]);
+        } catch (DarajaRequestException $e) {
+            Log::error($e);
+            $response = [
+                'ResponseCode'        => $e->getCode(),
+                'ResponseDescription' => $e->getMessage(),
+            ];
+
+            $response = (object) $response;
+        }
+
+        if (array_key_exists('errorCode', (array) $response)) {
+            $response = [
+                'ResponseCode'        => $response->errorCode,
+                'ResponseDescription' => $response->errorMessage,
+            ];
+
+            $response = (object) $response;
+        }
+
+        $data = [
+            'response_code'          => $response->ResponseCode ?? null,
+            'response_description'   => $response->ResponseDescription ?? null,
+        ];
+
+        if (($response->ResponseCode ?? null) === '0' || (string)($response->ResponseCode ?? '') === '0') {
+            $data += [
+                'conversation_id'               => $response->ConversationID ?? null,
+                'originator_conversation_id'    => $response->OriginatorConversationID ?? null,
+                'payment_reference'             => $response->OriginatorConversationID ?? null,
+            ];
+        }
+
+        $transaction->update($data);
+
+        return $transaction;
+    }
+
+    /**
+     * Send transaction details to Safaricom B2B API for pochi.
+     *
+     * @param string $recipient
+     * @param string $requester
+     * @param int $amount
+     * @param string $accountReference
+     * @param string|null $resultUrl
+     * @param array $customFieldsKeyValue
+     * @return MpesaTransaction |  null
+     * @throws DarajaRequestException|FileNotFoundException
+     */
+    public function pochi(
+        string $recipient,
+        int $amount,
+        ?string $resultUrl = null,
+        array $customFieldsKeyValue = []
+    ): MpesaTransaction|null {
+
+        $balance = MpesaBalance::where('short_code', $this->clientCredential->shortcode)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        $working = (int) ($balance->working_account ?? 0);
+
+        if ($working < $amount) {
+            Log::error('Insufficient balance...', [
+                'short_code' => $this->clientCredential->shortcode,
+                'balance'    => $working,
+                'required_amount' => $amount,
+            ]);
+            return null;
+        }
+
+        $resultUrl = $resultUrl ?? DarajaHelper::getMobileResultUrl();
+
+        $originatorConversationID = (string) Str::uuid();
+
+        $parameters = [
+            'OriginatorConversationID' => $originatorConversationID,
+            'InitiatorName'                => $this->clientCredential->initiator,
+            'SecurityCredential'       => DarajaHelper::setSecurityCredential($this->clientCredential->password),
+            'CommandID'                => $this->pochiCommandId,
+            'Amount'                   => $amount,
+            'PartyA'                   => $this->clientCredential->shortcode,
+            'PartyB'                   => $recipient,
+            'Remarks'                  => 'pochi payment',
+            'QueueTimeOutURL'          => $this->queueTimeOutURL,
+            'ResultURL'                => $resultUrl,
+            'Occassion'                => 'pochi payment'
+        ];
+
+        /** @var MpesaTransaction $transaction */
+        $transaction = MpesaTransaction::create(array_merge([
+            'payment_reference' => $originatorConversationID,
+            'short_code'        => $this->clientCredential->shortcode,
+            'transaction_type'  => 'Pochi',
+            'account_number'    => $recipient,
             'amount'            => $amount,
             'json_request'      => json_encode($parameters),
         ], $customFieldsKeyValue));
