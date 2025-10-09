@@ -3,7 +3,7 @@
 [![Latest Version on Packagist][ico-version]][link-packagist]
 [![Total Downloads][ico-downloads]][link-downloads]
 
-Laravel package for Safaricom **M-Pesa Daraja**: STK Push (C2B), B2C, B2B (BuyGoods/PayBill), Account Balance, Reversal, Transaction Status, **Tax remittance**, and **MNO Lookup** — with Laravel-12 friendly service bindings, logging, and callback helpers.
+Laravel package for Safaricom M-Pesa Daraja: STK Push (C2B), B2C, B2B (BuyGoods/PayBill/Pochi), Account Balance, Reversal, Transaction Status, Tax remittance**, and MNO Lookup — with Laravel-12 friendly service bindings, logging, and callback helpers.
 
 ## Requirements
 
