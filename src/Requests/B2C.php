@@ -11,6 +11,7 @@ use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
 use EdLugz\Daraja\Models\MpesaBalance;
 use EdLugz\Daraja\Models\MpesaTransaction;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
@@ -76,7 +77,7 @@ class B2C extends DarajaClient
      * @param int $amount
      * @param array $customFieldsKeyValue
      * @return MpesaTransaction | null
-     * @throws DarajaRequestException
+     * @throws DarajaRequestException|FileNotFoundException
      */
     public function payWithId(
         string $recipient,
