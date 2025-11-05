@@ -6,10 +6,12 @@ namespace EdLugz\Daraja\Requests;
 
 use EdLugz\Daraja\DarajaClient;
 use EdLugz\Daraja\Data\ClientCredential;
+use Edlugz\Daraja\Enums\MpesaTransactionChargeType;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
 use EdLugz\Daraja\Models\MpesaBalance;
 use EdLugz\Daraja\Models\MpesaTransaction;
+use EdLugz\Daraja\Services\MpesaTransactionChargeService;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
@@ -74,7 +76,7 @@ class B2B extends DarajaClient
      * @param string|null $resultUrl
      * @param array $customFieldsKeyValue
      * @return MpesaTransaction|null
-     * @throws DarajaRequestException
+     * @throws DarajaRequestException|FileNotFoundException
      */
     public function till(
         string  $recipient,
@@ -90,11 +92,15 @@ class B2B extends DarajaClient
 
         $working = (int) ($balance->working_account ?? 0);
 
-        if ($working < $amount) {
-            Log::error('Insufficient balance...', [
+        $charge = MpesaTransactionChargeService::getCharge($amount, MpesaTransactionChargeType::BUSINESS);
+
+        $total = $amount + $charge;
+
+        if ($working < $total) {
+            Log::error('Insufficient balance to process this request', [
                 'short_code' => $this->clientCredential->shortcode,
                 'balance'    => $working,
-                'required_amount' => $amount,
+                'required_amount' => $total,
             ]);
             return null;
         }
@@ -202,11 +208,15 @@ class B2B extends DarajaClient
 
         $working = (int) ($balance->working_account ?? 0);
 
-        if ($working < $amount) {
+        $charge = MpesaTransactionChargeService::getCharge($amount, MpesaTransactionChargeType::BUSINESS);
+
+        $total = $amount + $charge;
+
+        if ($working < $total) {
             Log::error('Insufficient balance...', [
                 'short_code' => $this->clientCredential->shortcode,
                 'balance'    => $working,
-                'required_amount' => $amount,
+                'required_amount' => $total,
             ]);
             return null;
         }
@@ -293,9 +303,7 @@ class B2B extends DarajaClient
      * Send transaction details to Safaricom B2B API for pochi.
      *
      * @param string $recipient
-     * @param string $requester
      * @param int $amount
-     * @param string $accountReference
      * @param string|null $resultUrl
      * @param array $customFieldsKeyValue
      * @return MpesaTransaction |  null
@@ -314,11 +322,15 @@ class B2B extends DarajaClient
 
         $working = (int) ($balance->working_account ?? 0);
 
-        if ($working < $amount) {
+        $charge = MpesaTransactionChargeService::getCharge($amount, MpesaTransactionChargeType::BUSINESS);
+
+        $total = $amount + $charge;
+
+        if ($working < $total) {
             Log::error('Insufficient balance...', [
                 'short_code' => $this->clientCredential->shortcode,
                 'balance'    => $working,
-                'required_amount' => $amount,
+                'required_amount' => $total,
             ]);
             return null;
         }

@@ -7,10 +7,12 @@ namespace EdLugz\Daraja\Requests;
 use EdLugz\Daraja\DarajaClient;
 use EdLugz\Daraja\Data\ClientCredential;
 use EdLugz\Daraja\Enums\IdentificationType;
+use Edlugz\Daraja\Enums\MpesaTransactionChargeType;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
 use EdLugz\Daraja\Models\MpesaBalance;
 use EdLugz\Daraja\Models\MpesaTransaction;
+use EdLugz\Daraja\Services\MpesaTransactionChargeService;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -97,11 +99,16 @@ class B2C extends DarajaClient
             ->first();
 
         $utility = (int) ($balance->utility_account ?? 0);
-        if ($utility < $amount) {
+
+        $charge = MpesaTransactionChargeService::getCharge($amount, MpesaTransactionChargeType::MOBILE);
+
+        $total = $amount + $charge;
+
+        if ($utility < $total) {
             Log::error('Insufficient balance to process this transaction.', [
                 'short_code' => $this->clientCredential->shortcode,
                 'balance'    => $utility,
-                'required_amount' => $amount,
+                'required_amount' => $total,
             ]);
             return null;
         }
@@ -190,6 +197,7 @@ class B2C extends DarajaClient
      * @param array $customFieldsKeyValue
      *
      * @return MpesaTransaction|null
+     * @throws FileNotFoundException
      */
     public function pay(
         string $recipient,
@@ -202,11 +210,16 @@ class B2C extends DarajaClient
             ->first();
 
         $utility = (int) ($balance->utility_account ?? 0);
-        if ($utility < $amount) {
+
+        $charge = MpesaTransactionChargeService::getCharge($amount, MpesaTransactionChargeType::MOBILE);
+
+        $total = $amount + $charge;
+
+        if ($utility < $total) {
             Log::error('Insufficient balance to process this transaction.', [
                 'short_code' => $this->clientCredential->shortcode,
                 'balance'    => $utility,
-                'required_amount' => $amount,
+                'required_amount' => $total,
             ]);
             return null;
         }

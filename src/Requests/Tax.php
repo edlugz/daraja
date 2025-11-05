@@ -6,10 +6,13 @@ namespace EdLugz\Daraja\Requests;
 
 use EdLugz\Daraja\DarajaClient;
 use EdLugz\Daraja\Data\ClientCredential;
+use Edlugz\Daraja\Enums\MpesaTransactionChargeType;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
 use EdLugz\Daraja\Models\MpesaBalance;
 use EdLugz\Daraja\Models\MpesaTransaction;
+use EdLugz\Daraja\Services\MpesaTransactionChargeService;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
@@ -49,7 +52,7 @@ class Tax extends DarajaClient
      * @param string|null $resultURL
      * @throws DarajaRequestException
      */
-    public function __construct(ClientCredential $clientCredential, string $resultURL = null)
+    public function __construct(ClientCredential $clientCredential, ?string $resultURL = null)
     {
         parent::__construct($clientCredential);
         $this->resultURL = $resultURL ?? DarajaHelper::getPaybillResultUrl();
@@ -65,7 +68,7 @@ class Tax extends DarajaClient
      * @param array $customFieldsKeyValue
      * @param string|null $resultUrl
      * @return MpesaTransaction |  null
-     * @throws DarajaRequestException
+     * @throws DarajaRequestException|FileNotFoundException
      */
     public function remit(
         int $amount,
@@ -78,11 +81,17 @@ class Tax extends DarajaClient
             ->orderBy('created_at', 'desc')
             ->first();
 
-        if ((int)($balance->working_account ?? 0) < $amount) {
-            Log::error('Insufficient balance to process this transaction.', [
+        $working = (int) ($balance->working_account ?? 0);
+
+        $charge = MpesaTransactionChargeService::getCharge($amount, MpesaTransactionChargeType::BUSINESS);
+
+        $total = $amount + $charge;
+
+        if ($working < $total) {
+            Log::error('Insufficient balance to process this request', [
                 'short_code' => $this->clientCredential->shortcode,
-                'balance' => $balance?->working_account ?? null,
-                'required_amount' => $amount,
+                'balance'    => $working,
+                'required_amount' => $total,
             ]);
             return null;
         }
