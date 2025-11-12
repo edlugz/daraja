@@ -74,15 +74,17 @@ class B2B extends DarajaClient
      * @param string $requester
      * @param int $amount
      * @param string|null $resultUrl
+     * @param bool $appendMpesaUuidToUrl
      * @param array $customFieldsKeyValue
      * @return MpesaTransaction|null
-     * @throws DarajaRequestException|FileNotFoundException
+     * @throws FileNotFoundException
      */
     public function till(
         string  $recipient,
         string  $requester,
         int     $amount,
         ?string $resultUrl = null,
+        bool    $appendMpesaUuidToUrl = true,
         array   $customFieldsKeyValue = []
     ): MpesaTransaction|null {
 
@@ -105,9 +107,11 @@ class B2B extends DarajaClient
             return null;
         }
 
-        $resultUrl = $resultUrl ?? DarajaHelper::getTillResultUrl();
-
         $originatorConversationID = (string) Str::uuid();
+        $resultUrl = $resultUrl ?? DarajaHelper::getTillResultUrl();
+        if($appendMpesaUuidToUrl) {
+            $resultUrl = $resultUrl . '/'. $originatorConversationID;
+        }
 
         $parameters = [
             'OriginatorConversationID' => $originatorConversationID,
@@ -127,6 +131,7 @@ class B2B extends DarajaClient
 
         /** @var MpesaTransaction $transaction */
         $transaction = MpesaTransaction::create(array_merge([
+            'uuid'              => $originatorConversationID,
             'payment_reference' => $originatorConversationID,
             'short_code'        => $this->clientCredential->shortcode,
             'transaction_type'  => 'BuyGoods',
@@ -189,9 +194,10 @@ class B2B extends DarajaClient
      * @param int $amount
      * @param string $accountReference
      * @param string|null $resultUrl
+     * @param bool $appendMpesaUuidToUrl
      * @param array $customFieldsKeyValue
      * @return MpesaTransaction |  null
-     * @throws DarajaRequestException|FileNotFoundException
+     * @throws FileNotFoundException
      */
     public function paybill(
         string $recipient,
@@ -199,6 +205,7 @@ class B2B extends DarajaClient
         int $amount,
         string $accountReference,
         ?string $resultUrl = null,
+        bool $appendMpesaUuidToUrl = true,
         array $customFieldsKeyValue = []
     ): MpesaTransaction|null {
 
@@ -221,9 +228,12 @@ class B2B extends DarajaClient
             return null;
         }
 
-        $resultUrl = $resultUrl ?? DarajaHelper::getPaybillResultUrl();
-
         $originatorConversationID = (string) Str::uuid();
+
+        $resultUrl = $resultUrl ?? DarajaHelper::getPaybillResultUrl();
+        if($appendMpesaUuidToUrl) {
+            $resultUrl = $resultUrl . '/'. $originatorConversationID;
+        }
 
         $parameters = [
             'OriginatorConversationID' => $originatorConversationID,
@@ -244,6 +254,7 @@ class B2B extends DarajaClient
 
         /** @var MpesaTransaction $transaction */
         $transaction = MpesaTransaction::create(array_merge([
+            'uuid'              => $originatorConversationID,
             'payment_reference' => $originatorConversationID,
             'short_code'        => $this->clientCredential->shortcode,
             'transaction_type'  => 'PayBill',
@@ -305,14 +316,16 @@ class B2B extends DarajaClient
      * @param string $recipient
      * @param int $amount
      * @param string|null $resultUrl
+     * @param bool $appendMpesaUuidToUrl
      * @param array $customFieldsKeyValue
      * @return MpesaTransaction |  null
-     * @throws DarajaRequestException|FileNotFoundException
+     * @throws FileNotFoundException
      */
     public function pochi(
         string $recipient,
         int $amount,
         ?string $resultUrl = null,
+        bool    $appendMpesaUuidToUrl = true,
         array $customFieldsKeyValue = []
     ): MpesaTransaction|null {
 
@@ -335,9 +348,13 @@ class B2B extends DarajaClient
             return null;
         }
 
-        $resultUrl = $resultUrl ?? DarajaHelper::getMobileResultUrl();
-
         $originatorConversationID = (string) Str::uuid();
+
+        $resultUrl = $resultUrl ?? DarajaHelper::getMobileResultUrl();
+        if($appendMpesaUuidToUrl) {
+            $resultUrl = $resultUrl . '/'. $originatorConversationID;
+        }
+
 
         $parameters = [
             'OriginatorConversationID' => $originatorConversationID,
@@ -355,6 +372,7 @@ class B2B extends DarajaClient
 
         /** @var MpesaTransaction $transaction */
         $transaction = MpesaTransaction::create(array_merge([
+            'uuid'              => $originatorConversationID,
             'payment_reference' => $originatorConversationID,
             'short_code'        => $this->clientCredential->shortcode,
             'transaction_type'  => 'Pochi',

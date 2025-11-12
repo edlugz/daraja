@@ -9,6 +9,7 @@ use EdLugz\Daraja\Data\ClientCredential;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
 use EdLugz\Daraja\Models\MpesaTransaction;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 class Transfer extends DarajaClient
@@ -64,6 +65,7 @@ class Transfer extends DarajaClient
      * @param int $amount
      * @param array $customFieldsKeyValue
      * @return MpesaTransaction
+     * @throws FileNotFoundException
      */
     public function workingToUtility(
         int $amount,
@@ -148,6 +150,7 @@ class Transfer extends DarajaClient
      * STransfer funds from utility to working(mmf) account via  Safaricom B2B API.
      * @param array $customFieldsKeyValue
      * @return MpesaTransaction
+     * @throws FileNotFoundException
      */
     public function utilityToWorking(array $customFieldsKeyValue = []): MpesaTransaction {
 

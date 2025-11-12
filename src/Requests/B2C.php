@@ -74,18 +74,20 @@ class B2C extends DarajaClient
      * Send transaction details to Safaricom B2C API.
      *
      * @param string $recipient
-     * @param string $nationalId
      * @param string $idType
+     * @param string $nationalId
      * @param int $amount
+     * @param bool $appendMpesaUuidToUrl
      * @param array $customFieldsKeyValue
      * @return MpesaTransaction | null
-     * @throws DarajaRequestException|FileNotFoundException
+     * @throws FileNotFoundException
      */
     public function payWithId(
-        string $recipient,
-        string $idType,
-        string $nationalId,
-        int $amount,
+        string  $recipient,
+        string  $idType,
+        string  $nationalId,
+        int     $amount,
+        bool    $appendMpesaUuidToUrl = true,
         array $customFieldsKeyValue = []
     ): MpesaTransaction|null {
         if(!$this->clientCredential->use_b2c_validation){
@@ -129,12 +131,13 @@ class B2C extends DarajaClient
             'IDNumber'                 => $nationalId,
             'Remarks'                  => 'send to mobile',
             'QueueTimeOutURL'          => $this->queueTimeOutURL,
-            'ResultURL'                => $this->resultURL,
+            'ResultURL'                => $this->resultURL . ($appendMpesaUuidToUrl ? '/' . $originatorConversationID : ''),
             'Occasion'                 => 'send to mobile',
         ];
 
         /** @var MpesaTransaction $transaction */
         $transaction = MpesaTransaction::create(array_merge([
+            'uuid'              => $originatorConversationID,
             'payment_reference' => $originatorConversationID,
             'short_code'        => $this->clientCredential->shortcode,
             'transaction_type'  => 'SendMoney',
@@ -194,15 +197,17 @@ class B2C extends DarajaClient
      *
      * @param string $recipient
      * @param int $amount
+     * @param bool $appendMpesaUuidToUrl
      * @param array $customFieldsKeyValue
      *
      * @return MpesaTransaction|null
      * @throws FileNotFoundException
      */
     public function pay(
-        string $recipient,
-        int $amount,
-        array $customFieldsKeyValue = []
+        string  $recipient,
+        int     $amount,
+        bool    $appendMpesaUuidToUrl = true,
+        array   $customFieldsKeyValue = []
     ): MpesaTransaction|null {
 
         $balance = MpesaBalance::where('short_code', $this->clientCredential->shortcode)
@@ -236,12 +241,13 @@ class B2C extends DarajaClient
             'PartyB'                   => DarajaHelper::formatMobileNumber($recipient),
             'Remarks'                  => 'send to mobile',
             'QueueTimeOutURL'          => $this->queueTimeOutURL,
-            'ResultURL'                => $this->resultURL,
+            'ResultURL'                => $this->resultURL  . ($appendMpesaUuidToUrl ? '/' . $originatorConversationID : ''),
             'Occasion'                 => 'send to mobile',
         ];
 
         /** @var MpesaTransaction $transaction */
         $transaction = MpesaTransaction::create(array_merge([
+            'uuid'              => $originatorConversationID,
             'payment_reference' => $originatorConversationID,
             'short_code'        => $this->clientCredential->shortcode,
             'transaction_type'  => 'SendMoney',

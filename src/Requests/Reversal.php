@@ -9,6 +9,7 @@ use EdLugz\Daraja\Data\ClientCredential;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
 use EdLugz\Daraja\Models\MpesaTransaction;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
@@ -64,9 +65,10 @@ class Reversal extends DarajaClient
      *
      * @param string $transactionId
      * @param string $amount
-     * @param array  $customFieldsKeyValue
+     * @param array $customFieldsKeyValue
      *
      * @return MpesaTransaction
+     * @throws FileNotFoundException
      */
     public function request(
         string $transactionId,

@@ -65,19 +65,21 @@ class Tax extends DarajaClient
      *
      * @param int $amount
      * @param string $accountReference
-     * @param array $customFieldsKeyValue
      * @param string|null $resultUrl
+     * @param bool $appendMpesaUuidToUrl
+     * @param array $customFieldsKeyValue
      * @return MpesaTransaction |  null
-     * @throws DarajaRequestException|FileNotFoundException
+     * @throws FileNotFoundException
      */
     public function remit(
-        int $amount,
-        string $accountReference,
+        int     $amount,
+        string  $accountReference,
         ?string $resultUrl = null,
-        array $customFieldsKeyValue = []
+        bool    $appendMpesaUuidToUrl = true,
+        array   $customFieldsKeyValue = []
     ): MpesaTransaction|null {
 
-        $balance = MpesaBalance::where('short_code', $this->clientCredential->shortcode)
+        $balance = MpesaBalance::whereShortCode($this->clientCredential->shortcode)
             ->orderBy('created_at', 'desc')
             ->first();
 
@@ -96,9 +98,12 @@ class Tax extends DarajaClient
             return null;
         }
 
-        $resultUrl = $resultUrl ?? DarajaHelper::getPaybillResultUrl();
-
         $originatorConversationID = (string) Str::uuid();
+        $resultUrl = $resultUrl ?? DarajaHelper::getPaybillResultUrl();
+        if($appendMpesaUuidToUrl) {
+            $resultUrl = $resultUrl . '/'. $originatorConversationID;
+        }
+
 
         $parameters = [
             'OriginatorConversationID' => $originatorConversationID,
@@ -118,6 +123,7 @@ class Tax extends DarajaClient
 
         /** @var MpesaTransaction $transaction */
         $transaction = MpesaTransaction::create(array_merge([
+            'uuid'              => $originatorConversationID,
             'payment_reference' => $originatorConversationID,
             'short_code'        => $this->clientCredential->shortcode,
             'transaction_type'  => 'TaxRemittance',

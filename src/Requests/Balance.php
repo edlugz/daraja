@@ -8,6 +8,7 @@ use EdLugz\Daraja\DarajaClient;
 use EdLugz\Daraja\Data\ClientCredential;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -62,6 +63,7 @@ class Balance extends DarajaClient
      * Send transaction details to Safaricom Balance API.
      *
      * @return void
+     * @throws FileNotFoundException
      */
     public function check(): void
     {

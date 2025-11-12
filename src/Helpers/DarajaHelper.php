@@ -142,7 +142,8 @@ class DarajaHelper
      * @param mixed $value
      * @return string
      */
-    public static function darajaDateTime(mixed $value): string {
+    public static function darajaDateTime(mixed $value): string
+    {
         $now = new DateTimeImmutable();
 
         // Treat empty/zero as "now"
@@ -150,7 +151,7 @@ class DarajaHelper
             return $now->format('YmdHis');
         }
 
-        $raw = trim((string) $value);
+        $raw = trim((string)$value);
 
         // If the raw input is exactly 14 digits (unambiguous YmdHis), accept it.
         if (ctype_digit($raw) && strlen($raw) === 14) {
@@ -189,17 +190,18 @@ class DarajaHelper
     }
 
 
-
     /**
      * Process b2c results.
      *
      * @param Request $request
-     *
+     * @param MpesaTransaction|null $transaction
      * @return MpesaTransaction|null
      */
-    public static function b2c(Request $request): ?MpesaTransaction
+    public static function b2c(Request $request, ?MpesaTransaction $transaction): ?MpesaTransaction
     {
-        $transaction = MpesaTransaction::where('originator_conversation_id', $request['Result']['OriginatorConversationID'])->first();
+        if (is_null($transaction)) {
+            $transaction = MpesaTransaction::where('originator_conversation_id', $request['Result']['OriginatorConversationID'])->first();
+        }
 
         if (!$transaction) {
             return null;
@@ -233,7 +235,7 @@ class DarajaHelper
                 'result_code' => $resultCode,
                 'result_description' => $resultDesc,
                 'transaction_id' => $transactionID,
-                'transaction_completed_date_time' =>  $completed,
+                'transaction_completed_date_time' => $completed,
                 'receiver_party_public_name' => $ReceiverPartyPublicName,
                 'utility_account_balance' => $B2CWorkingAccountAvailableFunds ?? 0,
                 'working_account_balance' => $B2CUtilityAccountAvailableFunds ?? 0,
@@ -256,12 +258,14 @@ class DarajaHelper
      * Process b2b - paybill results.
      *
      * @param Request $request
-     *
+     * @param MpesaTransaction|null $transaction
      * @return MpesaTransaction|null
      */
-    public static function b2b(Request $request): ?MpesaTransaction
+    public static function b2b(Request $request, ?MpesaTransaction $transaction): ?MpesaTransaction
     {
-        $transaction = MpesaTransaction::where('originator_conversation_id', $request['Result']['OriginatorConversationID'])->first();
+        if (is_null($transaction)) {
+            $transaction = MpesaTransaction::where('originator_conversation_id', $request['Result']['OriginatorConversationID'])->first();
+        }
 
         if (!$transaction) {
             return null;
@@ -357,7 +361,7 @@ class DarajaHelper
                 'result_code' => $resultCode,
                 'result_desc' => $resultDesc,
                 'mpesa_receipt_number' => $mpesaReceiptNumber,
-                'transaction_date' => date('Y-m-d H:i:s', strtotime(''.$transactionDate)),
+                'transaction_date' => date('Y-m-d H:i:s', strtotime('' . $transactionDate)),
                 'json_result' => $request->input()
             ];
         } else {
@@ -408,7 +412,7 @@ class DarajaHelper
                     'transaction_id' => $ReceiptNo ?? 0,
                     'transaction_status' => $TransactionStatus ?? null,
                     'transaction_completed_date_time' => $completed,
-                    'receiver_party_public_name' =>  $CreditPartyName ?? $ReceiverPartyPublicName ?? '0',
+                    'receiver_party_public_name' => $CreditPartyName ?? $ReceiverPartyPublicName ?? '0',
                     'json_result' => json_encode($request->all()),
                 ];
             } else {
@@ -460,7 +464,7 @@ class DarajaHelper
                     'transaction_id' => $transactionID,
                     'transaction_completed_date_time' => !$TransCompletedTime || $TransCompletedTime == '0'
                         ? date('YmdHis')
-                        : date('YmdHis', strtotime(''.$TransCompletedTime)),
+                        : date('YmdHis', strtotime('' . $TransCompletedTime)),
                     'receiver_party_public_name' => $CreditPartyPublicName ?: '0',
                     'json_result' => json_encode($request->all()),
                 ];
@@ -553,7 +557,7 @@ class DarajaHelper
             initiator: $apiCredential->initiator,
             password: $apiCredential->initiator_password,
             passkey: $apiCredential->pass_key,
-            use_b2c_validation:  $apiCredential->use_b2c_validation,
+            use_b2c_validation: $apiCredential->use_b2c_validation,
         );
     }
 

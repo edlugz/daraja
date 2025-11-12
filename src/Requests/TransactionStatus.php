@@ -9,7 +9,9 @@ use EdLugz\Daraja\Data\ClientCredential;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
 use EdLugz\Daraja\Models\MpesaTransaction;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class TransactionStatus extends DarajaClient
 {
@@ -46,8 +48,11 @@ class TransactionStatus extends DarajaClient
      *
      * @throws DarajaRequestException
      */
-    public function __construct(ClientCredential $clientCredential, ?string $resultUrl = null)
-    {
+    public function __construct(
+        ClientCredential $clientCredential,
+        ?string $resultUrl = null,
+        private readonly bool $appendMpesaUuidToUrl = true
+    ){
         parent::__construct($clientCredential);
 
         $this->queueTimeOutURL = DarajaHelper::getTimeoutUrl();
@@ -59,9 +64,10 @@ class TransactionStatus extends DarajaClient
      * Send transaction details to Safaricom C2B API.
      *
      * @param string $paymentId
-     * @param array  $customFieldsKeyValue
+     * @param array $customFieldsKeyValue
      *
      * @return MpesaTransaction|null
+     * @throws FileNotFoundException
      */
     public function query(
         string $paymentId,
@@ -82,6 +88,8 @@ class TransactionStatus extends DarajaClient
             return null;
         }
 
+        $mpesaTransactionUuid = (string) Str::uuid();
+
         $parameters = [
             'Initiator'                => $this->clientCredential->initiator,
             'SecurityCredential'       => DarajaHelper::setSecurityCredential($this->clientCredential->password),
@@ -90,7 +98,7 @@ class TransactionStatus extends DarajaClient
             'OriginalConversationID'   => $check->payment_reference,
             'PartyA'                   => $this->clientCredential->shortcode,
             'IdentifierType'           => '4',
-            'ResultURL'                => $this->resultUrl,
+            'ResultURL'                => $this->resultUrl . ($this->appendMpesaUuidToUrl ? '/' . $mpesaTransactionUuid: ''),
             'QueueTimeOutURL'          => $this->queueTimeOutURL,
             'Remarks'                  => 'OK',
             'Occasion'                 => 'OK',
@@ -98,6 +106,7 @@ class TransactionStatus extends DarajaClient
 
         /** @var MpesaTransaction $transaction */
         $transaction = MpesaTransaction::create(array_merge([
+            'uuid'              => $mpesaTransactionUuid,
             'payment_id'        => $check->payment_id,
             'payment_reference' => $check->originator_conversation_id,
             'short_code'        => $this->clientCredential->shortcode,
