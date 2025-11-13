@@ -117,7 +117,7 @@ class B2C extends DarajaClient
 
         $idType = IdentificationType::fromName($idType);
 
-        $originatorConversationID = (string) Str::uuid();
+        $originatorConversationID = (string) Str::uuid7();
 
         $parameters = [
             'OriginatorConversationID' => $originatorConversationID,
@@ -143,6 +143,7 @@ class B2C extends DarajaClient
             'transaction_type'  => 'SendMoney',
             'account_number'    => $recipient,
             'amount'            => $amount,
+            'transaction_charge' => $charge,
             'id_type'           => $idType?->value ?? IdentificationType::NATIONAL_ID->value,
             'id_number'         => $nationalId,
             'json_request'      => json_encode($parameters),
@@ -229,7 +230,7 @@ class B2C extends DarajaClient
             return null;
         }
 
-        $originatorConversationID = (string) Str::uuid();
+        $originatorConversationID = (string) Str::uuid7();
 
         $parameters = [
             'OriginatorConversationID' => $originatorConversationID,
@@ -253,6 +254,7 @@ class B2C extends DarajaClient
             'transaction_type'  => 'SendMoney',
             'account_number'    => $recipient,
             'amount'            => $amount,
+            'transaction_charge' => $charge,
             'json_request'      => json_encode($parameters),
         ], $customFieldsKeyValue));
 

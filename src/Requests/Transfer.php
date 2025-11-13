@@ -72,7 +72,7 @@ class Transfer extends DarajaClient
         array $customFieldsKeyValue = []
     ): MpesaTransaction {
 
-        $originatorConversationID = (string) Str::uuid();
+        $originatorConversationID = (string) Str::uuid7();
 
         $parameters = [
             'OriginatorConversationID' => $originatorConversationID,
@@ -154,7 +154,7 @@ class Transfer extends DarajaClient
      */
     public function utilityToWorking(array $customFieldsKeyValue = []): MpesaTransaction {
 
-        $originatorConversationID = (string) Str::uuid();
+        $originatorConversationID = (string) Str::uuid7();
 
         $parameters = [
             'OriginatorConversationID' => $originatorConversationID,

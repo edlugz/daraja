@@ -88,7 +88,7 @@ class TransactionStatus extends DarajaClient
             return null;
         }
 
-        $mpesaTransactionUuid = (string) Str::uuid();
+        $mpesaTransactionUuid = (string) Str::uuid7();
 
         $parameters = [
             'Initiator'                => $this->clientCredential->initiator,

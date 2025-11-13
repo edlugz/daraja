@@ -107,7 +107,7 @@ class B2B extends DarajaClient
             return null;
         }
 
-        $originatorConversationID = (string) Str::uuid();
+        $originatorConversationID = (string) Str::uuid7();
         $resultUrl = $resultUrl ?? DarajaHelper::getTillResultUrl();
         if($appendMpesaUuidToUrl) {
             $resultUrl = $resultUrl . '/'. $originatorConversationID;
@@ -138,6 +138,7 @@ class B2B extends DarajaClient
             'account_number'    => $recipient,
             'requester_mobile'  => $requester,
             'amount'            => $amount,
+            'transaction_charge' => $charge,
             'json_request'      => json_encode($parameters),
         ], $customFieldsKeyValue));
 
@@ -228,7 +229,7 @@ class B2B extends DarajaClient
             return null;
         }
 
-        $originatorConversationID = (string) Str::uuid();
+        $originatorConversationID = (string) Str::uuid7();
 
         $resultUrl = $resultUrl ?? DarajaHelper::getPaybillResultUrl();
         if($appendMpesaUuidToUrl) {
@@ -262,6 +263,7 @@ class B2B extends DarajaClient
             'requester_mobile'  => $requester,
             'bill_reference'    => $accountReference,
             'amount'            => $amount,
+            'transaction_charge' => $charge,
             'json_request'      => json_encode($parameters),
         ], $customFieldsKeyValue));
 
@@ -348,7 +350,7 @@ class B2B extends DarajaClient
             return null;
         }
 
-        $originatorConversationID = (string) Str::uuid();
+        $originatorConversationID = (string) Str::uuid7();
 
         $resultUrl = $resultUrl ?? DarajaHelper::getMobileResultUrl();
         if($appendMpesaUuidToUrl) {
@@ -378,6 +380,7 @@ class B2B extends DarajaClient
             'transaction_type'  => 'Pochi',
             'account_number'    => $recipient,
             'amount'            => $amount,
+            'transaction_charge' => $charge,
             'json_request'      => json_encode($parameters),
         ], $customFieldsKeyValue));
 

@@ -75,7 +75,7 @@ class Reversal extends DarajaClient
         string $amount,
         array $customFieldsKeyValue = []
     ): MpesaTransaction {
-        $originatorConversationID = (string) Str::uuid();
+        $originatorConversationID = (string) Str::uuid7();
 
         $parameters = [
             'Initiator'                => $this->clientCredential->initiator,

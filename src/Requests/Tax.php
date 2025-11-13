@@ -98,7 +98,7 @@ class Tax extends DarajaClient
             return null;
         }
 
-        $originatorConversationID = (string) Str::uuid();
+        $originatorConversationID = (string) Str::uuid7();
         $resultUrl = $resultUrl ?? DarajaHelper::getPaybillResultUrl();
         if($appendMpesaUuidToUrl) {
             $resultUrl = $resultUrl . '/'. $originatorConversationID;
@@ -130,6 +130,7 @@ class Tax extends DarajaClient
             'account_number'    => '572572',
             'bill_reference'    => $accountReference,
             'amount'            => $amount,
+            'transaction_charge' => $charge,
             'json_request'      => json_encode($parameters),
         ], $customFieldsKeyValue));
 
