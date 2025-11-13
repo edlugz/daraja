@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string id_number
  * @property string account_number
  * @property float amount
+ * @property float transaction_charge
  * @property string|null bill_reference
  * @property string|null requester_name
  * @property string|null requester_mobile
@@ -53,6 +54,7 @@ class MpesaTransaction extends Model
 
     protected $casts = [
         'amount' => Money::class,
+        'transaction_charge' => Money::class,
         'utility_account_balance' => Money::class,
         'working_account_balance' => Money::class,
         'id_type' => IdentificationType::class,
