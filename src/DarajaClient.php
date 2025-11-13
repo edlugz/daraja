@@ -111,14 +111,6 @@ class DarajaClient
     {
         $mode = (string) (config('daraja.mode') ?? self::MODE_LIVE);
 
-        $options = [
-            'base_uri' => $this->base_url[$mode],
-            'verify'   => __DIR__. 'Helpers/cert/cacert.pem',
-            'timeout'  => 30,
-            'connect_timeout' => 10,
-            'http_errors' => true,
-        ];
-
         $key = sprintf(
             'daraja:%s:%s:%s',
             $mode,
