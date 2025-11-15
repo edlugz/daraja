@@ -84,7 +84,7 @@ class DarajaClient
             $options = [
                 'base_uri' => $this->base_url[$mode],
                 'verify'   => $mode !== self::MODE_UAT,
-                'timeout'  => 30,
+                'timeout'  => config('daraja.server_timeout'),
                 'connect_timeout' => 10,
                 'http_errors' => true,
             ];
@@ -114,7 +114,7 @@ class DarajaClient
         $options = [
             'base_uri' => $this->base_url[$mode],
             'verify'   => __DIR__. 'Helpers/cert/cacert.pem',
-            'timeout'  => 30,
+            'timeout'  => config('daraja.server_timeout'),
             'connect_timeout' => 10,
             'http_errors' => true,
         ];
