@@ -12,6 +12,7 @@ use EdLugz\Daraja\Helpers\DarajaHelper;
 use EdLugz\Daraja\Models\MpesaBalance;
 use EdLugz\Daraja\Models\MpesaTransaction;
 use EdLugz\Daraja\Services\MpesaTransactionChargeService;
+use Exception;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
@@ -199,6 +200,7 @@ class B2B extends DarajaClient
      * @param array $customFieldsKeyValue
      * @return MpesaTransaction |  null
      * @throws FileNotFoundException
+     * @throws Exception
      */
     public function paybill(
         string $recipient,
@@ -322,6 +324,7 @@ class B2B extends DarajaClient
      * @param array $customFieldsKeyValue
      * @return MpesaTransaction |  null
      * @throws FileNotFoundException
+     * @throws Exception
      */
     public function pochi(
         string $recipient,
