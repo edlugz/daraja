@@ -2,9 +2,9 @@
 
 namespace EdLugz\Daraja\Services;
 
+use EdLugz\Daraja\Exceptions\MpesaChargeException;
 use EdLugz\Daraja\Models\MpesaTransactionCharge;
 use EdLugz\Daraja\Enums\MpesaTransactionChargeType;
-use Exception;
 use Illuminate\Support\Carbon;
 
 class MpesaTransactionChargeService
@@ -16,7 +16,7 @@ class MpesaTransactionChargeService
      * @param MpesaTransactionChargeType $type
      * @param string|null $date
      * @return int
-     * @throws Exception
+     * @throws MpesaChargeException
      */
     public static function getCharge(int $amount, MpesaTransactionChargeType $type, ?string $date = null): int
     {
@@ -34,7 +34,7 @@ class MpesaTransactionChargeService
             ->value('charge');
 
         if (is_null($charge)) {
-            throw new Exception("No M-Pesa charge found for Kshs. $amount as of {$date->toDateString()}");
+            throw new MpesaChargeException("No M-Pesa charge found for Kshs. $amount as of {$date->toDateString()}");
         }
 
         return $charge;

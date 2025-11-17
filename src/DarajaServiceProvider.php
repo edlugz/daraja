@@ -15,6 +15,7 @@ final class DarajaServiceProvider extends ServiceProvider
      */
     private const string CONFIG_PATH = __DIR__ . '/../config/daraja.php';
     private const string MIGRATIONS_PATH = __DIR__ . '/database/migrations';
+    private const string SEEDERS_PATH = __DIR__ . '/database/seeders';
 
     /**
      * Register any application services.
@@ -58,6 +59,12 @@ final class DarajaServiceProvider extends ServiceProvider
                 $this->publishes([
                     self::MIGRATIONS_PATH => database_path('migrations'),
                 ], 'daraja-migrations');
+            }
+
+            if(is_dir(self::SEEDERS_PATH)) {
+                $this->publishes([
+                    self::SEEDERS_PATH => database_path('seeders'),
+                ], 'daraja-seeders');
             }
         }
 

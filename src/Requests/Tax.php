@@ -8,6 +8,7 @@ use EdLugz\Daraja\DarajaClient;
 use EdLugz\Daraja\Data\ClientCredential;
 use Edlugz\Daraja\Enums\MpesaTransactionChargeType;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
+use EdLugz\Daraja\Exceptions\MpesaChargeException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
 use EdLugz\Daraja\Models\MpesaBalance;
 use EdLugz\Daraja\Models\MpesaTransaction;
@@ -69,7 +70,7 @@ class Tax extends DarajaClient
      * @param bool $appendMpesaUuidToUrl
      * @param array $customFieldsKeyValue
      * @return MpesaTransaction |  null
-     * @throws FileNotFoundException
+     * @throws MpesaChargeException|FileNotFoundException
      */
     public function remit(
         int     $amount,

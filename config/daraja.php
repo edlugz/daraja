@@ -136,11 +136,11 @@ return [
     | Server timeout (seconds)
     |--------------------------------------------------------------------------
     |
-    | Here you can set the serever timout
+    | Here you can set the server timeout
     |
     */
 
-    'server_timeout' => env('DARAJA_SERVER_TIMEOUT', '30'),
+    'server_timeout' => env('DARAJA_SERVER_TIMEOUT', 30),
 
 
     /*

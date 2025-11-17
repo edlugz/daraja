@@ -40,6 +40,9 @@ php artisan vendor:publish --provider="EdLugz\Daraja\DarajaServiceProvider" --ta
 
 # Migrations
 php artisan vendor:publish --provider="EdLugz\Daraja\DarajaServiceProvider" --tag=daraja-migrations
+
+# Seeders
+php artisan vendor:publish --provider="EdLugz\Daraja\DarajaServiceProvider" --tag=daraja-seeders
 ```
 
 > Migrations are also auto-loaded from the package, so `php artisan migrate` will pick them up even without publishing.
