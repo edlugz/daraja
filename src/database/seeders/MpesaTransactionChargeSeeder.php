@@ -4,7 +4,6 @@ namespace EdLugz\Daraja\database\seeders;
 
 use Carbon\Carbon;
 use EdLugz\Daraja\Enums\MpesaTransactionChargeType;
-use EdLugz\Daraja\Enums\MpesaTransactionType;
 use EdLugz\Daraja\Models\MpesaTransactionCharge;
 use Illuminate\Database\Seeder;
 
