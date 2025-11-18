@@ -5,7 +5,16 @@ namespace EdLugz\Daraja\Models;
 use EdLugz\Daraja\Casts\Money;
 use Illuminate\Database\Eloquent\Model;
 use EdLugz\Daraja\Enums\MpesaTransactionChargeType;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property int id
+ * @property string type
+ * @property float min_amount
+ * @property float max_amount
+ * @property float charge
+ * @property Carbon effective_date
+ */
 class MpesaTransactionCharge extends Model
 {
     protected $fillable = [

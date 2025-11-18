@@ -7,6 +7,7 @@ namespace EdLugz\Daraja\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use EdLugz\Daraja\Traits\HasUuid;
+use Illuminate\Support\Carbon;
 
 /**
  * @property  int id
@@ -21,9 +22,9 @@ use EdLugz\Daraja\Traits\HasUuid;
  * @property  string|null balance_result_url
  * @property  bool api_status
  * @property  bool use_b2c_validation
- * @property  \Illuminate\Support\Carbon|null created_at
- * @property  \Illuminate\Support\Carbon|null updated_at
- * @property  \Illuminate\Support\Carbon|null deleted_at
+ * @property  Carbon|null created_at
+ * @property  Carbon|null updated_at
+ * @property  Carbon|null deleted_at
  */
 class ApiCredential extends Model
 {
