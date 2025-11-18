@@ -7,7 +7,7 @@ namespace EdLugz\Daraja\Requests;
 use EdLugz\Daraja\DarajaClient;
 use EdLugz\Daraja\Data\ClientCredential;
 use EdLugz\Daraja\Enums\IdentificationType;
-use Edlugz\Daraja\Enums\MpesaTransactionChargeType;
+use EdLugz\Daraja\Enums\MpesaTransactionChargeType;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
 use EdLugz\Daraja\Exceptions\MpesaChargeException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
