@@ -77,7 +77,7 @@ class B2C extends DarajaClient
      * @param bool $appendMpesaUuidToUrl
      * @param array $customFieldsKeyValue
      * @return MpesaTransaction | null
-     * @throws FileNotFoundException|MpesaChargeException
+     * @throws FileNotFoundException
      */
     public function payWithId(
         string  $recipient,
@@ -122,7 +122,7 @@ class B2C extends DarajaClient
             'transaction_type'  => 'SendMoney',
             'account_number'    => $recipient,
             'amount'            => $amount,
-            'transaction_charge' => $charge,
+            // 'transaction_charge' => $charge,
             'id_type'           => $idType?->value ?? IdentificationType::NATIONAL_ID->value,
             'id_number'         => $nationalId,
             'json_request'      => json_encode($parameters),
@@ -181,7 +181,7 @@ class B2C extends DarajaClient
      * @param array $customFieldsKeyValue
      *
      * @return MpesaTransaction|null
-     * @throws FileNotFoundException|MpesaChargeException
+     * @throws FileNotFoundException
      */
     public function pay(
         string  $recipient,
@@ -214,7 +214,7 @@ class B2C extends DarajaClient
             'transaction_type'  => 'SendMoney',
             'account_number'    => $recipient,
             'amount'            => $amount,
-            'transaction_charge' => $charge,
+            // 'transaction_charge' => $charge,
             'json_request'      => json_encode($parameters),
         ], $customFieldsKeyValue));
 

@@ -117,7 +117,7 @@ class B2B extends DarajaClient
             'account_number'    => $recipient,
             'requester_mobile'  => $requester,
             'amount'            => $amount,
-            'transaction_charge' => $charge,
+            // 'transaction_charge' => $charge,
             'json_request'      => json_encode($parameters),
         ], $customFieldsKeyValue));
 
@@ -223,7 +223,7 @@ class B2B extends DarajaClient
             'requester_mobile'  => $requester,
             'bill_reference'    => $accountReference,
             'amount'            => $amount,
-            'transaction_charge' => $charge,
+            // 'transaction_charge' => $charge,
             'json_request'      => json_encode($parameters),
         ], $customFieldsKeyValue));
 
@@ -281,7 +281,7 @@ class B2B extends DarajaClient
      * @param bool $appendMpesaUuidToUrl
      * @param array $customFieldsKeyValue
      * @return MpesaTransaction |  null
-     * @throws FileNotFoundException|MpesaChargeException
+     * @throws FileNotFoundException
      */
     public function pochi(
         string $recipient,
@@ -321,7 +321,7 @@ class B2B extends DarajaClient
             'transaction_type'  => 'Pochi',
             'account_number'    => $recipient,
             'amount'            => $amount,
-            'transaction_charge' => $charge,
+            // 'transaction_charge' => $charge,
             'json_request'      => json_encode($parameters),
         ], $customFieldsKeyValue));
 

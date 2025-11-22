@@ -2,6 +2,7 @@
 
 namespace EdLugz\Daraja\Services;
 
+use EdLugz\Daraja\Data\MpesaBulkTransactionCharge;
 use EdLugz\Daraja\Data\MpesaChargeItem;
 use EdLugz\Daraja\Exceptions\MpesaChargeException;
 use EdLugz\Daraja\Models\MpesaTransactionCharge;
@@ -126,6 +127,67 @@ class MpesaTransactionChargeService
                 'effective_date' => $band['effective_date'],
             ]);
         });
+    }
+
+
+    /**
+     * @param Collection<MpesaChargeItem> $items
+     * @param string|null $date
+     * @return MpesaBulkTransactionCharge
+     */
+    public static function calculateBulkTransactionCharges(Collection $items, ?string $date = null) : MpesaBulkTransactionCharge
+    {
+        $date = $date ? Carbon::parse($date) : now();
+        $hasUtility = $items->contains(fn (MpesaChargeItem $item) => $item->type === MpesaTransactionChargeType::MOBILE);
+        $hasWorking = $items->contains(fn (MpesaChargeItem $item) => $item->type === MpesaTransactionChargeType::BUSINESS);
+
+        $types = [
+            ...($hasUtility ? [MpesaTransactionChargeType::MOBILE->value] : []),
+            ...($hasWorking ? [MpesaTransactionChargeType::BUSINESS->value] : []),
+        ];
+
+        $charges = MpesaTransactionCharge::query()
+            ->whereIn('type', $types)
+            ->where('effective_date', '<=', $date)
+            ->orderByDesc('effective_date')
+            ->get();
+
+        $utilityCharges = $items->where('type', MpesaTransactionChargeType::MOBILE->value)
+            ->sum(function ($item) use ($charges, $date) {
+                $amount = $item->amount;
+                /** @var MpesaTransactionCharge $itemCharge */
+                $itemCharge = $charges->where('type', MpesaTransactionChargeType::MOBILE->value)
+                    ->first(function ($charge) use ($amount) {
+                        return $amount >= $charge->min_amount && $amount <= $charge->max_amount;
+                    });
+                if (is_null($itemCharge)) {
+                    throw new MpesaChargeException(
+                        "No M-Pesa charge found Mobile for Kshs. {$amount}  as of {$date->toDateString()}"
+                    );
+                }
+                
+                return $itemCharge->charge;
+            });
+        $workingCharges = $items->where('type', MpesaTransactionChargeType::BUSINESS->value)
+            ->sum(function ($item) use ($charges, $date) {
+                $amount = $item->amount;
+                /** @var MpesaTransactionCharge $itemCharge */
+                $itemCharge = $charges->where('type', MpesaTransactionChargeType::BUSINESS->value)
+                    ->first(function ($charge) use ($amount) {
+                        return $amount >= $charge->min_amount && $amount <= $charge->max_amount;
+                    });
+                if (is_null($itemCharge)) {
+                    throw new MpesaChargeException(
+                        "No M-Pesa charge found Business for Kshs. {$amount}  as of {$date->toDateString()}"
+                    );
+                }
+                return $itemCharge->charge;
+            });
+
+        return new MpesaBulkTransactionCharge(
+            utilityCharge: $utilityCharges,
+            workingCharge: $workingCharges
+        );
     }
 
 }

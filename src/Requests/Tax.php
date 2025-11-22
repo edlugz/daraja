@@ -109,7 +109,7 @@ class Tax extends DarajaClient
             'account_number'    => '572572',
             'bill_reference'    => $accountReference,
             'amount'            => $amount,
-            'transaction_charge' => $charge,
+            // 'transaction_charge' => $charge,
             'json_request'      => json_encode($parameters),
         ], $customFieldsKeyValue));
 

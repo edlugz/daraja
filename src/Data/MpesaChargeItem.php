@@ -9,11 +9,11 @@ use EdLugz\Daraja\Enums\MpesaTransactionChargeType;
 readonly class MpesaChargeItem
 {
     /**
-     * @param int $amount
+     * @param int|float $amount
      * @param MpesaTransactionChargeType $type
      */
     public function __construct(
-        public int $amount,
+        public int|float $amount,
         public MpesaTransactionChargeType $type,
     ) {}
 }
