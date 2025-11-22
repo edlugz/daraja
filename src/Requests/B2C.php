@@ -7,13 +7,9 @@ namespace EdLugz\Daraja\Requests;
 use EdLugz\Daraja\DarajaClient;
 use EdLugz\Daraja\Data\ClientCredential;
 use EdLugz\Daraja\Enums\IdentificationType;
-use EdLugz\Daraja\Enums\MpesaTransactionChargeType;
 use EdLugz\Daraja\Exceptions\DarajaRequestException;
-use EdLugz\Daraja\Exceptions\MpesaChargeException;
 use EdLugz\Daraja\Helpers\DarajaHelper;
-use EdLugz\Daraja\Models\MpesaBalance;
 use EdLugz\Daraja\Models\MpesaTransaction;
-use EdLugz\Daraja\Services\MpesaTransactionChargeService;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -94,24 +90,6 @@ class B2C extends DarajaClient
         if(!$this->clientCredential->use_b2c_validation){
             Log::error('B2C with validation is not active', [
                 'short_code' => $this->clientCredential->shortcode
-            ]);
-            return null;
-        }
-        $balance = MpesaBalance::where('short_code', $this->clientCredential->shortcode)
-            ->orderBy('created_at', 'desc')
-            ->first();
-
-        $utility = (int) ($balance->utility_account ?? 0);
-
-        $charge = MpesaTransactionChargeService::getCharge($amount, MpesaTransactionChargeType::MOBILE);
-
-        $total = $amount + $charge;
-
-        if ($utility < $total) {
-            Log::error('Insufficient balance to process this transaction.', [
-                'short_code' => $this->clientCredential->shortcode,
-                'balance'    => $utility,
-                'required_amount' => $total,
             ]);
             return null;
         }
@@ -211,25 +189,6 @@ class B2C extends DarajaClient
         bool    $appendMpesaUuidToUrl = true,
         array   $customFieldsKeyValue = []
     ): MpesaTransaction|null {
-
-        $balance = MpesaBalance::where('short_code', $this->clientCredential->shortcode)
-            ->orderBy('created_at', 'desc')
-            ->first();
-
-        $utility = (int) ($balance->utility_account ?? 0);
-
-        $charge = MpesaTransactionChargeService::getCharge($amount, MpesaTransactionChargeType::MOBILE);
-
-        $total = $amount + $charge;
-
-        if ($utility < $total) {
-            Log::error('Insufficient balance to process this transaction.', [
-                'short_code' => $this->clientCredential->shortcode,
-                'balance'    => $utility,
-                'required_amount' => $total,
-            ]);
-            return null;
-        }
 
         $originatorConversationID = (string) Str::uuid7();
 
