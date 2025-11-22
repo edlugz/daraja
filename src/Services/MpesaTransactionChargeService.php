@@ -25,6 +25,8 @@ class MpesaTransactionChargeService
     {
         $date = $date ? Carbon::parse($date) : now();
 
+        $amount = $amount * 100;
+
         $charge = MpesaTransactionCharge::query()
             ->where('type', $type->value)
             ->where('effective_date', '<=', $date)
