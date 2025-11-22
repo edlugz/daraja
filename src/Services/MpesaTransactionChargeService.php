@@ -15,13 +15,13 @@ class MpesaTransactionChargeService
     /**
      * Get applicable M-Pesa charge based on amount, type, and date.
      *
-     * @param int $amount
+     * @param int|float $amount
      * @param MpesaTransactionChargeType $type
      * @param string|null $date
      * @return int
      * @throws MpesaChargeException
      */
-    public static function getSingleTransactionCharge(int $amount, MpesaTransactionChargeType $type, ?string $date = null): int
+    public static function getSingleTransactionCharge(int|float $amount, MpesaTransactionChargeType $type, ?string $date = null): int
     {
         $date = $date ? Carbon::parse($date) : now();
 
