@@ -30,6 +30,7 @@ enum DisbursementResultCode: string
     case SECURITY_CREDENTIAL_LOCKED = '8006';
     case ID_TYPE_NOT_FOUND = 'R002';
     case ID_NUMBER_MISMATCH = 'R003';
+    case TRANSACTION_RECEIPT_NOT_FOUND = '2033';
 
     public function getCustomerMessage(): string
     {
@@ -59,6 +60,7 @@ enum DisbursementResultCode: string
             self::SECURITY_CREDENTIAL_LOCKED => "Your authentication credentials are locked. Contact support.",
             self::ID_TYPE_NOT_FOUND => "ID type not found for the customer.",
             self::ID_NUMBER_MISMATCH => "Invalid ID number provided.",
+            self ::TRANSACTION_RECEIPT_NOT_FOUND => "Transaction receipt not found.",
         };
     }
 
